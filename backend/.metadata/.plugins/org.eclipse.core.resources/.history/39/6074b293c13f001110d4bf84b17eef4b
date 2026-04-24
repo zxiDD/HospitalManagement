@@ -38,4 +38,3 @@ out/
 .metadata/
 application.properties
 .DS_Store
-.env
