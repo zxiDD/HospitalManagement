@@ -36,6 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 .metadata/
+backend/.metadata/
 application.properties
 .DS_Store
 .env
