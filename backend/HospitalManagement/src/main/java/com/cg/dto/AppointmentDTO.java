@@ -4,11 +4,11 @@ import java.time.LocalDateTime;
 
 public class AppointmentDTO {
 
-    private int appointmentID;
+    private Integer appointmentID;
 
-    private int patientId;
-    private int physicianId;
-    private int nurseId;
+    private Integer patientId;
+    private Integer physicianId;
+    private Integer nurseId;
 
     private LocalDateTime starto;
     private LocalDateTime endo;
@@ -16,72 +16,76 @@ public class AppointmentDTO {
 
     public AppointmentDTO() {
     }
+    
 
-    public AppointmentDTO(int appointmentID, int patientId, int physicianId, int nurseId,
-                          LocalDateTime starto, LocalDateTime endo, String examinationRoom) {
-        this.appointmentID = appointmentID;
-        this.patientId = patientId;
-        this.physicianId = physicianId;
-        this.nurseId = nurseId;
-        this.starto = starto;
-        this.endo = endo;
-        this.examinationRoom = examinationRoom;
-    }
+	public AppointmentDTO(Integer appointmentID, Integer patientId, Integer physicianId, Integer nurseId,
+			LocalDateTime starto, LocalDateTime endo, String examinationRoom) {
+		super();
+		this.appointmentID = appointmentID;
+		this.patientId = patientId;
+		this.physicianId = physicianId;
+		this.nurseId = nurseId;
+		this.starto = starto;
+		this.endo = endo;
+		this.examinationRoom = examinationRoom;
+	}
 
 
-    public int getAppointmentID() {
-        return appointmentID;
-    }
+	public Integer getAppointmentID() {
+		return appointmentID;
+	}
 
-    public void setAppointmentID(int appointmentID) {
-        this.appointmentID = appointmentID;
-    }
+	public void setAppointmentID(Integer appointmentID) {
+		this.appointmentID = appointmentID;
+	}
 
-    public int getPatientId() {
-        return patientId;
-    }
+	public Integer getPatientId() {
+		return patientId;
+	}
 
-    public void setPatientId(int patientId) {
-        this.patientId = patientId;
-    }
+	public void setPatientId(Integer patientId) {
+		this.patientId = patientId;
+	}
 
-    public int getPhysicianId() {
-        return physicianId;
-    }
+	public Integer getPhysicianId() {
+		return physicianId;
+	}
 
-    public void setPhysicianId(int physicianId) {
-        this.physicianId = physicianId;
-    }
+	public void setPhysicianId(Integer physicianId) {
+		this.physicianId = physicianId;
+	}
 
-    public int getNurseId() {
-        return nurseId;
-    }
+	public Integer getNurseId() {
+		return nurseId;
+	}
 
-    public void setNurseId(int nurseId) {
-        this.nurseId = nurseId;
-    }
+	public void setNurseId(Integer nurseId) {
+		this.nurseId = nurseId;
+	}
 
-    public LocalDateTime getStarto() {
-        return starto;
-    }
+	public LocalDateTime getStarto() {
+		return starto;
+	}
 
-    public void setStarto(LocalDateTime starto) {
-        this.starto = starto;
-    }
+	public void setStarto(LocalDateTime starto) {
+		this.starto = starto;
+	}
 
-    public LocalDateTime getEndo() {
-        return endo;
-    }
+	public LocalDateTime getEndo() {
+		return endo;
+	}
 
-    public void setEndo(LocalDateTime endo) {
-        this.endo = endo;
-    }
+	public void setEndo(LocalDateTime endo) {
+		this.endo = endo;
+	}
 
-    public String getExaminationRoom() {
-        return examinationRoom;
-    }
+	public String getExaminationRoom() {
+		return examinationRoom;
+	}
 
-    public void setExaminationRoom(String examinationRoom) {
-        this.examinationRoom = examinationRoom;
-    }
+	public void setExaminationRoom(String examinationRoom) {
+		this.examinationRoom = examinationRoom;
+	}
+
+
 }
