@@ -11,7 +11,7 @@ public interface StayService {
 
     Stay getById(Integer id);
 
-    List<Stay> getByPatientId(Integer patientId);
+    List<Stay> getByPatientSsn(Long ssn);
 
     List<Stay> getByRoomNumber(Integer roomNumber);
 
@@ -19,7 +19,7 @@ public interface StayService {
 
     List<Stay> getActiveStays();
 
-    List<Stay> getPatientStayHistory(Integer patientId);
+    List<Stay> getPatientStayHistory(Long ssn);
 
     boolean exists(Integer id);
 

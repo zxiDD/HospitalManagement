@@ -15,7 +15,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Integer>
     // Find department by name
     Optional<Department> findByName(String name);
 
-        List<Department> findByHeadEmployeeID(Integer headId);
+        List<Department> findByHeadEmployeeId(Integer headId);
 
         // sorting
         List<Department> findAllByOrderByNameAsc();
