@@ -11,7 +11,7 @@ public interface NurseService {
 
     Nurse getById(Integer id);
 
-    Page<Nurse> getAllPaged(int page, int size);
+//    Page<Nurse> getAllPaged(int page, int size);
 
     List<Nurse> getAllSorted();
 

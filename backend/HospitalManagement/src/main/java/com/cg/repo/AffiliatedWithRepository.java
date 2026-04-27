@@ -2,24 +2,22 @@ package com.cg.repo;
 
 import com.cg.entity.AffiliatedWith;
 import com.cg.entity.AffiliatedWithId;
-import com.cg.entity.Department;
-import com.cg.entity.Physician;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface AffiliatedWithRepository 
+public interface AffiliatedWithRepository
         extends JpaRepository<AffiliatedWith, AffiliatedWithId> {
 
-    // All affiliations of a physician
-    List<AffiliatedWith> findByPhysician(Physician physician);
+    List<AffiliatedWith> findByPhysicianEmployeeID(Integer physicianId);
 
-    // All physicians in a department
-    List<AffiliatedWith> findByDepartment(Department department);
+    List<AffiliatedWith> findByDepartmentDepartmentID(Integer departmentId);
 
-    // Only primary affiliations
     List<AffiliatedWith> findByPrimaryAffiliationTrue();
 
+    // ✅ ADD THIS
+    Optional<AffiliatedWith> findByPhysicianEmployeeIDAndPrimaryAffiliationTrue(Integer physicianId);
 }
