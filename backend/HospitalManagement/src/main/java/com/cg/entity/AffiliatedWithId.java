@@ -18,6 +18,16 @@ public class AffiliatedWithId implements Serializable {
 		return physicianId;
 	}
 
+	public AffiliatedWithId() {
+		super();
+	}
+
+	public AffiliatedWithId(Integer physicianId, Integer departmentId) {
+		super();
+		this.physicianId = physicianId;
+		this.departmentId = departmentId;
+	}
+
 	public void setPhysicianId(Integer physicianId) {
 		this.physicianId = physicianId;
 	}

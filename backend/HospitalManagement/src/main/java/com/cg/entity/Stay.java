@@ -19,7 +19,20 @@ public class Stay {
     @JoinColumn(name = "room", nullable = false)
     private Room room;
 
-    @Column(name = "staystart", nullable = false)
+    public Stay() {
+		super();
+	}
+
+	public Stay(Integer stayId, Patient patient, Room room, LocalDateTime stayStart, LocalDateTime stayEnd) {
+		super();
+		this.stayId = stayId;
+		this.patient = patient;
+		this.room = room;
+		this.stayStart = stayStart;
+		this.stayEnd = stayEnd;
+	}
+
+	@Column(name = "staystart", nullable = false)
     private LocalDateTime stayStart;
 
     @Column(name = "stayend", nullable = true)
