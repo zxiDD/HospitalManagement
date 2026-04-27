@@ -6,10 +6,20 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import java.util.Optional;
+
 @Repository
 public interface MedicationRepository extends JpaRepository<Medication, Integer> {
 
-    List<Medication> findByBrand(String brand);
-    Medication findByName(String name);
+    // Find by name (assuming unique or mostly unique)
+    Optional<Medication> findByName(String name);
 
+    // Find by brand
+    List<Medication> findByBrand(String brand);
+
+    // Find by name and brand (more precise search)
+    Optional<Medication> findByNameAndBrand(String name, String brand);
+
+    // Sorting
+    List<Medication> findAllByOrderByNameAsc();
 }
