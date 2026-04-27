@@ -1,7 +1,12 @@
 package com.cg.entity;
+
+import java.io.Serializable;
+
+import jakarta.persistence.Embeddable;
+
 @Embeddable
 public class TrainedInId implements Serializable {
 
-    private int physician;   // FK → Physician
-    private int treatment;   // FK → Procedures
+    private int physician;   
+    private int treatment;   
 }
