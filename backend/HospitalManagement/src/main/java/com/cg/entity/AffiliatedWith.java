@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 public class AffiliatedWith {
 	
 	    @EmbeddedId
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	    private AffiliatedWithId id;
 
 	    @ManyToOne
@@ -20,7 +19,20 @@ public class AffiliatedWith {
 	    @JoinColumn(name = "department")
 	    private Department department;
 
-	    @Column(name = "primaryaffiliation", nullable = false)
+	    public AffiliatedWith() {
+			super();
+		}
+
+		public AffiliatedWith(AffiliatedWithId id, Physician physician, Department department,
+				Boolean primaryAffiliation) {
+			super();
+			this.id = id;
+			this.physician = physician;
+			this.department = department;
+			this.primaryAffiliation = primaryAffiliation;
+		}
+
+		@Column(name = "primaryaffiliation", nullable = false)
 	    private Boolean primaryAffiliation;
 
 		public AffiliatedWithId getId() {
