@@ -27,8 +27,8 @@ public class StayServiceImpl implements StayService {
     }
 
     @Override
-    public List<Stay> getByPatientId(Integer patientId) {
-        return stayRepository.findByPatientSsn(patientId);
+    public List<Stay> getByPatientSsn(Long ssn) {
+        return stayRepository.findByPatientSsn(ssn);
     }
 
     @Override
@@ -47,8 +47,8 @@ public class StayServiceImpl implements StayService {
     }
 
     @Override
-    public List<Stay> getPatientStayHistory(Integer patientId) {
-        return stayRepository.findByPatientSsnOrderByStayStartDesc(patientId);
+    public List<Stay> getPatientStayHistory(Long ssn) {
+        return stayRepository.findByPatientSsnOrderByStayStartDesc(ssn);
     }
 
     @Override

@@ -2,8 +2,6 @@ package com.cg.repo;
 
 
 import com.cg.entity.Stay;
-//import com.cg.entity.Patient;
-//import com.cg.entity.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,7 +13,7 @@ import java.util.List;
 public interface StayRepository extends JpaRepository<Stay, Integer> {
 
     // By patient ID (preferred)
-    List<Stay> findByPatientSsn(Integer patientId);
+    List<Stay> findByPatientSsn(Long patientId);
 
     // By room ID (preferred)
     List<Stay> findByRoomRoomNumber(Integer roomNumber);
@@ -28,5 +26,5 @@ public interface StayRepository extends JpaRepository<Stay, Integer> {
     List<Stay> findActiveStays(LocalDateTime now);
 
     // Ordered stays
-    List<Stay> findByPatientSsnOrderByStayStartDesc(Integer patientId);
+    List<Stay> findByPatientSsnOrderByStayStartDesc(Long patientId);
 }
