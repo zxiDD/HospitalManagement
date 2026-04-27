@@ -2,8 +2,7 @@ package com.cg.service;
 
 import com.cg.entity.Nurse;
 import com.cg.repo.NurseRepository;
-import com.cg.service.NurseService;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,10 +23,6 @@ public class NurseServiceImpl implements NurseService {
     public Nurse getById(Integer id) {
         return repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Nurse not found"));
-    }
-
-    public Page<Nurse> getAllPaged(int page, int size) {
-        return repo.findAll(PageRequest.of(page, size));
     }
 
     public List<Nurse> getAllSorted() {
