@@ -14,4 +14,20 @@ public class AffiliatedWithId implements Serializable {
     @Column(name = "department")
     private Integer departmentId;
 
+	public Integer getPhysicianId() {
+		return physicianId;
+	}
+
+	public void setPhysicianId(Integer physicianId) {
+		this.physicianId = physicianId;
+	}
+
+	public Integer getDepartmentId() {
+		return departmentId;
+	}
+
+	public void setDepartmentId(Integer departmentId) {
+		this.departmentId = departmentId;
+	}
+
 }
