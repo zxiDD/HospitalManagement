@@ -22,7 +22,7 @@ public class Stay {
     @Column(name = "staystart", nullable = false)
     private LocalDateTime stayStart;
 
-    @Column(name = "stayend", nullable = false)
+    @Column(name = "stayend", nullable = true)
     private LocalDateTime stayEnd;
 
 	public Integer getStayId() {
