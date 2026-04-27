@@ -1,6 +1,7 @@
 package com.cg.service;
 
 import com.cg.entity.Patient;
+import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.PatientRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class PatientServiceImpl implements PatientService {
 
     public Patient getById(Long id) {
         return repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Patient not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
     }
 
     public List<Patient> getByName(String name) {
