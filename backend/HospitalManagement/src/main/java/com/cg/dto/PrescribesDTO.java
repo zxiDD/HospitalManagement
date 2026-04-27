@@ -1,0 +1,45 @@
+package com.cg.dto;
+
+import java.time.LocalDateTime;
+
+public class PrescribesDTO {
+
+    private Integer physicianId;
+    private Long patientSsn;
+    private Integer medicationId;
+    private LocalDateTime date;
+
+    private String dose;
+    private Integer appointmentId;
+
+    public PrescribesDTO() {}
+
+    public PrescribesDTO(Integer physicianId, Long patientSsn,
+                         Integer medicationId, LocalDateTime date,
+                         String dose, Integer appointmentId) {
+        this.physicianId = physicianId;
+        this.patientSsn = patientSsn;
+        this.medicationId = medicationId;
+        this.date = date;
+        this.dose = dose;
+        this.appointmentId = appointmentId;
+    }
+
+    public Integer getPhysicianId() { return physicianId; }
+    public void setPhysicianId(Integer physicianId) { this.physicianId = physicianId; }
+
+    public Long getPatientSsn() { return patientSsn; }
+    public void setPatientSsn(Long patientSsn) { this.patientSsn = patientSsn; }
+
+    public Integer getMedicationId() { return medicationId; }
+    public void setMedicationId(Integer medicationId) { this.medicationId = medicationId; }
+
+    public LocalDateTime getDate() { return date; }
+    public void setDate(LocalDateTime date) { this.date = date; }
+
+    public String getDose() { return dose; }
+    public void setDose(String dose) { this.dose = dose; }
+
+    public Integer getAppointmentId() { return appointmentId; }
+    public void setAppointmentId(Integer appointmentId) { this.appointmentId = appointmentId; }
+}
