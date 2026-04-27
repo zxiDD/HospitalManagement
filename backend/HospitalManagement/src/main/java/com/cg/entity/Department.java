@@ -18,6 +18,17 @@ public class Department {
     @JoinColumn(name = "head", nullable = false)
     private Physician head;
 
+	public Department(Integer departmentId, String name, Physician head) {
+		super();
+		this.departmentId = departmentId;
+		this.name = name;
+		this.head = head;
+	}
+
+	public Department() {
+		super();
+	}
+
 	public Integer getDepartmentId() {
 		return departmentId;
 	}
