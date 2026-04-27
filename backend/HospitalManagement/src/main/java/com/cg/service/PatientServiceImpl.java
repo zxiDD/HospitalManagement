@@ -2,8 +2,7 @@ package com.cg.service;
 
 import com.cg.entity.Patient;
 import com.cg.repo.PatientRepository;
-import com.cg.service.PatientService;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,10 +31,6 @@ public class PatientServiceImpl implements PatientService {
 
     public List<Patient> getByNameAndAddress(String name, String address) {
         return repo.findByNameAndAddress(name, address);
-    }
-
-    public Page<Patient> getAllPaged(int page, int size) {
-        return repo.findAll(PageRequest.of(page, size));
     }
 
     public List<Patient> getAllSorted() {
