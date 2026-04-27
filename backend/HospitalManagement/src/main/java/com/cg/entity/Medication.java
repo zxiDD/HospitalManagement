@@ -20,6 +20,18 @@ public class Medication {
 	    @Column(name = "description", nullable = false, length = 30)
 	    private String description;
 
+		public Medication() {
+			super();
+		}
+
+		public Medication(Integer code, String name, String brand, String description) {
+			super();
+			this.code = code;
+			this.name = name;
+			this.brand = brand;
+			this.description = description;
+		}
+
 		public Integer getCode() {
 			return code;
 		}
