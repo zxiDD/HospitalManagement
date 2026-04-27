@@ -23,5 +23,37 @@ public class AffiliatedWith {
 	    @Column(name = "primaryaffiliation", nullable = false)
 	    private Boolean primaryAffiliation;
 
+		public AffiliatedWithId getId() {
+			return id;
+		}
+
+		public void setId(AffiliatedWithId id) {
+			this.id = id;
+		}
+
+		public Physician getPhysician() {
+			return physician;
+		}
+
+		public void setPhysician(Physician physician) {
+			this.physician = physician;
+		}
+
+		public Department getDepartment() {
+			return department;
+		}
+
+		public void setDepartment(Department department) {
+			this.department = department;
+		}
+
+		public Boolean getPrimaryAffiliation() {
+			return primaryAffiliation;
+		}
+
+		public void setPrimaryAffiliation(Boolean primaryAffiliation) {
+			this.primaryAffiliation = primaryAffiliation;
+		}
+
 	
 }
