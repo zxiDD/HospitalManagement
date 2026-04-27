@@ -11,7 +11,7 @@ public class Department {
     @Column(name = "departmentid")
     private Integer departmentId;
 
-    @Column(name = "name", nullable = false, length = 30)
+    @Column(name = "name", nullable = false, length = 30,unique=true)
     private String name;
 
     @ManyToOne

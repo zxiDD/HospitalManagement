@@ -7,14 +7,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DepartmentRepository extends JpaRepository<Department, Integer> {
 
     // Find department by name
-    Department findByName(String name);
+    Optional<Department> findByName(String name);
 
-    // Find all departments headed by a specific physician
-    List<Department> findByHead(Physician head);
+        List<Department> findByHeadEmployeeID(Integer headId);
 
-}
+        // sorting
+        List<Department> findAllByOrderByNameAsc();
+
+    }
+
