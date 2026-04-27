@@ -3,8 +3,8 @@ package com.cg.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Physician")
-public class Physician {
+@Table(name = "Nurse")
+public class Nurse {
 
     @Id
     @Column(name = "EmployeeID")
@@ -16,16 +16,20 @@ public class Physician {
     @Column(name = "Position", nullable = false)
     private String position;
 
+    @Column(name = "Registered", nullable = false)
+    private Boolean registered;
+
     @Column(name = "SSN", nullable = false)
     private Long ssn;
 
     // Constructors
-    public Physician() {}
+    public Nurse() {}
 
-    public Physician(Integer employeeId, String name, String position, Long ssn) {
+    public Nurse(Integer employeeId, String name, String position, Boolean registered, Long ssn) {
         this.employeeId = employeeId;
         this.name = name;
         this.position = position;
+        this.registered = registered;
         this.ssn = ssn;
     }
 
@@ -52,6 +56,14 @@ public class Physician {
 
     public void setPosition(String position) {
         this.position = position;
+    }
+
+    public Boolean getRegistered() {
+        return registered;
+    }
+
+    public void setRegistered(Boolean registered) {
+        this.registered = registered;
     }
 
     public Long getSsn() {
