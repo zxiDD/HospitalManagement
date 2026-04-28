@@ -1,6 +1,6 @@
 package com.cg.service;
 
-import com.cg.entity.AffiliatedWith;
+import com.cg.dto.AffiliatedWithDTO;
 import com.cg.entity.AffiliatedWithId;
 import com.cg.entity.Department;
 
@@ -8,15 +8,15 @@ import java.util.List;
 
 public interface AffiliatedWithService {
 
-    List<AffiliatedWith> getAll();
+    List<AffiliatedWithDTO> getAll();
 
-    AffiliatedWith getById(AffiliatedWithId id);
+    AffiliatedWithDTO getById(AffiliatedWithId id);
 
-    List<AffiliatedWith> getByPhysicianId(Integer physicianId);
+    List<AffiliatedWithDTO> getByPhysicianId(Integer physicianId);
 
-    List<AffiliatedWith> getByDepartmentId(Integer departmentId);
+    List<AffiliatedWithDTO> getByDepartmentId(Integer departmentId);
 
-    List<AffiliatedWith> getPrimaryAffiliations();
+    List<AffiliatedWithDTO> getPrimaryAffiliations();
 
     Department getPrimaryDepartment(Integer physicianId);
 
