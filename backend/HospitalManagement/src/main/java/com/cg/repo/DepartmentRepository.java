@@ -18,7 +18,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Integer>
         List<Department> findByHead_EmployeeId(Integer headId);
 
         // sorting
-        List<Department> findAllByOrderByNameAsc();
+        List<Department> findAllByOrderByDepartmentIdAsc();
 
     }
 
