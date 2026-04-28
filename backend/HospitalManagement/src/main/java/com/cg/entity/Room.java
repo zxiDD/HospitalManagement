@@ -7,20 +7,19 @@ import jakarta.persistence.*;
 public class Room {
 
     @Id
-    @Column(name = "RoomNumber")
+    @Column(name = "roomnumber")
     private Integer roomNumber;
 
-    @Column(name = "RoomType", nullable = false, length = 255)
+    @Column(name = "roomtype", nullable = false, length = 255)
     private String roomType;
 
     @Column(name = "Unavailable", nullable = false)
     private Boolean unavailable;
 
-    // Many rooms can belong to one block/floor
     @ManyToOne
     @JoinColumns({
-        @JoinColumn(name = "BlockFloor", referencedColumnName = "BlockFloor"),
-        @JoinColumn(name = "BlockCode", referencedColumnName = "BlockCode")
+        @JoinColumn(name = "blockfloor", referencedColumnName = "blockfloor"),
+        @JoinColumn(name = "blockcode", referencedColumnName = "blockcode")
     })
     private Block block;
 

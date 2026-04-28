@@ -11,13 +11,13 @@ import jakarta.persistence.Table;
 @Table(name = "Procedures")
 public class Procedures {
 	 @Id
-	    @Column(name = "Code")
+	    @Column(name = "code")
 	    private Integer code;
 
-	    @Column(name = "Name", nullable = false, length = 255)
+	    @Column(name = "name", nullable = false, length = 255)
 	    private String name;
 
-	    @Column(name = "Cost", nullable = false, precision = 10, scale = 2)
+	    @Column(name = "cost", nullable = false, precision = 10, scale = 2)
 	    private BigDecimal cost;
 
 	    // Constructors

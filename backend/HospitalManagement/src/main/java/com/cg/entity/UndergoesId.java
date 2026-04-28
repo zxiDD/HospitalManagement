@@ -17,7 +17,7 @@ public class UndergoesId implements Serializable {
 	@Column(name = "stay")
 	private Integer stay;
 
-	@Column(name = "date_undergoes")
+	@Column(name = "dateundergoes")
 	private LocalDateTime dateUndergoes;
 
 	public UndergoesId() {

@@ -13,10 +13,10 @@ import java.util.List;
 public interface StayRepository extends JpaRepository<Stay, Integer> {
 
     // By patient ID (preferred)
-    List<Stay> findByPatientSsn(Long patientId);
+    List<Stay> findByPatient_Ssn(Long patientId);
 
     // By room ID (preferred)
-    List<Stay> findByRoomRoomNumber(Integer roomNumber);
+    List<Stay> findByRoom_RoomNumber(Integer roomNumber);
 
     // Stays after a date
     List<Stay> findByStayStartAfter(LocalDateTime date);

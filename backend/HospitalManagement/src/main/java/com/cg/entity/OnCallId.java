@@ -9,10 +9,10 @@ public class OnCallId implements Serializable {
     @Column(name = "nurse")
     private Integer nurse;
 
-    @Column(name = "blockFloor")
+    @Column(name = "blockfloor")
     private Integer blockFloor;
 
-    @Column(name = "blockCode")
+    @Column(name = "blockcode")
     private Integer blockCode;
 
     public OnCallId() {

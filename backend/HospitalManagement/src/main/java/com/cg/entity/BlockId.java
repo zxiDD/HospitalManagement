@@ -7,10 +7,10 @@ import java.util.Objects;
 @Embeddable
 public class BlockId implements Serializable {
 
-    @Column(name = "BlockFloor")
+    @Column(name = "blockfloor")
     private Integer blockFloor;
 
-    @Column(name = "BlockCode")
+    @Column(name = "blockcode")
     private Integer blockCode;
 
     public BlockId() {
