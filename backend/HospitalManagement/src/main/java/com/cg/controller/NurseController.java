@@ -1,10 +1,12 @@
 package com.cg.controller;
 
+import com.cg.dto.NurseDTO;
 import com.cg.entity.Nurse;
 import com.cg.service.NurseService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/nurses")
@@ -16,19 +18,34 @@ public class NurseController {
         this.service = service;
     }
 
+    private NurseDTO mapToDTO(Nurse n) {
+        return new NurseDTO(
+                n.getEmployeeId(),
+                n.getName(),
+                n.getPosition(),
+                n.getRegistered()
+        );
+    }
+
     @GetMapping
-    public List<Nurse> getAll() {
-        return service.getAll();
+    public List<NurseDTO> getAll() {
+        return service.getAll()
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{employeeId}")
-    public Nurse getById(@PathVariable Integer employeeId) {
-        return service.getById(employeeId);
+    public NurseDTO getById(@PathVariable Integer employeeId) {
+        return mapToDTO(service.getById(employeeId));
     }
-
+    
     @GetMapping("/sorted")
-    public List<Nurse> getAllSorted() {
-        return service.getAllSorted();
+    public List<NurseDTO> getAllSorted() {
+        return service.getAllSorted()
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/count")
