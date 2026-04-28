@@ -30,12 +30,12 @@ public class AffiliatedWithServiceImpl implements AffiliatedWithService {
 
     @Override
     public List<AffiliatedWith> getByPhysicianId(Integer physicianId) {
-        return affiliatedWithRepository.findByPhysicianEmployeeId(physicianId);
+        return affiliatedWithRepository.findByPhysician_EmployeeId(physicianId);
     }
 
     @Override
     public List<AffiliatedWith> getByDepartmentId(Integer departmentId) {
-        return affiliatedWithRepository.findByDepartmentDepartmentId(departmentId);
+        return affiliatedWithRepository.findByDepartment_DepartmentId(departmentId);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class AffiliatedWithServiceImpl implements AffiliatedWithService {
     @Override
     public Department getPrimaryDepartment(Integer physicianId) {
         return affiliatedWithRepository
-                .findByPhysicianEmployeeIdAndPrimaryAffiliationTrue(physicianId)
+                .findByPhysician_EmployeeIdAndPrimaryAffiliationTrue(physicianId)
                 .orElseThrow(() -> new RuntimeException("Primary affiliation not found"))
                 .getDepartment();
     }

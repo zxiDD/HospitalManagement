@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.cg.entity.Room;
 import com.cg.repo.RoomRepository;
 
+@Service
 public class RoomServiceImpl implements RoomService {
 
 	@Autowired

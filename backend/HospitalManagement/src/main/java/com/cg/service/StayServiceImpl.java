@@ -28,12 +28,12 @@ public class StayServiceImpl implements StayService {
 
     @Override
     public List<Stay> getByPatientSsn(Long ssn) {
-        return stayRepository.findByPatientSsn(ssn);
+        return stayRepository.findByPatient_Ssn(ssn);
     }
 
     @Override
     public List<Stay> getByRoomNumber(Integer roomNumber) {
-        return stayRepository.findByRoomRoomNumber(roomNumber);
+        return stayRepository.findByRoom_RoomNumber(roomNumber);
     }
 
     @Override

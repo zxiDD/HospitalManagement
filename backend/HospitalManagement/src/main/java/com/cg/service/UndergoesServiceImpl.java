@@ -25,7 +25,7 @@ public class UndergoesServiceImpl implements UndergoesService {
 	}
 
 	@Override
-	public List<Undergoes> getUndergoesByPatient(Integer patientId) {
+	public List<Undergoes> getUndergoesByPatient(Long patientId) {
 		return undergoesRepository.findByPatient_Ssn(patientId);
 	}
 
@@ -41,12 +41,12 @@ public class UndergoesServiceImpl implements UndergoesService {
 
 	@Override
 	public List<Undergoes> getUndergoesByPhysician(Integer physicianId) {
-		return undergoesRepository.findByPhysician_EmployeeID(physicianId);
+		return undergoesRepository.findByPhysician_EmployeeId(physicianId);
 	}
 
 	@Override
 	public List<Undergoes> getUndergoesByAssistingNurse(Integer nurseId) {
-		return undergoesRepository.findByAssistingNurse_EmployeeID(nurseId);
+		return undergoesRepository.findByAssistingNurse_EmployeeId(nurseId);
 	}
 
 	@Override
