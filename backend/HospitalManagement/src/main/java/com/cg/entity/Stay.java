@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public class Stay {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "stayid")
     private Integer stayId;
 

@@ -21,6 +21,11 @@ public class StayController {
         return stayService.getAll();
     }
 
+    @PostMapping
+    public StayDTO createStay(@RequestBody StayDTO dto) {
+        return stayService.create(dto);
+    }
+    
     @GetMapping("/{id}")
     public StayDTO getById(@PathVariable Integer id) {
         return stayService.getById(id);
