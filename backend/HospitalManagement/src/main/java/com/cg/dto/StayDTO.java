@@ -6,16 +6,16 @@ public class StayDTO {
 
     private Integer stayId;
 
-    private Long patientSsn;        // from Patient
-    private String patientName;     // optional (useful for UI)
+    private Long patientSsn;     
+    private String patientName;  
 
-    private Integer roomNumber;     // from Room
-    private String roomType;        // optional
+    private Integer roomNumber;    
+    private String roomType;        
 
     private LocalDateTime stayStart;
     private LocalDateTime stayEnd;
 
-    // Constructors
+
     public StayDTO() {}
 
     public StayDTO(Integer stayId, Long patientSsn, String patientName,

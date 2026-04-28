@@ -16,7 +16,6 @@ public class UndergoesDTO {
 
 	private Integer assistingNurseId;
 
-	// Default constructor
 	public UndergoesDTO() {
 	}
 
