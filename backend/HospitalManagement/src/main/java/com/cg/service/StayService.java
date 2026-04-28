@@ -1,25 +1,24 @@
 package com.cg.service;
 
-
-import com.cg.entity.Stay;
+import com.cg.dto.StayDTO;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface StayService {
 
-    List<Stay> getAll();
+    List<StayDTO> getAll();
 
-    Stay getById(Integer id);
+    StayDTO getById(Integer id);
 
-    List<Stay> getByPatientSsn(Long ssn);
+    List<StayDTO> getByPatientSsn(Long ssn);
 
-    List<Stay> getByRoomNumber(Integer roomNumber);
+    List<StayDTO> getByRoomNumber(Integer roomNumber);
 
-    List<Stay> getStaysAfter(LocalDateTime date);
+    List<StayDTO> getStaysAfter(LocalDateTime date);
 
-    List<Stay> getActiveStays();
+    List<StayDTO> getActiveStays();
 
-    List<Stay> getPatientStayHistory(Long ssn);
+    List<StayDTO> getPatientStayHistory(Long ssn);
 
     boolean exists(Integer id);
 

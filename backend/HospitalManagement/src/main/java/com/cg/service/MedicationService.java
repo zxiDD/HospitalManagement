@@ -1,22 +1,21 @@
 package com.cg.service;
 
-
-import com.cg.entity.Medication;
+import com.cg.dto.MedicationDTO;
 import java.util.List;
 
 public interface MedicationService {
 
-    List<Medication> getAll();
+    List<MedicationDTO> getAll();
 
-    Medication getById(Integer code);
+    MedicationDTO getById(Integer code);
 
-    Medication getByName(String name);
+    MedicationDTO getByName(String name);
 
-    List<Medication> getByBrand(String brand);
+    List<MedicationDTO> getByBrand(String brand);
 
-    Medication getByNameAndBrand(String name, String brand);
+    MedicationDTO getByNameAndBrand(String name, String brand);
 
-    List<Medication> getAllSorted();
+    List<MedicationDTO> getAllSorted();
 
     boolean exists(Integer code);
 

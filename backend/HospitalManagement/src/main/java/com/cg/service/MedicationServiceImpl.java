@@ -1,51 +1,110 @@
 package com.cg.service;
 
+import com.cg.dto.MedicationDTO;
 import com.cg.entity.Medication;
 import com.cg.repo.MedicationRepository;
-import com.cg.service.MedicationService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class MedicationServiceImpl implements MedicationService {
-	@Autowired
+
+    @Autowired
     private MedicationRepository medicationRepository;
 
     @Override
-    public List<Medication> getAll() {
-        return medicationRepository.findAll();
+    public List<MedicationDTO> getAll() {
+        List<Medication> meds = medicationRepository.findAll();
+        List<MedicationDTO> dtoList = new ArrayList<>();
+
+        for (Medication m : meds) {
+            dtoList.add(new MedicationDTO(
+                    m.getCode(),
+                    m.getName(),
+                    m.getBrand(),
+                    m.getDescription()
+            ));
+        }
+
+        return dtoList;
     }
 
     @Override
-    public Medication getById(Integer code) {
-        return medicationRepository.findById(code)
+    public MedicationDTO getById(Integer code) {
+        Medication m = medicationRepository.findById(code)
                 .orElseThrow(() -> new RuntimeException("Medication not found with code: " + code));
+
+        return new MedicationDTO(
+                m.getCode(),
+                m.getName(),
+                m.getBrand(),
+                m.getDescription()
+        );
     }
 
     @Override
-    public Medication getByName(String name) {
-        return medicationRepository.findByName(name)
+    public MedicationDTO getByName(String name) {
+        Medication m = medicationRepository.findByName(name)
                 .orElseThrow(() -> new RuntimeException("Medication not found with name: " + name));
+
+        return new MedicationDTO(
+                m.getCode(),
+                m.getName(),
+                m.getBrand(),
+                m.getDescription()
+        );
     }
 
     @Override
-    public List<Medication> getByBrand(String brand) {
-        return medicationRepository.findByBrand(brand);
+    public List<MedicationDTO> getByBrand(String brand) {
+        List<Medication> meds = medicationRepository.findByBrand(brand);
+        List<MedicationDTO> dtoList = new ArrayList<>();
+
+        for (Medication m : meds) {
+            dtoList.add(new MedicationDTO(
+                    m.getCode(),
+                    m.getName(),
+                    m.getBrand(),
+                    m.getDescription()
+            ));
+        }
+
+        return dtoList;
     }
 
     @Override
-    public Medication getByNameAndBrand(String name, String brand) {
-        return medicationRepository.findByNameAndBrand(name, brand)
+    public MedicationDTO getByNameAndBrand(String name, String brand) {
+        Medication m = medicationRepository.findByNameAndBrand(name, brand)
                 .orElseThrow(() -> new RuntimeException(
                         "Medication not found with name: " + name + " and brand: " + brand));
+
+        return new MedicationDTO(
+                m.getCode(),
+                m.getName(),
+                m.getBrand(),
+                m.getDescription()
+        );
     }
 
     @Override
-    public List<Medication> getAllSorted() {
-        return medicationRepository.findAllByOrderByNameAsc();
+    public List<MedicationDTO> getAllSorted() {
+        List<Medication> meds = medicationRepository.findAllByOrderByNameAsc();
+        List<MedicationDTO> dtoList = new ArrayList<>();
+
+        for (Medication m : meds) {
+            dtoList.add(new MedicationDTO(
+                    m.getCode(),
+                    m.getName(),
+                    m.getBrand(),
+                    m.getDescription()
+            ));
+        }
+
+        return dtoList;
     }
 
     @Override
