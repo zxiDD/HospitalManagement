@@ -11,7 +11,7 @@ public interface PrescribesService {
     List<Prescribes> getAll();
 
     Prescribes getById(PrescribesId id);
-
+    
     Page<Prescribes> getAllPaged(int page, int size);
 
     long count();
