@@ -92,7 +92,7 @@ public class MedicationServiceImpl implements MedicationService {
 
     @Override
     public List<MedicationDTO> getAllSorted() {
-        List<Medication> meds = medicationRepository.findAllByOrderByNameAsc();
+        List<Medication> meds = medicationRepository.findAllByOrderByCodeAsc();
         List<MedicationDTO> dtoList = new ArrayList<>();
 
         for (Medication m : meds) {

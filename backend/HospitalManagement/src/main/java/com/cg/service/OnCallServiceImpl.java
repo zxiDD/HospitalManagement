@@ -34,5 +34,10 @@ public class OnCallServiceImpl implements OnCallService {
     public List<OnCall> getByBlockCode(String blockCode) {
         return repository.findById_BlockCode(blockCode);
     }
+    
+    @Override
+    public OnCall save(OnCall o) {
+        return repository.save(o);
+    }
 
 }

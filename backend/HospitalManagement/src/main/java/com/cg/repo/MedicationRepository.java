@@ -21,5 +21,5 @@ public interface MedicationRepository extends JpaRepository<Medication, Integer>
     Optional<Medication> findByNameAndBrand(String name, String brand);
 
     // Sorting
-    List<Medication> findAllByOrderByNameAsc();
+    List<Medication> findAllByOrderByCodeAsc();
 }
