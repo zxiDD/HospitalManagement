@@ -3,6 +3,8 @@ package com.cg.controller;
 import com.cg.dto.NurseDTO;
 import com.cg.entity.Nurse;
 import com.cg.service.NurseService;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,7 +19,7 @@ public class NurseController {
     public NurseController(NurseService service) {
         this.service = service;
     }
-
+    
     private NurseDTO mapToDTO(Nurse n) {
         return new NurseDTO(
                 n.getEmployeeId(),
@@ -28,33 +30,56 @@ public class NurseController {
     }
 
     @GetMapping
-    public List<NurseDTO> getAll() {
-        return service.getAll()
+    public ResponseEntity<List<NurseDTO>> getAll() {
+        List<NurseDTO> list = service.getAll()
                 .stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+
+        return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/{employeeId}")
-    public NurseDTO getById(@PathVariable Integer employeeId) {
-        return mapToDTO(service.getById(employeeId));
+    @GetMapping("/id/{employeeId}")
+    public ResponseEntity<NurseDTO> getById(@PathVariable Integer employeeId) {
+        Nurse nurse = service.getById(employeeId);
+        return ResponseEntity.ok(mapToDTO(nurse));
     }
-    
+
     @GetMapping("/sorted")
-    public List<NurseDTO> getAllSorted() {
-        return service.getAllSorted()
+    public ResponseEntity<List<NurseDTO>> getAllSorted() {
+        List<NurseDTO> list = service.getAllSorted()
                 .stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+
+        return ResponseEntity.ok(list);
     }
 
     @GetMapping("/count")
-    public long count() {
-        return service.count();
+    public ResponseEntity<Long> count() {
+        return ResponseEntity.ok(service.count());
     }
 
     @GetMapping("/exists/{employeeId}")
-    public boolean exists(@PathVariable Integer employeeId) {
-        return service.exists(employeeId);
+    public ResponseEntity<Boolean> exists(@PathVariable Integer employeeId) {
+        return ResponseEntity.ok(service.exists(employeeId));
+    }
+
+    @PostMapping
+    public ResponseEntity<NurseDTO> create(@RequestBody NurseDTO dto) {
+
+        if (dto.getEmployeeId() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Nurse n = new Nurse();
+        n.setEmployeeId(dto.getEmployeeId());
+        n.setName(dto.getName());
+        n.setPosition(dto.getPosition());
+        n.setRegistered(dto.getRegistered());
+
+        Nurse saved = service.save(n);
+
+        return ResponseEntity.status(201).body(mapToDTO(saved));
     }
 }

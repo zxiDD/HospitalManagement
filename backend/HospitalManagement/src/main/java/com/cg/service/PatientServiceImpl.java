@@ -16,6 +16,7 @@ public class PatientServiceImpl implements PatientService {
     public PatientServiceImpl(PatientRepository repo) {
         this.repo = repo;
     }
+    
 
     public List<Patient> getAll() {
         return repo.findAll();
@@ -44,5 +45,10 @@ public class PatientServiceImpl implements PatientService {
 
     public long count() {
         return repo.count();
+    }
+    
+    @Override
+    public Patient save(Patient patient) {
+        return repo.save(patient);
     }
 }
