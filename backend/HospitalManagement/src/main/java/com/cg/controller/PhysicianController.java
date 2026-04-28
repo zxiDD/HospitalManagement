@@ -24,7 +24,8 @@ public class PhysicianController {
         return new PhysicianDTO(
                 p.getEmployeeId(),
                 p.getName(),
-                p.getPosition()
+                p.getPosition(),
+                p.getSsn()
         );
     }
 
@@ -75,6 +76,7 @@ public class PhysicianController {
         p.setEmployeeId(dto.getEmployeeId());
         p.setName(dto.getName());
         p.setPosition(dto.getPosition());
+        p.setSsn(dto.getSsn());
 
         Physician saved = service.save(p);
 
