@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class UndergoesDTO {
 
-	private Integer patientId;
+	private Long patientId;
 
 	private Integer procedureCode;
 
@@ -19,7 +19,8 @@ public class UndergoesDTO {
 	public UndergoesDTO() {
 	}
 
-	public UndergoesDTO(Integer patientId, Integer procedureCode, Integer stayId, LocalDateTime dateUndergoes,
+	// Parameterized constructor
+	public UndergoesDTO(Long patientId, Integer procedureCode, Integer stayId, LocalDateTime dateUndergoes,
 			Integer physicianId, Integer assistingNurseId) {
 		this.patientId = patientId;
 		this.procedureCode = procedureCode;
@@ -29,11 +30,12 @@ public class UndergoesDTO {
 		this.assistingNurseId = assistingNurseId;
 	}
 
-	public Integer getPatientId() {
+	// Getters and Setters
+	public Long getPatientId() {
 		return patientId;
 	}
 
-	public void setPatientId(Integer patientId) {
+	public void setPatientId(Long patientId) {
 		this.patientId = patientId;
 	}
 
