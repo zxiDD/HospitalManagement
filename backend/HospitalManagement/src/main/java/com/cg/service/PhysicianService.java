@@ -16,6 +16,8 @@ public interface PhysicianService {
     List<Physician> getAllSorted();
 
     boolean exists(Integer id);
+    
+    Physician save(Physician physician);
 
     long count();
 }

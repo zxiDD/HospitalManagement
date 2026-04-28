@@ -38,4 +38,9 @@ public class PrescribesServiceImpl implements PrescribesService {
     public long count() {
         return repo.count();
     }
+    
+    @Override
+    public Prescribes save(Prescribes prescribes) {
+        return repo.save(prescribes);
+    }
 }
