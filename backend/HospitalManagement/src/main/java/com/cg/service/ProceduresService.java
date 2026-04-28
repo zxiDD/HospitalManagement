@@ -28,4 +28,6 @@ public interface ProceduresService {
 
 	// Get procedures within cost range
 	public List<Procedures> getProceduresByCostBetween(BigDecimal minCost, BigDecimal maxCost);
+	
+	public Procedures saveProcedures(Procedures procedures);
 }
