@@ -4,7 +4,7 @@ import com.cg.entity.Prescribes;
 import com.cg.entity.PrescribesId;
 import com.cg.repo.PrescribesRepository;
 import com.cg.service.PrescribesService;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,19 +18,23 @@ public class PrescribesServiceImpl implements PrescribesService {
         this.repo = repo;
     }
 
+    @Override
     public List<Prescribes> getAll() {
         return repo.findAll();
     }
 
+    @Override
     public Prescribes getById(PrescribesId id) {
         return repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Record not found"));
     }
 
-    public Page<Prescribes> getAllPaged(int page, int size) {
-        return repo.findAll(PageRequest.of(page, size));
+    @Override
+    public List<Prescribes> getAllSorted() {
+        return repo.findAll(Sort.by("date")); // sort by date
     }
 
+    @Override
     public long count() {
         return repo.count();
     }

@@ -12,7 +12,7 @@ public interface PrescribesService {
 
     Prescribes getById(PrescribesId id);
     
-    Page<Prescribes> getAllPaged(int page, int size);
+    List<Prescribes> getAllSorted();
 
     long count();
 }
