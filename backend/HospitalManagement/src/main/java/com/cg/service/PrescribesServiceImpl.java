@@ -31,7 +31,7 @@ public class PrescribesServiceImpl implements PrescribesService {
 
     @Override
     public List<Prescribes> getAllSorted() {
-        return repo.findAll(Sort.by("date")); // sort by date
+        return repo.findAll(Sort.by("id.date")); // sort by date
     }
 
     @Override

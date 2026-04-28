@@ -76,7 +76,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public List<DepartmentDTO> getAllSorted() {
-        List<Department> departments = departmentRepository.findAllByOrderByNameAsc();
+        List<Department> departments = departmentRepository.findAllByOrderByDepartmentIdAsc();
         List<DepartmentDTO> dtoList = new ArrayList<>();
 
         for (Department d : departments) {
