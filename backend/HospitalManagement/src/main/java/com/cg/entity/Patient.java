@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 public class Patient {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ssn")
     private Long ssn;
 
