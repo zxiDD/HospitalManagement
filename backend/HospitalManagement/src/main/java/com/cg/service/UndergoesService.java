@@ -34,4 +34,6 @@ public interface UndergoesService {
 
 	// Get records between date range
 	public List<Undergoes> getUndergoesBetweenDates(LocalDateTime startDate, LocalDateTime endDate);
+
+	public Undergoes saveUndergoes(Undergoes undergoes);
 }
