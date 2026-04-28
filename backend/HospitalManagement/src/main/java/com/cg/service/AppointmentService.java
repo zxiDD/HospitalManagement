@@ -7,13 +7,13 @@ public interface AppointmentService {
 
     List<Appointment> getAllAppointments();
 
-    Appointment getAppointmentById(int id);
+    Appointment getAppointmentById(Integer id);
 
-    List<Appointment> getByPatientId(int patientId);
+    List<Appointment> getByPatientId(Long patientId);
 
-    List<Appointment> getByPhysicianId(int physicianId);
+    List<Appointment> getByPhysicianId(Integer physicianId);
 
-    List<Appointment> getByNurseId(int nurseId);
+    List<Appointment> getByNurseId(Integer nurseId);
 
     List<Appointment> getByRoom(String room);
 }

@@ -11,7 +11,7 @@ public interface OnCallService {
 
     OnCall getById(OnCallId id);
 
-    List<OnCall> getByNurseId(Long nurseId);
+    List<OnCall> getByNurseId(Integer nurseId);
 
     List<OnCall> getByBlockCode(String blockCode);
 }

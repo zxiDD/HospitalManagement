@@ -7,16 +7,16 @@ import jakarta.persistence.*;
 public class Physician {
 
     @Id
-    @Column(name = "EmployeeID")
+    @Column(name = "employeeid")
     private Integer employeeId;
 
-    @Column(name = "Name", nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "Position", nullable = false)
+    @Column(name = "position", nullable = false)
     private String position;
 
-    @Column(name = "SSN", nullable = false)
+    @Column(name = "ssn", nullable = false)
     private Long ssn;
 
     // Constructors

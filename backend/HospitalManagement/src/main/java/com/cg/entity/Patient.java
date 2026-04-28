@@ -7,24 +7,24 @@ import jakarta.persistence.*;
 public class Patient {
 
     @Id
-    @Column(name = "SSN")
+    @Column(name = "ssn")
     private Long ssn;
 
-    @Column(name = "Name", nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "Address", nullable = false)
+    @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "Phone", nullable = false)
+    @Column(name = "phone", nullable = false)
     private String phone;
 
-    @Column(name = "InsuranceID", nullable = false)
+    @Column(name = "insuranceid", nullable = false)
     private Integer insuranceId;
 
     // Relationship
     @ManyToOne
-    @JoinColumn(name = "PCP", nullable = false)
+    @JoinColumn(name = "pcp", nullable = false)
     private Physician physician;
 
     // Constructors

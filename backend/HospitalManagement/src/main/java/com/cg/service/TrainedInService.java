@@ -11,7 +11,7 @@ public interface TrainedInService {
 
     TrainedIn getById(TrainedInId id);
 
-    List<TrainedIn> getByPhysicianId(Long physicianId);
+    List<TrainedIn> getByPhysicianId(Integer physicianId);
 
-    List<TrainedIn> getByTreatmentId(Long treatmentId);
+    List<TrainedIn> getByTreatmentId(Integer treatmentId);
 }

@@ -9,11 +9,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
 
     // based on relationships
 
-    List<Appointment> findByPatient_PatientId(int patientId);
+    List<Appointment> findByPatient_Ssn(Long patientId);
 
-    List<Appointment> findByPhysician_PhysicianId(int physicianId);
+    List<Appointment> findByPhysician_EmployeeId(Integer physicianId);
 
-    List<Appointment> findByPrepNurse_NurseId(int nurseId);
+    List<Appointment> findByPrepNurse_EmployeeId(Integer nurseId);
 
     // based on fields
 

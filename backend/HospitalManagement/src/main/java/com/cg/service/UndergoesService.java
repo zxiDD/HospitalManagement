@@ -15,7 +15,7 @@ public interface UndergoesService {
 	public Optional<Undergoes> getUndergoesById(UndergoesId id);
 
 	// Get all procedures undergone by a patient
-	public List<Undergoes> getUndergoesByPatient(Integer patientId);
+	public List<Undergoes> getUndergoesByPatient(Long patientId);
 
 	// Get all patient records for a specific procedure
 	public List<Undergoes> getUndergoesByProcedure(Integer procedureCode);

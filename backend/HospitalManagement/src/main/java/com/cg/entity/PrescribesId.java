@@ -8,9 +8,16 @@ import java.util.Objects;
 @Embeddable
 public class PrescribesId implements Serializable {
 
+	@Column(name = "physician")
     private Integer physician;
+
+    @Column(name = "patient")
     private Long patient;
+
+    @Column(name = "medication")
     private Integer medication;
+
+    @Column(name = "date")
     private LocalDateTime date;
 
     public PrescribesId() {}

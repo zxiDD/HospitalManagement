@@ -1,10 +1,12 @@
 package com.cg.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "TrainedIn")
+@Table(name = "trained_in")
 public class TrainedIn {
 
     @EmbeddedId
@@ -12,25 +14,25 @@ public class TrainedIn {
 
     @ManyToOne
     @MapsId("physician")
-    @JoinColumn(name = "physician", referencedColumnName = "EmployeeID")
+    @JoinColumn(name = "physician", referencedColumnName = "employeeid")
     private Physician physician;
 
     @ManyToOne
     @MapsId("treatment")
-    @JoinColumn(name = "treatment", referencedColumnName = "Code")
+    @JoinColumn(name = "treatment", referencedColumnName = "code")
     private Procedures treatment;
 
-    @Column(name = "CertificationDate")
-    private LocalDate certificationDate;
+    @Column(name = "certificationdate")
+    private LocalDateTime certificationDate;
 
-    @Column(name = "CertificationExpires")
-    private LocalDate certificationExpires;
+    @Column(name = "certificationexpires")
+    private LocalDateTime certificationExpires;
 
     public TrainedIn() {
     }
 
     public TrainedIn(TrainedInId id, Physician physician, Procedures treatment,
-                     LocalDate certificationDate, LocalDate certificationExpires) {
+                     LocalDateTime certificationDate, LocalDateTime certificationExpires) {
         this.id = id;
         this.physician = physician;
         this.treatment = treatment;
@@ -63,19 +65,19 @@ public class TrainedIn {
         this.treatment = treatment;
     }
 
-    public LocalDate getCertificationDate() {
+    public LocalDateTime getCertificationDate() {
         return certificationDate;
     }
 
-    public void setCertificationDate(LocalDate certificationDate) {
+    public void setCertificationDate(LocalDateTime certificationDate) {
         this.certificationDate = certificationDate;
     }
 
-    public LocalDate getCertificationExpires() {
+    public LocalDateTime getCertificationExpires() {
         return certificationExpires;
     }
 
-    public void setCertificationExpires(LocalDate certificationExpires) {
+    public void setCertificationExpires(LocalDateTime certificationExpires) {
         this.certificationExpires = certificationExpires;
     }
 }

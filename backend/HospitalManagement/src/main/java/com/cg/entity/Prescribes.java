@@ -13,24 +13,24 @@ public class Prescribes {
     // Relationships
     @ManyToOne
     @MapsId("physician")
-    @JoinColumn(name = "Physician")
+    @JoinColumn(name = "physician")
     private Physician physician;
 
     @ManyToOne
     @MapsId("patient")
-    @JoinColumn(name = "Patient")
+    @JoinColumn(name = "patient")
     private Patient patient;
 
     @ManyToOne
     @MapsId("medication")
-    @JoinColumn(name = "Medication")
+    @JoinColumn(name = "medication")
     private Medication medication;
 
-    @Column(name = "Dose", nullable = false)
+    @Column(name = "dose", nullable = false)
     private String dose;
 
     @ManyToOne
-    @JoinColumn(name = "Appointment")
+    @JoinColumn(name = "appointment")
     private Appointment appointment;
 
     // Constructors
