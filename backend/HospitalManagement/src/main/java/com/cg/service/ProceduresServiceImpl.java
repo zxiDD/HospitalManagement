@@ -50,4 +50,9 @@ public class ProceduresServiceImpl implements ProceduresService {
 	public List<Procedures> getProceduresByCostBetween(BigDecimal minCost, BigDecimal maxCost) {
 		return proceduresRepository.findByCostBetween(minCost, maxCost);
 	}
+
+	@Override
+	public Procedures saveProcedures(Procedures procedures) {
+		return proceduresRepository.save(procedures);
+	}
 }

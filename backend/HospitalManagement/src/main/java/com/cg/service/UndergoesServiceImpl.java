@@ -60,4 +60,9 @@ public class UndergoesServiceImpl implements UndergoesService {
 	public List<Undergoes> getUndergoesBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
 		return undergoesRepository.findById_DateUndergoesBetween(startDate, endDate);
 	}
+
+	@Override
+	public Undergoes saveUndergoes(Undergoes undergoes) {
+		return undergoesRepository.save(undergoes);
+	}
 }

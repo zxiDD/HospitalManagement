@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -84,5 +86,26 @@ public class ProceduresController {
 				.map(this::convertToDTO).collect(Collectors.toList());
 
 		return ResponseEntity.ok(procedures);
+	}
+	
+	@PostMapping
+	public ResponseEntity<ProceduresDTO> createProcedure(
+	        @RequestBody ProceduresDTO proceduresDTO
+	) {
+
+	    Procedures procedure = new Procedures();
+	    procedure.setCode(proceduresDTO.getCode());
+	    procedure.setName(proceduresDTO.getName());
+	    procedure.setCost(proceduresDTO.getCost());
+
+	    Procedures savedProcedure = proceduresService.saveProcedures(procedure);
+
+	    ProceduresDTO responseDTO = new ProceduresDTO(
+	            savedProcedure.getCode(),
+	            savedProcedure.getName(),
+	            savedProcedure.getCost()
+	    );
+
+	    return ResponseEntity.ok(responseDTO);
 	}
 }
