@@ -3,6 +3,8 @@ package com.cg.controller;
 import com.cg.dto.PhysicianDTO;
 import com.cg.entity.Physician;
 import com.cg.service.PhysicianService;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,33 +29,55 @@ public class PhysicianController {
     }
 
     @GetMapping
-    public List<PhysicianDTO> getAll() {
-        return service.getAll()
+    public ResponseEntity<List<PhysicianDTO>> getAll() {
+        List<PhysicianDTO> list = service.getAll()
                 .stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+
+        return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/{employeeId}")
-    public PhysicianDTO getById(@PathVariable Integer employeeId) {
-        return mapToDTO(service.getById(employeeId));
+    @GetMapping("/id/{employeeId}")
+    public ResponseEntity<PhysicianDTO> getById(@PathVariable Integer employeeId) {
+        Physician physician = service.getById(employeeId);
+        return ResponseEntity.ok(mapToDTO(physician));
     }
-    
+
     @GetMapping("/sorted")
-    public List<PhysicianDTO> getAllSorted() {
-        return service.getAllSorted()
+    public ResponseEntity<List<PhysicianDTO>> getAllSorted() {
+        List<PhysicianDTO> list = service.getAllSorted()
                 .stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+
+        return ResponseEntity.ok(list);
     }
 
     @GetMapping("/count")
-    public long count() {
-        return service.count();
+    public ResponseEntity<Long> count() {
+        return ResponseEntity.ok(service.count());
     }
 
     @GetMapping("/exists/{employeeId}")
-    public boolean exists(@PathVariable Integer employeeId) {
-        return service.exists(employeeId);
+    public ResponseEntity<Boolean> exists(@PathVariable Integer employeeId) {
+        return ResponseEntity.ok(service.exists(employeeId));
+    }
+
+    @PostMapping
+    public ResponseEntity<PhysicianDTO> create(@RequestBody PhysicianDTO dto) {
+
+        if (dto.getEmployeeId() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Physician p = new Physician();
+        p.setEmployeeId(dto.getEmployeeId());
+        p.setName(dto.getName());
+        p.setPosition(dto.getPosition());
+
+        Physician saved = service.save(p);
+
+        return ResponseEntity.status(201).body(mapToDTO(saved));
     }
 }

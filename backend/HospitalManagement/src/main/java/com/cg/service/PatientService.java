@@ -15,6 +15,8 @@ public interface PatientService {
     List<Patient> getByNameAndAddress(String name, String address);
 
     List<Patient> getAllSorted();
+    
+    Patient save(Patient patient);
 
     boolean exists(Long id);
 

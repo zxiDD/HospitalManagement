@@ -36,4 +36,9 @@ public class NurseServiceImpl implements NurseService {
     public long count() {
         return repo.count();
     }
+    
+    @Override
+    public Nurse save(Nurse nurse) {
+        return repo.save(nurse);
+    }
 }

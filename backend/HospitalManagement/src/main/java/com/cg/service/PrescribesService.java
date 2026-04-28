@@ -13,6 +13,8 @@ public interface PrescribesService {
     Prescribes getById(PrescribesId id);
     
     List<Prescribes> getAllSorted();
+    
+    Prescribes save(Prescribes prescribe);
 
     long count();
 }
