@@ -38,8 +38,8 @@ public class PatientController {
     }
 
     @GetMapping("/{ssn}")
-    public PatientDTO getBySsn(@PathVariable Long id) {
-        return mapToDTO(service.getById(id));
+    public PatientDTO getBySsn(@PathVariable Long ssn) {
+        return mapToDTO(service.getById(ssn));
     }
     
     @GetMapping("/name/{name}")
