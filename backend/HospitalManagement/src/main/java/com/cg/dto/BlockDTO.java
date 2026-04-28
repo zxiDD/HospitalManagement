@@ -5,17 +5,14 @@ public class BlockDTO {
 
 	private Integer blockCode;
 
-	// Default constructor
 	public BlockDTO() {
 	}
 
-	// Parameterized constructor
 	public BlockDTO(Integer blockFloor, Integer blockCode) {
 		this.blockFloor = blockFloor;
 		this.blockCode = blockCode;
 	}
 
-	// Getters and Setters
 	public Integer getBlockFloor() {
 		return blockFloor;
 	}
