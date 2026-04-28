@@ -4,10 +4,10 @@ public class DepartmentDTO {
 
     private Integer departmentId;
     private String name;
-    private Integer headId;     // physician employeeId
-    private String headName;    // optional (useful for UI)
+    private Integer headId;    
+    private String headName;    
 
-    // Constructors
+
     public DepartmentDTO() {}
 
     public DepartmentDTO(Integer departmentId, String name, Integer headId, String headName) {
@@ -17,7 +17,6 @@ public class DepartmentDTO {
         this.headName = headName;
     }
 
-    // Getters & Setters
     public Integer getDepartmentId() {
         return departmentId;
     }
