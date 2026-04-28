@@ -17,6 +17,11 @@ public class AffiliatedWithController {
     @Autowired
     private AffiliatedWithService affiliatedWithService;
 
+    @PostMapping
+    public AffiliatedWithDTO createAffiliation(@RequestBody AffiliatedWithDTO dto) {
+        return affiliatedWithService.create(dto);
+    }
+    
     @GetMapping
     public List<AffiliatedWithDTO> getAll() {
         return affiliatedWithService.getAll();

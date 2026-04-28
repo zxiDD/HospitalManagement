@@ -55,4 +55,9 @@ public class MedicationController {
     public long count() {
         return medicationService.count();
     }
+    
+    @PostMapping
+    public MedicationDTO createMedication(@RequestBody MedicationDTO dto) {
+        return medicationService.create(dto);
+    }
 }

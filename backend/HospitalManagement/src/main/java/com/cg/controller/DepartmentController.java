@@ -49,4 +49,9 @@ public class DepartmentController {
     public long count() {
         return departmentService.count();
     }
+    
+    @PostMapping
+    public DepartmentDTO createDepartment(@RequestBody DepartmentDTO dto) {
+        return departmentService.create(dto);
+    }
 }
