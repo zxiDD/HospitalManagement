@@ -1,45 +1,93 @@
 package com.cg.service;
 
+import com.cg.dto.DepartmentDTO;
 import com.cg.entity.Department;
 import com.cg.repo.DepartmentRepository;
-import com.cg.service.DepartmentService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class DepartmentServiceImpl implements DepartmentService {
-	
-	@Autowired
+
+    @Autowired
     private DepartmentRepository departmentRepository;
 
-    
     @Override
-    public List<Department> getAll() {
-        return departmentRepository.findAll();
+    public List<DepartmentDTO> getAll() {
+        List<Department> departments = departmentRepository.findAll();
+        List<DepartmentDTO> dtoList = new ArrayList<>();
+
+        for (Department d : departments) {
+            dtoList.add(new DepartmentDTO(
+                    d.getDepartmentId(),
+                    d.getName(),
+                    d.getHead().getEmployeeId(),
+                    d.getHead().getName()
+            ));
+        }
+        return dtoList;
     }
 
     @Override
-    public Department getById(Integer id) {
-        return departmentRepository.findById(id)
+    public DepartmentDTO getById(Integer id) {
+        Department d = departmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
+
+        return new DepartmentDTO(
+                d.getDepartmentId(),
+                d.getName(),
+                d.getHead().getEmployeeId(),
+                d.getHead().getName()
+        );
     }
 
     @Override
-    public Department getByName(String name) {
-        return departmentRepository.findByName(name)
+    public DepartmentDTO getByName(String name) {
+        Department d = departmentRepository.findByName(name)
                 .orElseThrow(() -> new RuntimeException("Department not found with name: " + name));
+
+        return new DepartmentDTO(
+                d.getDepartmentId(),
+                d.getName(),
+                d.getHead().getEmployeeId(),
+                d.getHead().getName()
+        );
     }
 
     @Override
-    public List<Department> getByHeadId(Integer headId) {
-        return departmentRepository.findByHead_EmployeeId(headId);
+    public List<DepartmentDTO> getByHeadId(Integer headId) {
+        List<Department> departments = departmentRepository.findByHead_EmployeeId(headId);
+        List<DepartmentDTO> dtoList = new ArrayList<>();
+
+        for (Department d : departments) {
+            dtoList.add(new DepartmentDTO(
+                    d.getDepartmentId(),
+                    d.getName(),
+                    d.getHead().getEmployeeId(),
+                    d.getHead().getName()
+            ));
+        }
+        return dtoList;
     }
 
     @Override
-    public List<Department> getAllSorted() {
-        return departmentRepository.findAllByOrderByNameAsc();
+    public List<DepartmentDTO> getAllSorted() {
+        List<Department> departments = departmentRepository.findAllByOrderByNameAsc();
+        List<DepartmentDTO> dtoList = new ArrayList<>();
+
+        for (Department d : departments) {
+            dtoList.add(new DepartmentDTO(
+                    d.getDepartmentId(),
+                    d.getName(),
+                    d.getHead().getEmployeeId(),
+                    d.getHead().getName()
+            ));
+        }
+        return dtoList;
     }
 
     @Override

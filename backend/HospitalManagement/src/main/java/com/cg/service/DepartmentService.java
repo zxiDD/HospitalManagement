@@ -1,20 +1,19 @@
 package com.cg.service;
 
 import java.util.List;
-
-import com.cg.entity.Department;
+import com.cg.dto.DepartmentDTO;
 
 public interface DepartmentService {
 
-    List<Department> getAll();
+    List<DepartmentDTO> getAll();
 
-    Department getById(Integer id);
+    DepartmentDTO getById(Integer id);
 
-    Department getByName(String name);
+    DepartmentDTO getByName(String name);
 
-    List<Department> getByHeadId(Integer headId);
+    List<DepartmentDTO> getByHeadId(Integer headId);
 
-    List<Department> getAllSorted();
+    List<DepartmentDTO> getAllSorted();
 
     boolean exists(Integer id);
 
