@@ -1,46 +1,107 @@
 package com.cg.service;
 
+import com.cg.dto.AffiliatedWithDTO;
 import com.cg.entity.AffiliatedWith;
 import com.cg.entity.AffiliatedWithId;
 import com.cg.entity.Department;
 import com.cg.repo.AffiliatedWithRepository;
-import com.cg.service.AffiliatedWithService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class AffiliatedWithServiceImpl implements AffiliatedWithService {
-	
-	@Autowired
+
+    @Autowired
     private AffiliatedWithRepository affiliatedWithRepository;
 
     @Override
-    public List<AffiliatedWith> getAll() {
-        return affiliatedWithRepository.findAll();
+    public List<AffiliatedWithDTO> getAll() {
+        List<AffiliatedWith> list = affiliatedWithRepository.findAll();
+        List<AffiliatedWithDTO> dtoList = new ArrayList<>();
+
+        for (AffiliatedWith a : list) {
+            dtoList.add(new AffiliatedWithDTO(
+                    a.getPhysician().getEmployeeId(),
+                    a.getPhysician().getName(),
+                    a.getDepartment().getDepartmentId(),
+                    a.getDepartment().getName(),
+                    a.getPrimaryAffiliation()
+            ));
+        }
+
+        return dtoList;
     }
 
     @Override
-    public AffiliatedWith getById(AffiliatedWithId id) {
-        return affiliatedWithRepository.findById(id)
+    public AffiliatedWithDTO getById(AffiliatedWithId id) {
+        AffiliatedWith a = affiliatedWithRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Affiliation not found"));
+
+        return new AffiliatedWithDTO(
+                a.getPhysician().getEmployeeId(),
+                a.getPhysician().getName(),
+                a.getDepartment().getDepartmentId(),
+                a.getDepartment().getName(),
+                a.getPrimaryAffiliation()
+        );
     }
 
     @Override
-    public List<AffiliatedWith> getByPhysicianId(Integer physicianId) {
-        return affiliatedWithRepository.findByPhysician_EmployeeId(physicianId);
+    public List<AffiliatedWithDTO> getByPhysicianId(Integer physicianId) {
+        List<AffiliatedWith> list = affiliatedWithRepository.findByPhysician_EmployeeId(physicianId);
+        List<AffiliatedWithDTO> dtoList = new ArrayList<>();
+
+        for (AffiliatedWith a : list) {
+            dtoList.add(new AffiliatedWithDTO(
+                    a.getPhysician().getEmployeeId(),
+                    a.getPhysician().getName(),
+                    a.getDepartment().getDepartmentId(),
+                    a.getDepartment().getName(),
+                    a.getPrimaryAffiliation()
+            ));
+        }
+
+        return dtoList;
     }
 
     @Override
-    public List<AffiliatedWith> getByDepartmentId(Integer departmentId) {
-        return affiliatedWithRepository.findByDepartment_DepartmentId(departmentId);
+    public List<AffiliatedWithDTO> getByDepartmentId(Integer departmentId) {
+        List<AffiliatedWith> list = affiliatedWithRepository.findByDepartment_DepartmentId(departmentId);
+        List<AffiliatedWithDTO> dtoList = new ArrayList<>();
+
+        for (AffiliatedWith a : list) {
+            dtoList.add(new AffiliatedWithDTO(
+                    a.getPhysician().getEmployeeId(),
+                    a.getPhysician().getName(),
+                    a.getDepartment().getDepartmentId(),
+                    a.getDepartment().getName(),
+                    a.getPrimaryAffiliation()
+            ));
+        }
+
+        return dtoList;
     }
 
     @Override
-    public List<AffiliatedWith> getPrimaryAffiliations() {
-        return affiliatedWithRepository.findByPrimaryAffiliationTrue();
+    public List<AffiliatedWithDTO> getPrimaryAffiliations() {
+        List<AffiliatedWith> list = affiliatedWithRepository.findByPrimaryAffiliationTrue();
+        List<AffiliatedWithDTO> dtoList = new ArrayList<>();
+
+        for (AffiliatedWith a : list) {
+            dtoList.add(new AffiliatedWithDTO(
+                    a.getPhysician().getEmployeeId(),
+                    a.getPhysician().getName(),
+                    a.getDepartment().getDepartmentId(),
+                    a.getDepartment().getName(),
+                    a.getPrimaryAffiliation()
+            ));
+        }
+
+        return dtoList;
     }
 
     @Override
