@@ -26,13 +26,13 @@ public class OnCallServiceImpl implements OnCallService {
     }
 
     @Override
-    public List<OnCall> getByNurseId(Long nurseId) {
-        return repository.findByIdNurseId(nurseId);
+    public List<OnCall> getByNurseId(Integer nurseId) {
+        return repository.findById_Nurse(nurseId);
     }
 
     @Override
     public List<OnCall> getByBlockCode(String blockCode) {
-        return repository.findByIdBlockCode(blockCode);
+        return repository.findById_BlockCode(blockCode);
     }
 
 }

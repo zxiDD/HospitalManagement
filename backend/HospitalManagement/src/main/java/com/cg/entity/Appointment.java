@@ -9,34 +9,34 @@ import jakarta.persistence.*;
 public class Appointment {
 
     @Id
-    @Column(name = "AppointmentID")
-    private int appointmentID;
+    @Column(name = "appointmentid")
+    private Integer appointmentID;
 
     @ManyToOne
-    @JoinColumn(name = "patient", referencedColumnName = "patientID")
+    @JoinColumn(name = "patient", referencedColumnName = "ssn")
     private Patient patient;
 
     @ManyToOne
-    @JoinColumn(name = "physician", referencedColumnName = "EmployeeID")
+    @JoinColumn(name = "physician", referencedColumnName = "employeeid")
     private Physician physician;
 
     @ManyToOne
-    @JoinColumn(name = "prepNurse", referencedColumnName = "employeeID")
+    @JoinColumn(name = "prepnurse", referencedColumnName = "employeeid")
     private Nurse prepNurse;
 
-    @Column(name = "Starto")
+    @Column(name = "starto")
     private LocalDateTime starto;
 
-    @Column(name = "Endo")
+    @Column(name = "endo")
     private LocalDateTime endo;
 
-    @Column(name = "ExaminationRoom")
+    @Column(name = "examinationroom")
     private String examinationRoom;
 
     public Appointment() {
     }
 
-    public Appointment(int appointmentID, Patient patient, Physician physician, Nurse prepNurse,
+    public Appointment(Integer appointmentID, Patient patient, Physician physician, Nurse prepNurse,
                        LocalDateTime starto, LocalDateTime endo, String examinationRoom) {
         this.appointmentID = appointmentID;
         this.patient = patient;
@@ -48,11 +48,11 @@ public class Appointment {
     }
 
 
-    public int getAppointmentID() {
+    public Integer getAppointmentID() {
         return appointmentID;
     }
 
-    public void setAppointmentID(int appointmentID) {
+    public void setAppointmentID(Integer appointmentID) {
         this.appointmentID = appointmentID;
     }
 

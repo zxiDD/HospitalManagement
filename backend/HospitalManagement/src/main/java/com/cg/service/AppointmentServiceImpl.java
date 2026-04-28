@@ -19,23 +19,23 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public Appointment getAppointmentById(int id) {
+    public Appointment getAppointmentById(Integer id) {
         return repository.findById(id).orElse(null);
     }
 
     @Override
-    public List<Appointment> getByPatientId(int patientId) {
-        return repository.findByPatient_PatientId(patientId);
+    public List<Appointment> getByPatientId(Long patientId) {
+        return repository.findByPatient_Ssn(patientId);
     }
 
     @Override
-    public List<Appointment> getByPhysicianId(int physicianId) {
-        return repository.findByPhysician_PhysicianId(physicianId);
+    public List<Appointment> getByPhysicianId(Integer physicianId) {
+        return repository.findByPhysician_EmployeeId(physicianId);
     }
 
     @Override
-    public List<Appointment> getByNurseId(int nurseId) {
-        return repository.findByPrepNurse_NurseId(nurseId);
+    public List<Appointment> getByNurseId(Integer nurseId) {
+        return repository.findByPrepNurse_EmployeeId(nurseId);
     }
 
     @Override

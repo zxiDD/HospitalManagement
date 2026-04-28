@@ -12,12 +12,12 @@ import java.util.Optional;
 public interface AffiliatedWithRepository
         extends JpaRepository<AffiliatedWith, AffiliatedWithId> {
 
-    List<AffiliatedWith> findByPhysicianEmployeeId(Integer physicianId);
+    List<AffiliatedWith> findByPhysician_EmployeeId(Integer physicianId);
 
-    List<AffiliatedWith> findByDepartmentDepartmentId(Integer departmentId);
+    List<AffiliatedWith> findByDepartment_DepartmentId(Integer departmentId);
 
     List<AffiliatedWith> findByPrimaryAffiliationTrue();
 
     // ✅ ADD THIS
-    Optional<AffiliatedWith> findByPhysicianEmployeeIdAndPrimaryAffiliationTrue(Integer physicianId);
+    Optional<AffiliatedWith> findByPhysician_EmployeeIdAndPrimaryAffiliationTrue(Integer physicianId);
 }

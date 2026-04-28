@@ -33,7 +33,7 @@ public class Undergoes {
 	private Physician physician;
 
 	@ManyToOne
-	@JoinColumn(name = "assisting_nurse")
+	@JoinColumn(name = "assistingnurse")
 	private Nurse assistingNurse;
 
 	public Undergoes() {

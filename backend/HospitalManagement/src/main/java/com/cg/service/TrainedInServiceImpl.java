@@ -26,13 +26,13 @@ public class TrainedInServiceImpl implements TrainedInService {
     }
 
     @Override
-    public List<TrainedIn> getByPhysicianId(Long physicianId) {
-        return repository.findByIdPhysicianId(physicianId);
+    public List<TrainedIn> getByPhysicianId(Integer physicianId) {
+        return repository.findById_Physician(physicianId);
     }
 
     @Override
-    public List<TrainedIn> getByTreatmentId(Long treatmentId) {
-        return repository.findByIdTreatmentId(treatmentId);
+    public List<TrainedIn> getByTreatmentId(Integer treatmentId) {
+        return repository.findById_Treatment(treatmentId);
     }
 
 }

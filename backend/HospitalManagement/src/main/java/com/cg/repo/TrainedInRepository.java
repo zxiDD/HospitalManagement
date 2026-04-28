@@ -8,6 +8,6 @@ import com.cg.entity.TrainedIn;
 import com.cg.entity.TrainedInId;
 
 public interface TrainedInRepository extends JpaRepository<TrainedIn, TrainedInId> {
-	List<TrainedIn> findByIdPhysicianId(Long physicianId);
-	List<TrainedIn> findByIdTreatmentId(Long treatmentId);
+	List<TrainedIn> findById_Physician(Integer physicianId);
+	List<TrainedIn> findById_Treatment(Integer treatmentId);
 }

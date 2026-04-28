@@ -10,7 +10,7 @@ import com.cg.entity.UndergoesId;
 
 public interface UndergoesRepository extends JpaRepository<Undergoes, UndergoesId> {
 	// Find by patient
-	List<Undergoes> findByPatient_Ssn(Integer patientId);
+	List<Undergoes> findByPatient_Ssn(Long patientId);
 
 	// Find by procedure
 	List<Undergoes> findByProcedures_Code(Integer procedureCode);
@@ -19,10 +19,10 @@ public interface UndergoesRepository extends JpaRepository<Undergoes, UndergoesI
 	List<Undergoes> findByStay_StayId(Integer stayId);
 
 	// Find by physician
-	List<Undergoes> findByPhysician_EmployeeID(Integer physicianId);
+	List<Undergoes> findByPhysician_EmployeeId(Integer physicianId);
 
 	// Find by assisting nurse
-	List<Undergoes> findByAssistingNurse_EmployeeID(Integer nurseId);
+	List<Undergoes> findByAssistingNurse_EmployeeId(Integer nurseId);
 
 	// Find by exact date
 	List<Undergoes> findById_DateUndergoes(LocalDateTime date);
