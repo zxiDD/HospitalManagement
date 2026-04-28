@@ -10,18 +10,16 @@ public class ProceduresDTO {
 
 	private BigDecimal cost;
 
-	// Default constructor
+
 	public ProceduresDTO() {
 	}
 
-	// Parameterized constructor
 	public ProceduresDTO(Integer code, String name, BigDecimal cost) {
 		this.code = code;
 		this.name = name;
 		this.cost = cost;
 	}
 
-	// Getters and Setters
 	public Integer getCode() {
 		return code;
 	}
