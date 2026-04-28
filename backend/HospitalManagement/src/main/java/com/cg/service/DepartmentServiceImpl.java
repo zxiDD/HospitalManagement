@@ -34,7 +34,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public List<Department> getByHeadId(Integer headId) {
-        return departmentRepository.findByHeadEmployeeId(headId);
+        return departmentRepository.findByHead_EmployeeId(headId);
     }
 
     @Override
