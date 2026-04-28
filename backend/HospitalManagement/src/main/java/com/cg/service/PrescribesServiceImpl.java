@@ -31,11 +31,16 @@ public class PrescribesServiceImpl implements PrescribesService {
 
     @Override
     public List<Prescribes> getAllSorted() {
-        return repo.findAll(Sort.by("date")); // sort by date
+        return repo.findAll(Sort.by("id.date")); 
     }
 
     @Override
     public long count() {
         return repo.count();
+    }
+    
+    @Override
+    public Prescribes save(Prescribes prescribes) {
+        return repo.save(prescribes);
     }
 }

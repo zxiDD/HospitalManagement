@@ -41,4 +41,9 @@ public class PhysicianServiceImpl implements PhysicianService {
     public long count() {
         return repo.count();
     }
+    
+    @Override
+    public Physician save(Physician physician) {
+        return repo.save(physician);
+    }
 }

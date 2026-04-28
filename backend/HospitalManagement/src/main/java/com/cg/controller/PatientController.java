@@ -2,7 +2,11 @@ package com.cg.controller;
 
 import com.cg.dto.PatientDTO;
 import com.cg.entity.Patient;
+import com.cg.entity.Physician;
 import com.cg.service.PatientService;
+import com.cg.service.PhysicianService;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,9 +17,11 @@ import java.util.stream.Collectors;
 public class PatientController {
 
     private final PatientService service;
+    private final PhysicianService physicianService;
 
-    public PatientController(PatientService service) {
+    public PatientController(PatientService service, PhysicianService physicianService) {
         this.service = service;
+        this.physicianService = physicianService;
     }
 
     private PatientDTO mapToDTO(Patient p) {
@@ -25,55 +31,88 @@ public class PatientController {
                 p.getAddress(),
                 p.getPhone(),
                 p.getInsuranceId(),
-                p.getPhysician().getEmployeeId()
+                p.getPhysician() != null ? p.getPhysician().getEmployeeId() : null
         );
     }
 
     @GetMapping
-    public List<PatientDTO> getAll() {
-        return service.getAll()
+    public ResponseEntity<List<PatientDTO>> getAll() {
+        List<PatientDTO> list = service.getAll()
                 .stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+
+        return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/{ssn}")
-    public PatientDTO getBySsn(@PathVariable Long id) {
-        return mapToDTO(service.getById(id));
+    @GetMapping("/id/{ssn}")
+    public ResponseEntity<PatientDTO> getBySsn(@PathVariable Long ssn) {
+        Patient patient = service.getById(ssn);
+        return ResponseEntity.ok(mapToDTO(patient));
     }
-    
+
     @GetMapping("/name/{name}")
-    public List<PatientDTO> getByName(@PathVariable String name) {
-        return service.getByName(name)
+    public ResponseEntity<List<PatientDTO>> getByName(@PathVariable String name) {
+        List<PatientDTO> list = service.getByName(name)
                 .stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+
+        return ResponseEntity.ok(list);
     }
 
     @GetMapping("/search")
-    public List<PatientDTO> getByNameAndAddress(@RequestParam String name,
-                                                 @RequestParam String address) {
-        return service.getByNameAndAddress(name, address)
+    public ResponseEntity<List<PatientDTO>> getByNameAndAddress(
+            @RequestParam String name,
+            @RequestParam String address) {
+
+        List<PatientDTO> list = service.getByNameAndAddress(name, address)
                 .stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+
+        return ResponseEntity.ok(list);
     }
 
     @GetMapping("/sorted")
-    public List<PatientDTO> getAllSorted() {
-        return service.getAllSorted()
+    public ResponseEntity<List<PatientDTO>> getAllSorted() {
+        List<PatientDTO> list = service.getAllSorted()
                 .stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+
+        return ResponseEntity.ok(list);
     }
 
     @GetMapping("/count")
-    public long count() {
-        return service.count();
+    public ResponseEntity<Long> count() {
+        return ResponseEntity.ok(service.count());
     }
 
     @GetMapping("/exists/{ssn}")
-    public boolean exists(@PathVariable Long ssn) {
-        return service.exists(ssn);
+    public ResponseEntity<Boolean> exists(@PathVariable Long ssn) {
+        return ResponseEntity.ok(service.exists(ssn));
+    }
+
+    @PostMapping
+    public ResponseEntity<PatientDTO> create(@RequestBody PatientDTO dto) {
+
+        if (dto.getPhysicianId() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Physician physician = physicianService.getById(dto.getPhysicianId());
+
+        Patient patient = new Patient();
+        patient.setSsn(dto.getSsn());
+        patient.setName(dto.getName());
+        patient.setAddress(dto.getAddress());
+        patient.setPhone(dto.getPhone());
+        patient.setInsuranceId(dto.getInsuranceId());
+        patient.setPhysician(physician);
+
+        Patient saved = service.save(patient);
+
+        return ResponseEntity.ok(mapToDTO(saved));
     }
 }

@@ -13,6 +13,8 @@ public interface NurseService {
     List<Nurse> getAllSorted();
 
     boolean exists(Integer id);
+    
+    Nurse save(Nurse nurse);
 
     long count();
 }
