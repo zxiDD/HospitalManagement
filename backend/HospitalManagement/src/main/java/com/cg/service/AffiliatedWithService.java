@@ -23,4 +23,6 @@ public interface AffiliatedWithService {
     boolean exists(AffiliatedWithId id);
 
     long count();
+    
+    AffiliatedWithDTO create(AffiliatedWithDTO dto);
 }

@@ -2,7 +2,9 @@ package com.cg.service;
 
 import com.cg.dto.DepartmentDTO;
 import com.cg.entity.Department;
+import com.cg.entity.Physician;
 import com.cg.repo.DepartmentRepository;
+import com.cg.repo.PhysicianRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Autowired
     private DepartmentRepository departmentRepository;
+    @Autowired
+    private PhysicianRepository physicianRepository;
 
     @Override
     public List<DepartmentDTO> getAll() {
@@ -98,5 +102,29 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public long count() {
         return departmentRepository.count();
+    }
+
+    @Override
+    public DepartmentDTO create(DepartmentDTO dto) {
+
+        // 🔹 Fetch Physician (head)
+        Physician head = physicianRepository.findById(dto.getHeadId())
+                .orElseThrow(() -> new RuntimeException("Physician not found with id: " + dto.getHeadId()));
+
+        // 🔹 Convert DTO → Entity
+        Department dept = new Department();
+        dept.setName(dto.getName());
+        dept.setHead(head);
+
+        // 🔹 Save
+        Department saved = departmentRepository.save(dept);
+
+        // 🔹 Convert Entity → DTO
+        return new DepartmentDTO(
+                saved.getDepartmentId(),
+                saved.getName(),
+                saved.getHead().getEmployeeId(),
+                saved.getHead().getName()
+        );
     }
 }

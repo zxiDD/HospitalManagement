@@ -23,4 +23,6 @@ public interface StayService {
     boolean exists(Integer id);
 
     long count();
+
+	StayDTO create(StayDTO dto);
 }

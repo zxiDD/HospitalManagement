@@ -18,4 +18,6 @@ public interface DepartmentService {
     boolean exists(Integer id);
 
     long count();
+    
+    DepartmentDTO create(DepartmentDTO dto);
 }
