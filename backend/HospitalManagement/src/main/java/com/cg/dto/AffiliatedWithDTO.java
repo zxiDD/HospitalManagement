@@ -3,14 +3,13 @@ package com.cg.dto;
 public class AffiliatedWithDTO {
 
     private Integer physicianId;
-    private String physicianName;      // optional
+    private String physicianName;      
 
     private Integer departmentId;
-    private String departmentName;     // optional
+    private String departmentName;    
 
     private Boolean primaryAffiliation;
 
-    // Constructors
     public AffiliatedWithDTO() {}
 
     public AffiliatedWithDTO(Integer physicianId, String physicianName,
@@ -22,8 +21,6 @@ public class AffiliatedWithDTO {
         this.departmentName = departmentName;
         this.primaryAffiliation = primaryAffiliation;
     }
-
-    // Getters & Setters
     public Integer getPhysicianId() {
         return physicianId;
     }

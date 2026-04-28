@@ -8,15 +8,13 @@ public class RoomDTO {
 
 	private Boolean unavailable;
 
-	// Block reference (flattened from Block entity)
+
 	private Integer blockFloor;
 	private Integer blockCode;
 
-	// Default constructor
 	public RoomDTO() {
 	}
 
-	// Parameterized constructor
 	public RoomDTO(Integer roomNumber, String roomType, Boolean unavailable, Integer blockFloor, Integer blockCode) {
 		this.roomNumber = roomNumber;
 		this.roomType = roomType;
@@ -25,7 +23,7 @@ public class RoomDTO {
 		this.blockCode = blockCode;
 	}
 
-	// Getters and Setters
+
 	public Integer getRoomNumber() {
 		return roomNumber;
 	}

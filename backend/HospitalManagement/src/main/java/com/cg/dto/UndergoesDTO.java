@@ -16,11 +16,9 @@ public class UndergoesDTO {
 
 	private Integer assistingNurseId;
 
-	// Default constructor
 	public UndergoesDTO() {
 	}
 
-	// Parameterized constructor
 	public UndergoesDTO(Integer patientId, Integer procedureCode, Integer stayId, LocalDateTime dateUndergoes,
 			Integer physicianId, Integer assistingNurseId) {
 		this.patientId = patientId;
@@ -31,7 +29,6 @@ public class UndergoesDTO {
 		this.assistingNurseId = assistingNurseId;
 	}
 
-	// Getters and Setters
 	public Integer getPatientId() {
 		return patientId;
 	}

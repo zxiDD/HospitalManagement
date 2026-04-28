@@ -7,7 +7,7 @@ public class MedicationDTO {
     private String brand;
     private String description;
 
-    // Constructors
+
     public MedicationDTO() {}
 
     public MedicationDTO(Integer code, String name, String brand, String description) {
@@ -17,7 +17,6 @@ public class MedicationDTO {
         this.description = description;
     }
 
-    // Getters & Setters
     public Integer getCode() {
         return code;
     }
