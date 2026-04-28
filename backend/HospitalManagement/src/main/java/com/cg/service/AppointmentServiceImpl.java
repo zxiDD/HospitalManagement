@@ -42,4 +42,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<Appointment> getByRoom(String room) {
         return repository.findByExaminationRoom(room);
     }
+    
+    @Override
+    public Appointment save(Appointment a) {
+        return repository.save(a);
+    }
 }
