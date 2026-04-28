@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.cg.entity.Undergoes;
 import com.cg.entity.UndergoesId;
 import com.cg.repo.UndergoesRepository;
 
+@Service
 public class UndergoesServiceImpl implements UndergoesService {
 	@Autowired
 	private UndergoesRepository undergoesRepository;
