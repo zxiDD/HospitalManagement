@@ -116,4 +116,23 @@ public class MedicationServiceImpl implements MedicationService {
     public long count() {
         return medicationRepository.count();
     }
+    
+    @Override
+    public MedicationDTO create(MedicationDTO dto) {
+
+        Medication med = new Medication();
+        med.setName(dto.getName());
+        med.setBrand(dto.getBrand());
+        med.setDescription(dto.getDescription());
+
+        Medication saved = medicationRepository.save(med);
+
+        return new MedicationDTO(
+                saved.getCode(),
+                saved.getName(),
+                saved.getBrand(),
+                saved.getDescription()
+        );
+    }
+    
 }

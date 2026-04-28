@@ -1,7 +1,11 @@
 package com.cg.service;
 
 import com.cg.dto.StayDTO;
+import com.cg.entity.Patient;
+import com.cg.entity.Room;
 import com.cg.entity.Stay;
+import com.cg.repo.PatientRepository;
+import com.cg.repo.RoomRepository;
 import com.cg.repo.StayRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +20,12 @@ public class StayServiceImpl implements StayService {
 
     @Autowired
     private StayRepository stayRepository;
+    @Autowired
+    private PatientRepository patientRepository;
+
+    @Autowired
+    private RoomRepository roomRepository;
+
 
     @Override
     public List<StayDTO> getAll() {
@@ -162,4 +172,38 @@ public class StayServiceImpl implements StayService {
     public long count() {
         return stayRepository.count();
     }
+    
+    @Override
+    public StayDTO create(StayDTO dto) {
+
+        // 🔹 Fetch Patient
+        Patient patient = patientRepository.findById(dto.getPatientSsn())
+                .orElseThrow(() -> new RuntimeException(
+                        "Patient not found with ssn: " + dto.getPatientSsn()));
+
+        // 🔹 Fetch Room
+        Room room = roomRepository.findById(dto.getRoomNumber())
+                .orElseThrow(() -> new RuntimeException(
+                        "Room not found with number: " + dto.getRoomNumber()));
+
+
+        Stay stay = new Stay();
+        stay.setPatient(patient);
+        stay.setRoom(room);
+        stay.setStayStart(dto.getStayStart());
+        stay.setStayEnd(dto.getStayEnd());
+
+        Stay saved = stayRepository.save(stay);
+
+        return new StayDTO(
+                saved.getStayId(), // auto-generated
+                saved.getPatient().getSsn(),
+                saved.getPatient().getName(),
+                saved.getRoom().getRoomNumber(),
+                saved.getRoom().getRoomType(),
+                saved.getStayStart(),
+                saved.getStayEnd()
+        );
+    }
+    
 }

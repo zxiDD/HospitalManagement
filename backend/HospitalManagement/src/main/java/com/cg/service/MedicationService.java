@@ -20,4 +20,6 @@ public interface MedicationService {
     boolean exists(Integer code);
 
     long count();
+    
+    MedicationDTO create(MedicationDTO dto);
 }
