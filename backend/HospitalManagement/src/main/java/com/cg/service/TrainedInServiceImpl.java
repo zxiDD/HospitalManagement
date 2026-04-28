@@ -34,5 +34,10 @@ public class TrainedInServiceImpl implements TrainedInService {
     public List<TrainedIn> getByTreatmentId(Integer treatmentId) {
         return repository.findById_Treatment(treatmentId);
     }
+    
+    @Override
+    public TrainedIn save(TrainedIn t) {
+        return repository.save(t);
+    }
 
 }

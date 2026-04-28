@@ -14,4 +14,6 @@ public interface TrainedInService {
     List<TrainedIn> getByPhysicianId(Integer physicianId);
 
     List<TrainedIn> getByTreatmentId(Integer treatmentId);
+    
+    TrainedIn save(TrainedIn t);
 }
