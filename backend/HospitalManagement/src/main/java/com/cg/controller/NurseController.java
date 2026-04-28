@@ -25,7 +25,8 @@ public class NurseController {
                 n.getEmployeeId(),
                 n.getName(),
                 n.getPosition(),
-                n.getRegistered()
+                n.getRegistered(),
+                n.getSsn()
         );
     }
 
@@ -77,6 +78,7 @@ public class NurseController {
         n.setName(dto.getName());
         n.setPosition(dto.getPosition());
         n.setRegistered(dto.getRegistered());
+        n.setSsn(dto.getSsn());
 
         Nurse saved = service.save(n);
 
