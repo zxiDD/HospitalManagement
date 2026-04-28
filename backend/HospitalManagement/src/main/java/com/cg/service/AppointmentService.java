@@ -16,4 +16,6 @@ public interface AppointmentService {
     List<Appointment> getByNurseId(Integer nurseId);
 
     List<Appointment> getByRoom(String room);
+    
+    Appointment save(Appointment a);
 }

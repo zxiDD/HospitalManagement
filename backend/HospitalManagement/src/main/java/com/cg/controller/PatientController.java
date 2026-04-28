@@ -45,10 +45,9 @@ public class PatientController {
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/id/{ssn}")
-    public ResponseEntity<PatientDTO> getBySsn(@PathVariable Long ssn) {
-        Patient patient = service.getById(ssn);
-        return ResponseEntity.ok(mapToDTO(patient));
+    @GetMapping("/{ssn}")
+    public PatientDTO getBySsn(@PathVariable Long ssn) {
+        return mapToDTO(service.getById(ssn));
     }
 
     @GetMapping("/name/{name}")
