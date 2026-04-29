@@ -18,4 +18,5 @@ public interface AppointmentService {
     List<Appointment> getByRoom(String room);
     
     Appointment save(Appointment a);
+    void cancelAppointment(Integer id);
 }
