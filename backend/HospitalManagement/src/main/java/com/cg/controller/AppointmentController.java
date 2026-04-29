@@ -148,9 +148,4 @@ public class AppointmentController {
 		return ResponseEntity.ok(convertToDTO(updated));
 	}
 	
-	@DeleteMapping("/appointments/{id}")
-	public String cancel(@PathVariable Integer id) {
-	    service.cancelAppointment(id);
-	    return "Appointment soft deleted";
-	}
 }

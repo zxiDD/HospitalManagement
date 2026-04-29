@@ -129,7 +129,6 @@ public class AffiliatedWithServiceImpl implements AffiliatedWithService {
     @Override
     public AffiliatedWithDTO create(AffiliatedWithDTO dto) {
 
-        // 🔴 Business rule: only one primary affiliation
         if (dto.getPrimaryAffiliation()) {
             Optional<AffiliatedWith> existing =
                     affiliatedWithRepository
