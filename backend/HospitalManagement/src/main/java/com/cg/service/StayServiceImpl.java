@@ -4,6 +4,7 @@ import com.cg.dto.StayDTO;
 import com.cg.entity.Patient;
 import com.cg.entity.Room;
 import com.cg.entity.Stay;
+import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.PatientRepository;
 import com.cg.repo.RoomRepository;
 import com.cg.repo.StayRepository;
@@ -20,38 +21,15 @@ public class StayServiceImpl implements StayService {
 
     @Autowired
     private StayRepository stayRepository;
+
     @Autowired
     private PatientRepository patientRepository;
 
     @Autowired
     private RoomRepository roomRepository;
-
-
-    @Override
-    public List<StayDTO> getAll() {
-        List<Stay> list = stayRepository.findAll();
-        List<StayDTO> dtoList = new ArrayList<>();
-
-        for (Stay s : list) {
-            dtoList.add(new StayDTO(
-                    s.getStayId(),
-                    s.getPatient().getSsn(),
-                    s.getPatient().getName(),
-                    s.getRoom().getRoomNumber(),
-                    s.getRoom().getRoomType(),
-                    s.getStayStart(),
-                    s.getStayEnd()
-            ));
-        }
-
-        return dtoList;
-    }
-
-    @Override
-    public StayDTO getById(Integer id) {
-        Stay s = stayRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Stay not found with id: " + id));
-
+    
+    // 🔹 helper method (cleaner code)
+    private StayDTO mapToDTO(Stay s) {
         return new StayDTO(
                 s.getStayId(),
                 s.getPatient().getSsn(),
@@ -64,20 +42,33 @@ public class StayServiceImpl implements StayService {
     }
 
     @Override
+    public List<StayDTO> getAll() {
+        List<Stay> list = stayRepository.findAll();
+        List<StayDTO> dtoList = new ArrayList<>();
+
+        for (Stay s : list) {
+            dtoList.add(mapToDTO(s));
+        }
+
+        return dtoList;
+    }
+
+    @Override
+    public StayDTO getById(Integer id) {
+        Stay s = stayRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Stay not found with id: " + id));
+
+        return mapToDTO(s);
+    }
+
+    @Override
     public List<StayDTO> getByPatientSsn(Long ssn) {
         List<Stay> list = stayRepository.findByPatient_Ssn(ssn);
         List<StayDTO> dtoList = new ArrayList<>();
 
         for (Stay s : list) {
-            dtoList.add(new StayDTO(
-                    s.getStayId(),
-                    s.getPatient().getSsn(),
-                    s.getPatient().getName(),
-                    s.getRoom().getRoomNumber(),
-                    s.getRoom().getRoomType(),
-                    s.getStayStart(),
-                    s.getStayEnd()
-            ));
+            dtoList.add(mapToDTO(s));
         }
 
         return dtoList;
@@ -89,15 +80,7 @@ public class StayServiceImpl implements StayService {
         List<StayDTO> dtoList = new ArrayList<>();
 
         for (Stay s : list) {
-            dtoList.add(new StayDTO(
-                    s.getStayId(),
-                    s.getPatient().getSsn(),
-                    s.getPatient().getName(),
-                    s.getRoom().getRoomNumber(),
-                    s.getRoom().getRoomType(),
-                    s.getStayStart(),
-                    s.getStayEnd()
-            ));
+            dtoList.add(mapToDTO(s));
         }
 
         return dtoList;
@@ -109,15 +92,7 @@ public class StayServiceImpl implements StayService {
         List<StayDTO> dtoList = new ArrayList<>();
 
         for (Stay s : list) {
-            dtoList.add(new StayDTO(
-                    s.getStayId(),
-                    s.getPatient().getSsn(),
-                    s.getPatient().getName(),
-                    s.getRoom().getRoomNumber(),
-                    s.getRoom().getRoomType(),
-                    s.getStayStart(),
-                    s.getStayEnd()
-            ));
+            dtoList.add(mapToDTO(s));
         }
 
         return dtoList;
@@ -129,15 +104,7 @@ public class StayServiceImpl implements StayService {
         List<StayDTO> dtoList = new ArrayList<>();
 
         for (Stay s : list) {
-            dtoList.add(new StayDTO(
-                    s.getStayId(),
-                    s.getPatient().getSsn(),
-                    s.getPatient().getName(),
-                    s.getRoom().getRoomNumber(),
-                    s.getRoom().getRoomType(),
-                    s.getStayStart(),
-                    s.getStayEnd()
-            ));
+            dtoList.add(mapToDTO(s));
         }
 
         return dtoList;
@@ -149,15 +116,7 @@ public class StayServiceImpl implements StayService {
         List<StayDTO> dtoList = new ArrayList<>();
 
         for (Stay s : list) {
-            dtoList.add(new StayDTO(
-                    s.getStayId(),
-                    s.getPatient().getSsn(),
-                    s.getPatient().getName(),
-                    s.getRoom().getRoomNumber(),
-                    s.getRoom().getRoomType(),
-                    s.getStayStart(),
-                    s.getStayEnd()
-            ));
+            dtoList.add(mapToDTO(s));
         }
 
         return dtoList;
@@ -172,20 +131,17 @@ public class StayServiceImpl implements StayService {
     public long count() {
         return stayRepository.count();
     }
-    
+
     @Override
     public StayDTO create(StayDTO dto) {
 
-        // 🔹 Fetch Patient
         Patient patient = patientRepository.findById(dto.getPatientSsn())
-                .orElseThrow(() -> new RuntimeException(
-                        "Patient not found with ssn: " + dto.getPatientSsn()));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Patient not found with ssn: " + dto.getPatientSsn()));
 
-        // 🔹 Fetch Room
         Room room = roomRepository.findById(dto.getRoomNumber())
-                .orElseThrow(() -> new RuntimeException(
-                        "Room not found with number: " + dto.getRoomNumber()));
-
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Room not found with number: " + dto.getRoomNumber()));
 
         Stay stay = new Stay();
         stay.setPatient(patient);
@@ -195,15 +151,13 @@ public class StayServiceImpl implements StayService {
 
         Stay saved = stayRepository.save(stay);
 
-        return new StayDTO(
-                saved.getStayId(), // auto-generated
-                saved.getPatient().getSsn(),
-                saved.getPatient().getName(),
-                saved.getRoom().getRoomNumber(),
-                saved.getRoom().getRoomType(),
-                saved.getStayStart(),
-                saved.getStayEnd()
-        );
+        return mapToDTO(saved);
     }
-    
+
+    @Override
+    public boolean isPatientActive(Long ssn) {
+        return stayRepository.existsActiveStayByPatient(ssn);
+    }
+
+
 }
