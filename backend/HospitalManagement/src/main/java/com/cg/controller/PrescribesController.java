@@ -73,20 +73,20 @@ public class PrescribesController {
         return ResponseEntity.ok(mapToDTO(p));
     }
 
-    @GetMapping("/count")
-    public ResponseEntity<Long> count() {
-        return ResponseEntity.ok(service.count());
-    }
+//    @GetMapping("/count")
+//    public ResponseEntity<Long> count() {
+//        return ResponseEntity.ok(service.count());
+//    }
 
-    @GetMapping("/sorted")
-    public ResponseEntity<List<PrescribesDTO>> getAllSorted() {
-        List<PrescribesDTO> list = service.getAllSorted()
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(list);
-    }
+//    @GetMapping("/sorted")
+//    public ResponseEntity<List<PrescribesDTO>> getAllSorted() {
+//        List<PrescribesDTO> list = service.getAllSorted()
+//                .stream()
+//                .map(this::mapToDTO)
+//                .collect(Collectors.toList());
+//
+//        return ResponseEntity.ok(list);
+//    }
 
     @GetMapping("/physician/{physicianId}")
     public ResponseEntity<List<PrescribesDTO>> getByPhysician(@PathVariable Integer physicianId) {

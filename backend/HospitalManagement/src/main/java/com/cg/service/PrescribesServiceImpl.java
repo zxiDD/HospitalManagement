@@ -34,10 +34,10 @@ public class PrescribesServiceImpl implements PrescribesService {
         return repo.findAll(Sort.by("id.date")); // sort by date
     }
 
-    @Override
-    public long count() {
-        return repo.count();
-    }
+//    @Override
+//    public long count() {
+//        return repo.count();
+//    }
     
     @Override
     public Prescribes save(Prescribes prescribes) {
