@@ -2,6 +2,8 @@ package com.cg.controller;
 
 import com.cg.dto.AppointmentDTO;
 import com.cg.entity.*;
+import com.cg.exception.BadRequestException;
+import com.cg.exception.IllegalOperationException;
 import com.cg.service.AppointmentService;
 
 import jakarta.validation.Valid;
@@ -62,10 +64,11 @@ public class AppointmentController {
     public ResponseEntity<?> addAppointment(@Valid @RequestBody AppointmentDTO dto) {
 
         if (dto.getEndo().isBefore(dto.getStarto())) {
-            return ResponseEntity.badRequest().body("End time must be after start time");
+            throw new BadRequestException("End time must be after start time");
         }
 
         Appointment a = new Appointment();
+
 
         a.setAppointmentID(dto.getAppointmentID());
         a.setStarto(dto.getStarto());
@@ -92,12 +95,12 @@ public class AppointmentController {
 
         Appointment a = service.getAppointmentById(dto.getAppointmentID());
 
-        if (a == null) {
-            return ResponseEntity.notFound().build();
+        if (dto.getEndo().isBefore(dto.getStarto())) {
+            throw new IllegalOperationException("Invalid time range");
         }
 
-        if (dto.getEndo().isBefore(dto.getStarto())) {
-            return ResponseEntity.badRequest().body("Invalid time range");
+        if (dto.getStarto().isBefore(java.time.LocalDateTime.now())) {
+            throw new IllegalOperationException("Cannot reschedule to past time");
         }
 
         a.setStarto(dto.getStarto());
