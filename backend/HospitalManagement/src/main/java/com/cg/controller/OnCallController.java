@@ -4,6 +4,8 @@ import com.cg.dto.OnCallDTO;
 import com.cg.entity.*;
 import com.cg.service.OnCallService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +51,11 @@ public class OnCallController {
     }
 
     @PostMapping
-    public ResponseEntity<OnCall> addOnCall(@RequestBody OnCallDTO dto) {
+    public ResponseEntity<?> addOnCall(@Valid @RequestBody OnCallDTO dto) {
+
+        if (dto.getOnCallEnd().isBefore(dto.getOnCallStart())) {
+            return ResponseEntity.badRequest().body("End time must be after start time");
+        }
 
         OnCall o = new OnCall();
 
@@ -68,8 +74,6 @@ public class OnCallController {
         o.setOnCallStart(dto.getOnCallStart());
         o.setOnCallEnd(dto.getOnCallEnd());
 
-        OnCall saved = service.save(o);
-
-        return ResponseEntity.status(201).body(saved);
+        return ResponseEntity.status(201).body(service.save(o));
     }
 }

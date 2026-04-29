@@ -4,6 +4,8 @@ import com.cg.dto.AppointmentDTO;
 import com.cg.entity.*;
 import com.cg.service.AppointmentService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,7 +59,11 @@ public class AppointmentController {
 
 
     @PostMapping
-    public ResponseEntity<Appointment> addAppointment(@RequestBody AppointmentDTO dto) {
+    public ResponseEntity<?> addAppointment(@Valid @RequestBody AppointmentDTO dto) {
+
+        if (dto.getEndo().isBefore(dto.getStarto())) {
+            return ResponseEntity.badRequest().body("End time must be after start time");
+        }
 
         Appointment a = new Appointment();
 
@@ -78,14 +84,11 @@ public class AppointmentController {
         n.setEmployeeId(dto.getNurseId());
         a.setPrepNurse(n);
 
-        Appointment saved = service.save(a);
-
-        return ResponseEntity.status(201).body(saved);
+        return ResponseEntity.status(201).body(service.save(a));
     }
 
-
     @PostMapping("/reschedule")
-    public ResponseEntity<Appointment> reschedule(@RequestBody AppointmentDTO dto) {
+    public ResponseEntity<?> reschedule(@Valid @RequestBody AppointmentDTO dto) {
 
         Appointment a = service.getAppointmentById(dto.getAppointmentID());
 
@@ -93,11 +96,13 @@ public class AppointmentController {
             return ResponseEntity.notFound().build();
         }
 
+        if (dto.getEndo().isBefore(dto.getStarto())) {
+            return ResponseEntity.badRequest().body("Invalid time range");
+        }
+
         a.setStarto(dto.getStarto());
         a.setEndo(dto.getEndo());
 
-        Appointment updated = service.save(a);
-
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(service.save(a));
     }
 }
