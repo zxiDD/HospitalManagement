@@ -4,6 +4,7 @@ import com.cg.dto.PhysicianDTO;
 import com.cg.entity.Physician;
 import com.cg.service.PhysicianService;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,11 +67,7 @@ public class PhysicianController {
     }
 
     @PostMapping
-    public ResponseEntity<PhysicianDTO> create(@RequestBody PhysicianDTO dto) {
-
-        if (dto.getEmployeeId() == null) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<PhysicianDTO> create(@Valid @RequestBody PhysicianDTO dto) {
 
         Physician p = new Physician();
         p.setEmployeeId(dto.getEmployeeId());
