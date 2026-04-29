@@ -58,4 +58,16 @@ public class NurseServiceImpl implements NurseService {
 
         return repo.save(nurse);
     }
+    
+    @Override
+    public void delete(Integer employeeId) {
+
+        Nurse nurse = repo.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Nurse not found"));
+
+        nurse.setIsActive(false); 
+
+        repo.save(nurse);
+    }
+    
 }
