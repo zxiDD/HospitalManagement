@@ -1,10 +1,22 @@
 package com.cg.dto;
 
+import jakarta.validation.constraints.*;
+
 public class NurseDTO {
 
+    @NotNull(message = "Employee ID cannot be null")
+    @Min(value = 1, message = "Employee ID must be greater than 0")
     private Integer employeeId;
+
+    @NotBlank(message = "Name cannot be empty")
+    @Size(min = 2, max = 30, message = "Name must be between 2 and 30 characters")
     private String name;
+
+    @NotBlank(message = "Position cannot be empty")
+    @Size(min = 2, max = 30, message = "Position must be between 2 and 30 characters")
     private String position;
+
+    @NotNull(message = "Registered status must be provided")
     private Boolean registered;
 
     public NurseDTO() {}
