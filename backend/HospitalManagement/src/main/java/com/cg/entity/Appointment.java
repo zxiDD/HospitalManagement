@@ -37,6 +37,10 @@ public class Appointment {
     @Column(name = "is_active")
     private boolean isActive = true;
 
+    
+    @Column(name = "is_active")
+    private boolean isActive = true;
+    
     public Appointment() {
     }
 
