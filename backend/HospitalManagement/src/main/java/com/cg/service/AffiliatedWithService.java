@@ -21,9 +21,9 @@ public interface AffiliatedWithService {
 
     DepartmentDTO getPrimaryDepartment(Integer physicianId);
 
-    boolean exists(AffiliatedWithId id);
+//    boolean exists(AffiliatedWithId id);
 
-    long count();
+//    long count();
     
     AffiliatedWithDTO create(AffiliatedWithDTO dto);
 }
