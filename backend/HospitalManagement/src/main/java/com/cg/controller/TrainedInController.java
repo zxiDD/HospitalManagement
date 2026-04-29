@@ -4,6 +4,8 @@ import com.cg.dto.TrainedInDTO;
 import com.cg.entity.*;
 import com.cg.service.TrainedInService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +51,11 @@ public class TrainedInController {
 
 
     @PostMapping("/trainings")
-    public ResponseEntity<TrainedIn> addTraining(@RequestBody TrainedInDTO dto) {
+    public ResponseEntity<?> addTraining(@Valid @RequestBody TrainedInDTO dto) {
+
+        if (dto.getCertificationExpires().isBefore(dto.getCertificationDate())) {
+            return ResponseEntity.badRequest().body("Expiry must be after certification date");
+        }
 
         TrainedIn t = new TrainedIn();
 
@@ -71,8 +77,6 @@ public class TrainedInController {
         t.setCertificationDate(dto.getCertificationDate().atStartOfDay());
         t.setCertificationExpires(dto.getCertificationExpires().atStartOfDay());
 
-        TrainedIn saved = service.save(t);
-
-        return ResponseEntity.status(201).body(saved);
+        return ResponseEntity.status(201).body(service.save(t));
     }
 }

@@ -27,4 +27,7 @@ public interface StayRepository extends JpaRepository<Stay, Integer> {
 
     // Ordered stays
     List<Stay> findByPatientSsnOrderByStayStartDesc(Long patientId);
+    
+    @Query("SELECT COUNT(s) > 0 FROM Stay s WHERE s.patient.ssn = :ssn AND s.stayEnd IS NULL")
+    boolean existsActiveStayByPatient(Long ssn);
 }

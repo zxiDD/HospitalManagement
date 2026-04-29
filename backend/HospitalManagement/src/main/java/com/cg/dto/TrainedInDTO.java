@@ -2,12 +2,27 @@ package com.cg.dto;
 
 import java.time.LocalDate;
 
-public class TrainedInDTO {
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 
+public class TrainedInDTO {
+	
+    @NotNull(message = "Physician ID is required")
+    @Min(value = 1, message = "Physician ID must be positive")
     private Integer physicianId;
+
+    @NotNull(message = "Treatment ID is required")
+    @Min(value = 1, message = "Treatment ID must be positive")
     private Integer treatmentId;
 
+    @NotNull(message = "Certification date is required")
+    @PastOrPresent(message = "Certification date cannot be future")
     private LocalDate certificationDate;
+
+    @NotNull(message = "Expiry date is required")
+    @Future(message = "Expiry date must be future")
     private LocalDate certificationExpires;
 
     public TrainedInDTO() {
