@@ -75,6 +75,35 @@ public class OnCallController {
         o.setOnCallStart(dto.getOnCallStart());
         o.setOnCallEnd(dto.getOnCallEnd());
 
-        return ResponseEntity.status(201).body(service.save(o));
+        OnCall saved = service.save(o);
+        return ResponseEntity.status(201).body(convertToDTO(saved));
+    }
+    
+    @GetMapping("/at")
+    public ResponseEntity<List<OnCallDTO>> getOnCallAt(
+            @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME)
+            java.time.LocalDateTime time) {
+
+        List<OnCallDTO> list = service.getAll()
+                .stream()
+                .filter(o -> !time.isBefore(o.getOnCallStart()) &&
+                             !time.isAfter(o.getOnCallEnd()))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(list);
+    }
+    
+    @DeleteMapping
+    public ResponseEntity<Void> deleteOnCall(
+            @RequestParam Integer nurseId,
+            @RequestParam Integer blockFloor,
+            @RequestParam Integer blockCode) {
+
+        OnCallId id = new OnCallId(nurseId, blockFloor, blockCode);
+
+        service.delete(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

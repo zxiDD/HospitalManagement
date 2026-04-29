@@ -13,11 +13,11 @@ public interface DepartmentService {
 
     List<DepartmentDTO> getByHeadId(Integer headId);
 
-    List<DepartmentDTO> getAllSorted();
-
-    boolean exists(Integer id);
-
-    long count();
+//    List<DepartmentDTO> getAllSorted();
+//
+//    boolean exists(Integer id);
+//
+//    long count();
     
     DepartmentDTO create(DepartmentDTO dto);
 }
