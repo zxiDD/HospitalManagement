@@ -2,13 +2,32 @@ package com.cg.dto;
 
 import java.time.LocalDateTime;
 
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
 public class OnCallDTO {
 
+
+    @NotNull(message = "Nurse ID is required")
+    @Min(value = 1, message = "Nurse ID must be positive")
     private Integer nurseId;
+
+    @NotNull(message = "Block Floor is required")
+    @Min(value = 1, message = "Block Floor must be positive")
     private Integer blockFloor;
+
+    @NotNull(message = "Block Code is required")
+    @Min(value = 1, message = "Block Code must be positive")
     private Integer blockCode;
 
+    @NotNull(message = "Start time is required")
+    @FutureOrPresent(message = "Start time must be present or future")
     private LocalDateTime onCallStart;
+
+    @NotNull(message = "End time is required")
+    @Future(message = "End time must be future")
     private LocalDateTime onCallEnd;
 
     public OnCallDTO() {
