@@ -21,7 +21,7 @@ import io.jsonwebtoken.security.Keys;
 public class JWTService {
 
 	@Value("${jwt.secret}")
-	public static String SECRET;
+	public String SECRET;
 
 	public String generateToken(String userName, List<String> roles) { // Use email as username
 		Map<String, Object> claims = new HashMap<>();

@@ -9,79 +9,74 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PatientServiceImpl implements PatientService {
 
-    private final PatientRepository repo;
+	private final PatientRepository repo;
 
-    public PatientServiceImpl(PatientRepository repo) {
-        this.repo = repo;
-    }
+	public PatientServiceImpl(PatientRepository repo) {
+		this.repo = repo;
+	}
 
-    @Override
-    public List<Patient> getAll() {
-        return repo.findAll();
-    }
+	@Override
+	public List<Patient> getAll() {
+		return repo.findAll();
+	}
 
-    @Override
-    public Patient getById(Long id) {
-        return repo.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Patient not found with SSN: " + id)
-                );
-    }
+	@Override
+	public Patient getById(Long id) {
+		return repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Patient not found with SSN: " + id));
+	}
 
-    @Override
-    public List<Patient> getByName(String name) {
-        return repo.findByName(name);
-    }
+	@Override
+	public List<Patient> getByName(String name) {
+		return repo.findByName(name);
+	}
 
-    @Override
-    public List<Patient> getByNameAndAddress(String name, String address) {
-        return repo.findByNameAndAddress(name, address);
-    }
+	@Override
+	public List<Patient> getByNameAndAddress(String name, String address) {
+		return repo.findByNameAndAddress(name, address);
+	}
 
-    @Override
-    public List<Patient> getAllSorted() {
-        return repo.findAll(Sort.by("name"));
-    }
+	@Override
+	public List<Patient> getAllSorted() {
+		return repo.findAll(Sort.by("name"));
+	}
 
-    @Override
-    public boolean exists(Long id) {
-        return repo.existsById(id);
-    }
+	@Override
+	public boolean exists(Long id) {
+		return repo.existsById(id);
+	}
 
-    @Override
-    public long count() {
-        return repo.count();
-    }
+	@Override
+	public long count() {
+		return repo.count();
+	}
 
-    @Override
-    public Patient save(Patient patient) {
+	@Override
+	public Patient save(Patient patient) {
 
-        if (repo.existsById(patient.getSsn())) {
-            throw new BadRequestException(
-                    "Patient already exists with SSN: " + patient.getSsn()
-            );
-        }
+		if (repo.existsById(patient.getSsn())) {
+			throw new BadRequestException("Patient already exists with SSN: " + patient.getSsn());
+		}
 
-        return repo.save(patient);
-    }
-    
-    @Override
-    public void delete(Long ssn) {
+		return repo.save(patient);
+	}
 
-        Patient patient = repo.findById(ssn)
-                .orElseThrow(() -> new RuntimeException("Patient not found"));
+	@Override
+	public void delete(Long ssn) {
 
-        patient.setIsActive(false); // 👈 soft delete
+		Patient patient = repo.findById(ssn).orElseThrow(() -> new RuntimeException("Patient not found"));
 
-        repo.save(patient);
-    }
-    
-    @Override
-    public List<Patient> getByPhone(String phone) {
-        return repo.findByPhone(phone);
-    }
+		patient.setIsActive(false); // 👈 soft delete
+
+		repo.save(patient);
+	}
+
+	@Override
+	public Optional<Patient> getByPhone(String phone) {
+		return repo.findByPhone(phone);
+	}
 }

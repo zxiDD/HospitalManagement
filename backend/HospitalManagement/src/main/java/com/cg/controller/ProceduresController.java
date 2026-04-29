@@ -20,7 +20,10 @@ import com.cg.entity.Procedures;
 import com.cg.exception.ResourceNotFoundException;
 import com.cg.service.ProceduresService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
+@SecurityRequirement(name = "BearerAuth")
 public class ProceduresController {
 
 	@Autowired

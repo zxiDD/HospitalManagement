@@ -2,16 +2,20 @@ package com.cg.controller;
 
 import com.cg.dto.PhysicianDTO;
 import com.cg.entity.Physician;
+import com.cg.exception.ValidationException;
 import com.cg.service.PhysicianService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@SecurityRequirement(name = "BearerAuth")
 public class PhysicianController {
 
     private final PhysicianService service;
@@ -66,10 +70,13 @@ public class PhysicianController {
 //    }
 
     @PostMapping("/admin/physicians")
-    public ResponseEntity<PhysicianDTO> create(@Valid @RequestBody PhysicianDTO dto) {
+    public ResponseEntity<PhysicianDTO> create(@Valid @RequestBody PhysicianDTO dto, BindingResult br) {
+    	
+    	if (br.hasErrors()) {
+			throw new ValidationException(br.getFieldErrors());
+		}
 
         Physician p = new Physician();
-        p.setEmployeeId(dto.getEmployeeId());
         p.setName(dto.getName());
         p.setPosition(dto.getPosition());
         p.setSsn(dto.getSsn());

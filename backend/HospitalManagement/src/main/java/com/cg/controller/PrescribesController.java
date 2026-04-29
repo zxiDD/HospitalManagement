@@ -24,7 +24,10 @@ import com.cg.service.PatientService;
 import com.cg.service.PhysicianService;
 import com.cg.service.PrescribesService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
+@SecurityRequirement(name = "BearerAuth")
 public class PrescribesController {
 
 	private final PrescribesService service;

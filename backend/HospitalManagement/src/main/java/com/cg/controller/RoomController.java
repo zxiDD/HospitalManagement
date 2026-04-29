@@ -15,7 +15,10 @@ import com.cg.dto.RoomDTO;
 import com.cg.entity.Room;
 import com.cg.service.RoomService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
+@SecurityRequirement(name = "BearerAuth")
 public class RoomController {
 
 	private final RoomService roomService;

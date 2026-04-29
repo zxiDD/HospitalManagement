@@ -5,6 +5,7 @@ import com.cg.entity.*;
 import com.cg.exception.BadRequestException;
 import com.cg.service.OnCallService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/admin/oncall")
+@SecurityRequirement(name = "BearerAuth")
 public class OnCallController {
 
     @Autowired
