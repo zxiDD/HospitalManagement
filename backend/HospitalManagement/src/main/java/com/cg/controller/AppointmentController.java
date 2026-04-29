@@ -24,9 +24,11 @@ import com.cg.exception.BadRequestException;
 import com.cg.exception.IllegalOperationException;
 import com.cg.service.AppointmentService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 @RestController
+@SecurityRequirement(name = "BearerAuth")
 public class AppointmentController {
 
 	@Autowired

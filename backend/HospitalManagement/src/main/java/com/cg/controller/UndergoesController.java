@@ -18,6 +18,8 @@ import com.cg.service.RoomService;
 import com.cg.service.StayService;
 import com.cg.service.UndergoesService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
+@SecurityRequirement(name = "BearerAuth")
 public class UndergoesController {
 
 	@Autowired

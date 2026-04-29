@@ -4,6 +4,7 @@ import com.cg.dto.StayDTO;
 import com.cg.exception.ValidationException;
 import com.cg.service.StayService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
+@SecurityRequirement(name = "BearerAuth")
 public class StayController {
 
     @Autowired

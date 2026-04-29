@@ -6,25 +6,27 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
-public class RolePk implements Serializable{
+public class RolePk implements Serializable {
 
-	@Column(name="username", length = 100)
+	@Column(name = "username", length = 100)
 	private String userName;
-	@Column(name="authority")
+	@Column(name = "authority")
 	private String roleName;
-	
+
 	public String getUserName() {
 		return userName;
 	}
+
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
+
 	public String getRoleName() {
 		return roleName;
 	}
+
 	public void setRoleName(String roleName) {
 		this.roleName = roleName;
 	}
-	
-	
+
 }

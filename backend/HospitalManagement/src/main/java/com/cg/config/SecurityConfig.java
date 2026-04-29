@@ -26,7 +26,7 @@ public class SecurityConfig {
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowedOrigins(List.of("http://localhost:4200"));
-		config.setAllowedMethods(List.of("GET", "POST", "DELETE", "PUT", "OPTIONS"));
+		config.setAllowedMethods(List.of("GET", "POST", "DELETE", "PATCH", "PUT", "OPTIONS"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowCredentials(true);
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -36,13 +36,10 @@ public class SecurityConfig {
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		return http
-				.cors(cors -> cors
-						.configurationSource(corsConfigurationSource()))
-				.csrf(csrf -> csrf.disable())
+		return http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/auth/login", "/auth/register", "/swagger-ui/**", "/swagger-resources/**",
-								"/v3/api-docs/**", "/actuator/**")
+						.requestMatchers("/auth/login", "/auth/register", "/swagger-ui.html", "/swagger-ui/**",
+								"/swagger-resources/**", "/v3/api-docs/**", "/actuator/**")
 						.permitAll().requestMatchers("/admin/**").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.POST, "/physicians/**", "/nurses/**", "/departments/**",
 								"/medications/**", "/procedures/**")

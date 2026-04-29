@@ -21,10 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cg.dto.LoginResponseDTO;
 import com.cg.dto.SignupDTO;
 import com.cg.entity.Patient;
+import com.cg.entity.Role;
+import com.cg.entity.RolePk;
 import com.cg.entity.User;
-import com.cg.enums.Role;
 import com.cg.exception.ValidationException;
 import com.cg.repo.PatientRepository;
+import com.cg.repo.RoleRepository;
 import com.cg.repo.UserRepository;
 import com.cg.security.AuthRequest;
 import com.cg.security.JWTService;
@@ -46,9 +48,12 @@ public class AuthController {
 
 	@Autowired
 	private PatientRepository patientRepository;
-	
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private RoleRepository roleRepository;
 
 	@PostMapping("/login")
 	public ResponseEntity<LoginResponseDTO> login(@RequestBody AuthRequest authRequest) {
@@ -91,6 +96,10 @@ public class AuthController {
 		if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
 		}
+		
+		if (patientRepository.findById(dto.getSsn()).isPresent()) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("Patient already exists");
+		}
 
 		if (patientRepository.findByPhone(dto.getPhoneNo()).isPresent()) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body("Phone number already exists");
@@ -100,13 +109,24 @@ public class AuthController {
 
 		user.setUsername(dto.getUsername());
 
-		user.setPassword(passwordEncoder.encode(dto.password()));
+		user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
 		user.setIsActive(true);
 
-		user.setRole(Role.PATIENT);
+		user.setRole(com.cg.enums.Role.PATIENT);
+		
+		RolePk rolePk = new RolePk();
+		rolePk.setUserName(dto.getUsername());
+		rolePk.setRoleName("ROLE_USER");
+
+		Role role = new Role();
+		role.setKey(rolePk);
+
+		roleRepository.save(role);
 
 		Patient patient = new Patient();
+
+		patient.setSsn(dto.getSsn());
 
 		patient.setName(dto.getPatientName());
 

@@ -1,6 +1,7 @@
 package com.cg.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -24,18 +25,22 @@ public class SignupDTO {
 	@NotBlank(message = "Address is required")
 	private String address;
 
+	@NotNull(message = "SSN is required")
+	private Long ssn;
+
 	private Integer insuranceId;
 
 	public SignupDTO() {
 	}
 
-	public SignupDTO(String username, String password, String patientName, String phoneNo, String address,
+	public SignupDTO(String username, String password, String patientName, String phoneNo, String address, Long ssn,
 			Integer insuranceId) {
 		this.username = username;
 		this.password = password;
 		this.patientName = patientName;
 		this.phoneNo = phoneNo;
 		this.address = address;
+		this.ssn = ssn;
 		this.insuranceId = insuranceId;
 	}
 
@@ -77,6 +82,14 @@ public class SignupDTO {
 
 	public void setAddress(String address) {
 		this.address = address;
+	}
+
+	public Long getSsn() {
+		return ssn;
+	}
+
+	public void setSsn(Long ssn) {
+		this.ssn = ssn;
 	}
 
 	public Integer getInsuranceId() {

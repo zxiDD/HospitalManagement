@@ -8,6 +8,7 @@ import com.cg.entity.OnCallId;
 import com.cg.service.NurseService;
 import com.cg.service.OnCallService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/admin/nurses")
+@SecurityRequirement(name = "BearerAuth")
 public class NurseController {
 
     private final NurseService service;
