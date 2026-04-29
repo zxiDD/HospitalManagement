@@ -14,6 +14,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
     List<Appointment> findByPhysician_EmployeeId(Integer physicianId);
 
     List<Appointment> findByPrepNurse_EmployeeId(Integer nurseId);
+    
 
     // based on fields
 
