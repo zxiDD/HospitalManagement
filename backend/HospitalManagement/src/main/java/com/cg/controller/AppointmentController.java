@@ -146,4 +146,5 @@ public class AppointmentController {
 		Appointment updated = service.assignPrepNurse(appointmentId, request.getEmployeeId());
 		return ResponseEntity.ok(convertToDTO(updated));
 	}
+	
 }
