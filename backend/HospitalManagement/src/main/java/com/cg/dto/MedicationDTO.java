@@ -1,12 +1,25 @@
 package com.cg.dto;
 
+import jakarta.validation.constraints.*;
+
 public class MedicationDTO {
 
     private Integer code;
-    private String name;
-    private String brand;
-    private String description;
 
+    @NotBlank(message = "Medication name is required")
+    @Size(max = 30, message = "Name must not exceed 30 characters")
+    @Pattern(regexp = "^[A-Za-z0-9 ]+$", message = "Only letters and numbers allowed")
+    private String name;
+
+    @NotBlank(message = "Brand is required")
+    @Size(max = 30, message = "Brand must not exceed 30 characters")
+    @Pattern(regexp = "^[A-Za-z0-9 ]+$", message = "Only letters and numbers allowed")
+    private String brand;
+
+    @NotBlank(message = "Description is required")
+    @Size(max = 30, message = "Description must not exceed 30 characters")
+    @Pattern(regexp = "^[A-Za-z0-9 ]+$", message = "Only letters and numbers allowed")
+    private String description;
 
     public MedicationDTO() {}
 

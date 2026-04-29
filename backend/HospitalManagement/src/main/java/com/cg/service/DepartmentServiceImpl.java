@@ -3,6 +3,7 @@ package com.cg.service;
 import com.cg.dto.DepartmentDTO;
 import com.cg.entity.Department;
 import com.cg.entity.Physician;
+import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.DepartmentRepository;
 import com.cg.repo.PhysicianRepository;
 
@@ -17,49 +18,47 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Autowired
     private DepartmentRepository departmentRepository;
+
     @Autowired
     private PhysicianRepository physicianRepository;
 
+    // 🔥 helper method
+    private DepartmentDTO mapToDTO(Department d) {
+        return new DepartmentDTO(
+                d.getDepartmentId(),
+                d.getName(),
+                d.getHead().getEmployeeId(),
+                d.getHead().getName()
+        );
+    }
     @Override
     public List<DepartmentDTO> getAll() {
         List<Department> departments = departmentRepository.findAll();
         List<DepartmentDTO> dtoList = new ArrayList<>();
 
         for (Department d : departments) {
-            dtoList.add(new DepartmentDTO(
-                    d.getDepartmentId(),
-                    d.getName(),
-                    d.getHead().getEmployeeId(),
-                    d.getHead().getName()
-            ));
+            dtoList.add(mapToDTO(d));
         }
+
         return dtoList;
     }
 
     @Override
     public DepartmentDTO getById(Integer id) {
         Department d = departmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Department not found with id: " + id));
 
-        return new DepartmentDTO(
-                d.getDepartmentId(),
-                d.getName(),
-                d.getHead().getEmployeeId(),
-                d.getHead().getName()
-        );
+        return mapToDTO(d);
     }
 
     @Override
     public DepartmentDTO getByName(String name) {
         Department d = departmentRepository.findByName(name)
-                .orElseThrow(() -> new RuntimeException("Department not found with name: " + name));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Department not found with name: " + name));
 
-        return new DepartmentDTO(
-                d.getDepartmentId(),
-                d.getName(),
-                d.getHead().getEmployeeId(),
-                d.getHead().getName()
-        );
+        return mapToDTO(d);
     }
 
     @Override
@@ -68,13 +67,9 @@ public class DepartmentServiceImpl implements DepartmentService {
         List<DepartmentDTO> dtoList = new ArrayList<>();
 
         for (Department d : departments) {
-            dtoList.add(new DepartmentDTO(
-                    d.getDepartmentId(),
-                    d.getName(),
-                    d.getHead().getEmployeeId(),
-                    d.getHead().getName()
-            ));
+            dtoList.add(mapToDTO(d));
         }
+
         return dtoList;
     }
 
@@ -84,13 +79,9 @@ public class DepartmentServiceImpl implements DepartmentService {
         List<DepartmentDTO> dtoList = new ArrayList<>();
 
         for (Department d : departments) {
-            dtoList.add(new DepartmentDTO(
-                    d.getDepartmentId(),
-                    d.getName(),
-                    d.getHead().getEmployeeId(),
-                    d.getHead().getName()
-            ));
+            dtoList.add(mapToDTO(d));
         }
+
         return dtoList;
     }
 
@@ -107,24 +98,18 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public DepartmentDTO create(DepartmentDTO dto) {
 
-        // 🔹 Fetch Physician (head)
         Physician head = physicianRepository.findById(dto.getHeadId())
-                .orElseThrow(() -> new RuntimeException("Physician not found with id: " + dto.getHeadId()));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Physician not found with id: " + dto.getHeadId()));
 
-        // 🔹 Convert DTO → Entity
         Department dept = new Department();
         dept.setName(dto.getName());
         dept.setHead(head);
 
-        // 🔹 Save
         Department saved = departmentRepository.save(dept);
 
-        // 🔹 Convert Entity → DTO
-        return new DepartmentDTO(
-                saved.getDepartmentId(),
-                saved.getName(),
-                saved.getHead().getEmployeeId(),
-                saved.getHead().getName()
-        );
+        return mapToDTO(saved);
     }
+
+
 }
