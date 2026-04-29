@@ -1,5 +1,6 @@
 package com.cg.controller;
 
+import com.cg.dto.AppointmentDTO;
 import com.cg.dto.PatientDTO;
 import com.cg.entity.Patient;
 import com.cg.entity.Physician;

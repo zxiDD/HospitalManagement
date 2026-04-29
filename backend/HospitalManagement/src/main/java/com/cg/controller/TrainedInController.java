@@ -2,6 +2,7 @@ package com.cg.controller;
 
 import com.cg.dto.TrainedInDTO;
 import com.cg.entity.*;
+import com.cg.exception.BadRequestException;
 import com.cg.service.TrainedInService;
 
 import jakarta.validation.Valid;
@@ -54,7 +55,7 @@ public class TrainedInController {
     public ResponseEntity<?> addTraining(@Valid @RequestBody TrainedInDTO dto) {
 
         if (dto.getCertificationExpires().isBefore(dto.getCertificationDate())) {
-            return ResponseEntity.badRequest().body("Expiry must be after certification date");
+            throw new BadRequestException("Expiry must be after certification date");
         }
 
         TrainedIn t = new TrainedIn();

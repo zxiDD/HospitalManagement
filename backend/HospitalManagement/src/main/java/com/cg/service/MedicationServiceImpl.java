@@ -79,27 +79,27 @@ public class MedicationServiceImpl implements MedicationService {
         return mapToDTO(m);
     }
 
-    @Override
-    public List<MedicationDTO> getAllSorted() {
-        List<Medication> meds = medicationRepository.findAllByOrderByCodeAsc();
-        List<MedicationDTO> dtoList = new ArrayList<>();
-
-        for (Medication m : meds) {
-            dtoList.add(mapToDTO(m));
-        }
-
-        return dtoList;
-    }
-
-    @Override
-    public boolean exists(Integer code) {
-        return medicationRepository.existsById(code);
-    }
-
-    @Override
-    public long count() {
-        return medicationRepository.count();
-    }
+//    @Override
+//    public List<MedicationDTO> getAllSorted() {
+//        List<Medication> meds = medicationRepository.findAllByOrderByCodeAsc();
+//        List<MedicationDTO> dtoList = new ArrayList<>();
+//
+//        for (Medication m : meds) {
+//            dtoList.add(mapToDTO(m));
+//        }
+//
+//        return dtoList;
+//    }
+//
+//    @Override
+//    public boolean exists(Integer code) {
+//        return medicationRepository.existsById(code);
+//    }
+//
+//    @Override
+//    public long count() {
+//        return medicationRepository.count();
+//    }
 
     @Override
     public MedicationDTO create(MedicationDTO dto) {

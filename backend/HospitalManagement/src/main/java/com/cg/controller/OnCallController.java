@@ -2,6 +2,7 @@ package com.cg.controller;
 
 import com.cg.dto.OnCallDTO;
 import com.cg.entity.*;
+import com.cg.exception.BadRequestException;
 import com.cg.service.OnCallService;
 
 import jakarta.validation.Valid;
@@ -54,7 +55,7 @@ public class OnCallController {
     public ResponseEntity<?> addOnCall(@Valid @RequestBody OnCallDTO dto) {
 
         if (dto.getOnCallEnd().isBefore(dto.getOnCallStart())) {
-            return ResponseEntity.badRequest().body("End time must be after start time");
+            throw new BadRequestException("End time must be after start time");
         }
 
         OnCall o = new OnCall();

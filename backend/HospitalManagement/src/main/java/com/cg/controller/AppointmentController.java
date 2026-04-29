@@ -1,7 +1,10 @@
 package com.cg.controller;
 
 import com.cg.dto.AppointmentDTO;
+import com.cg.dto.NurseDTO;
 import com.cg.entity.*;
+import com.cg.exception.BadRequestException;
+import com.cg.exception.IllegalOperationException;
 import com.cg.service.AppointmentService;
 
 import jakarta.validation.Valid;
@@ -34,7 +37,13 @@ public class AppointmentController {
                 a.getExaminationRoom()
         );
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> cancelAppointment(@PathVariable Integer id) {
 
+        service.cancelAppointment(id);
+
+        return ResponseEntity.noContent().build(); // 204
+    }
 
     @GetMapping
     public ResponseEntity<List<AppointmentDTO>> getAll() {
@@ -49,12 +58,24 @@ public class AppointmentController {
     @GetMapping("/{id}")
     public ResponseEntity<AppointmentDTO> getById(@PathVariable Integer id) {
         Appointment a = service.getAppointmentById(id);
-
-        if (a == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(convertToDTO(a));
+    }
+    
+    @GetMapping("/physician/{physicianId}/patients")
+    public ResponseEntity<List<String>> getPatientsByPhysician(@PathVariable Integer physicianId) {
+        return ResponseEntity.ok(service.getPatientsByPhysician(physicianId));
+    }
+    
+    @GetMapping("/physician/{physicianId}/appointments")
+    public ResponseEntity<List<AppointmentDTO>> getAppointmentsByPhysician(
+            @PathVariable Integer physicianId) {
+
+        List<AppointmentDTO> list = service.getAppointmentsByPhysician(physicianId)
+                .stream()
+                .map(this::convertToDTO)
+                .toList();
+
+        return ResponseEntity.ok(list);
     }
 
 
@@ -62,10 +83,11 @@ public class AppointmentController {
     public ResponseEntity<?> addAppointment(@Valid @RequestBody AppointmentDTO dto) {
 
         if (dto.getEndo().isBefore(dto.getStarto())) {
-            return ResponseEntity.badRequest().body("End time must be after start time");
+            throw new BadRequestException("End time must be after start time");
         }
 
         Appointment a = new Appointment();
+
 
         a.setAppointmentID(dto.getAppointmentID());
         a.setStarto(dto.getStarto());
@@ -92,17 +114,35 @@ public class AppointmentController {
 
         Appointment a = service.getAppointmentById(dto.getAppointmentID());
 
-        if (a == null) {
-            return ResponseEntity.notFound().build();
+        if (dto.getEndo().isBefore(dto.getStarto())) {
+            throw new IllegalOperationException("Invalid time range");
         }
 
-        if (dto.getEndo().isBefore(dto.getStarto())) {
-            return ResponseEntity.badRequest().body("Invalid time range");
+        if (dto.getStarto().isBefore(java.time.LocalDateTime.now())) {
+            throw new IllegalOperationException("Cannot reschedule to past time");
         }
 
         a.setStarto(dto.getStarto());
         a.setEndo(dto.getEndo());
 
         return ResponseEntity.ok(service.save(a));
+    }
+    
+    @GetMapping("/patients/{patientId}/appointments")
+    public ResponseEntity<List<AppointmentDTO>> getAppointmentsForPatient(
+            @PathVariable Long patientId) {
+ 
+        List<Appointment> appointments = service.getByPatientId(patientId);
+        List<AppointmentDTO> appointmentsDTO = appointments.stream().map(this::convertToDTO).toList();
+        return ResponseEntity.ok(appointmentsDTO);
+    }
+    
+    @PatchMapping("/appointments/{appointmentId}/nurse")
+    public ResponseEntity<AppointmentDTO> assignPrepNurse(
+            @PathVariable Integer appointmentId,
+            @Valid @RequestBody NurseDTO request) {
+ 
+        Appointment updated = service.assignPrepNurse(appointmentId, request.getEmployeeId());
+        return ResponseEntity.ok(convertToDTO(updated));
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.cg.entity.Undergoes;
 import com.cg.entity.UndergoesId;
+import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.UndergoesRepository;
 
 @Service
@@ -59,6 +60,20 @@ public class UndergoesServiceImpl implements UndergoesService {
 	@Override
 	public List<Undergoes> getUndergoesBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
 		return undergoesRepository.findById_DateUndergoesBetween(startDate, endDate);
+	}
+	
+	@Override
+	public List<String> getProceduresByPatient(Long patientId) {
+
+	    List<Undergoes> list = undergoesRepository.findByPatient_Ssn(patientId);
+
+	    if (list.isEmpty()) {
+	        throw new ResourceNotFoundException("No procedures found");
+	    }
+
+	    return list.stream()
+	            .map(u -> u.getProcedures().getName())
+	            .toList();
 	}
 
 	@Override
