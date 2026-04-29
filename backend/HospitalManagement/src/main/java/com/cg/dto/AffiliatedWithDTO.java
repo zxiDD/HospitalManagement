@@ -1,13 +1,20 @@
 package com.cg.dto;
 
+import jakarta.validation.constraints.*;
+
 public class AffiliatedWithDTO {
 
+    @NotNull(message = "Physician ID is required")
     private Integer physicianId;
-    private String physicianName;      
 
+    private String physicianName;   // response only → no validation
+
+    @NotNull(message = "Department ID is required")
     private Integer departmentId;
-    private String departmentName;    
 
+    private String departmentName;  // response only → no validation
+
+    @NotNull(message = "Primary affiliation is required")
     private Boolean primaryAffiliation;
 
     public AffiliatedWithDTO() {}
@@ -21,6 +28,7 @@ public class AffiliatedWithDTO {
         this.departmentName = departmentName;
         this.primaryAffiliation = primaryAffiliation;
     }
+
     public Integer getPhysicianId() {
         return physicianId;
     }

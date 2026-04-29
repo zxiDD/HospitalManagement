@@ -1,11 +1,15 @@
 package com.cg.controller;
 
 import com.cg.dto.DepartmentDTO;
+import com.cg.exception.ValidationException;
 import com.cg.service.DepartmentService;
+
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,89 +23,49 @@ public class DepartmentController {
 
     @GetMapping
     public ResponseEntity<List<DepartmentDTO>> getAll() {
-        List<DepartmentDTO> list = departmentService.getAll();
-
-        if (list != null && !list.isEmpty()) {
-            return ResponseEntity.ok(list);
-        } else {
-        	return ResponseEntity.status(204).body(null);
-        }
+        return ResponseEntity.ok(departmentService.getAll());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<DepartmentDTO> getById(@PathVariable Integer id) {
-        DepartmentDTO dto = departmentService.getById(id);
-
-        if (dto != null) {
-            return ResponseEntity.ok(dto);
-        } else {
-        	return ResponseEntity.status(404).body(null);
-        }
+        return ResponseEntity.ok(departmentService.getById(id));
     }
 
     @GetMapping("/name/{name}")
     public ResponseEntity<DepartmentDTO> getByName(@PathVariable String name) {
-        DepartmentDTO dto = departmentService.getByName(name);
-
-        if (dto != null) {
-            return ResponseEntity.ok(dto);
-        } else {
-        	return ResponseEntity.status(404).body(null);
-        }
+        return ResponseEntity.ok(departmentService.getByName(name));
     }
 
     @GetMapping("/head/{headId}")
     public ResponseEntity<List<DepartmentDTO>> getByHeadId(@PathVariable Integer headId) {
-        List<DepartmentDTO> list = departmentService.getByHeadId(headId);
-
-        if (list != null && !list.isEmpty()) {
-            return ResponseEntity.ok(list);
-        } else {
-        	return ResponseEntity.status(204).body(null);
-        }
+        return ResponseEntity.ok(departmentService.getByHeadId(headId));
     }
 
     @GetMapping("/sorted")
     public ResponseEntity<List<DepartmentDTO>> getSorted() {
-        List<DepartmentDTO> list = departmentService.getAllSorted();
-
-        if (list != null && !list.isEmpty()) {
-            return ResponseEntity.ok(list);
-        } else {
-        	return ResponseEntity.status(204).body(null);
-        }
+        return ResponseEntity.ok(departmentService.getAllSorted());
     }
 
     @GetMapping("/exists/{id}")
     public ResponseEntity<Boolean> exists(@PathVariable Integer id) {
-        boolean exists = departmentService.exists(id);
-
-        if (exists) {
-            return ResponseEntity.ok(true);
-        } else {
-            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
-        }
+        return ResponseEntity.ok(departmentService.exists(id));
     }
 
     @GetMapping("/count")
     public ResponseEntity<Long> count() {
-        long count = departmentService.count();
-
-        if (count > 0) {
-            return ResponseEntity.ok(count);
-        } else {
-            return new ResponseEntity<>(0L, HttpStatus.NO_CONTENT);
-        }
+        return ResponseEntity.ok(departmentService.count());
     }
 
     @PostMapping
-    public ResponseEntity<DepartmentDTO> createDepartment(@RequestBody DepartmentDTO dto) {
-        DepartmentDTO created = departmentService.create(dto);
+    public ResponseEntity<DepartmentDTO> createDepartment(
+            @Valid @RequestBody DepartmentDTO dto,
+            BindingResult br) {
 
-        if (created != null) {
-            return new ResponseEntity<>(created, HttpStatus.CREATED);
-        } else {
-            return ResponseEntity.status(400).body(null);
+        if (br.hasErrors()) {
+            throw new ValidationException(br.getFieldErrors());
         }
+
+        DepartmentDTO created = departmentService.create(dto);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 }

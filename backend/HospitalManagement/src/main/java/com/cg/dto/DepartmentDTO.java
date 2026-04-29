@@ -1,12 +1,20 @@
 package com.cg.dto;
 
+import jakarta.validation.constraints.*;
+
 public class DepartmentDTO {
 
     private Integer departmentId;
-    private String name;
-    private Integer headId;    
-    private String headName;    
 
+    @NotBlank(message = "Department name is required")
+    @Size(max = 30, message = "Department name must not exceed 30 characters")
+    @Pattern(regexp = "^[A-Za-z ]+$", message = "Only letters and spaces are allowed")
+    private String name;
+
+    @NotNull(message = "Head (Physician ID) is required")
+    private Integer headId;
+
+    private String headName;
 
     public DepartmentDTO() {}
 

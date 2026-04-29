@@ -2,6 +2,7 @@ package com.cg.service;
 
 import com.cg.dto.MedicationDTO;
 import com.cg.entity.Medication;
+import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.MedicationRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,18 +17,23 @@ public class MedicationServiceImpl implements MedicationService {
     @Autowired
     private MedicationRepository medicationRepository;
 
+    // 🔥 helper method
+    private MedicationDTO mapToDTO(Medication m) {
+        return new MedicationDTO(
+                m.getCode(),
+                m.getName(),
+                m.getBrand(),
+                m.getDescription()
+        );
+    }
+    
     @Override
     public List<MedicationDTO> getAll() {
         List<Medication> meds = medicationRepository.findAll();
         List<MedicationDTO> dtoList = new ArrayList<>();
 
         for (Medication m : meds) {
-            dtoList.add(new MedicationDTO(
-                    m.getCode(),
-                    m.getName(),
-                    m.getBrand(),
-                    m.getDescription()
-            ));
+            dtoList.add(mapToDTO(m));
         }
 
         return dtoList;
@@ -36,27 +42,19 @@ public class MedicationServiceImpl implements MedicationService {
     @Override
     public MedicationDTO getById(Integer code) {
         Medication m = medicationRepository.findById(code)
-                .orElseThrow(() -> new RuntimeException("Medication not found with code: " + code));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Medication not found with code: " + code));
 
-        return new MedicationDTO(
-                m.getCode(),
-                m.getName(),
-                m.getBrand(),
-                m.getDescription()
-        );
+        return mapToDTO(m);
     }
 
     @Override
     public MedicationDTO getByName(String name) {
         Medication m = medicationRepository.findByName(name)
-                .orElseThrow(() -> new RuntimeException("Medication not found with name: " + name));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Medication not found with name: " + name));
 
-        return new MedicationDTO(
-                m.getCode(),
-                m.getName(),
-                m.getBrand(),
-                m.getDescription()
-        );
+        return mapToDTO(m);
     }
 
     @Override
@@ -65,12 +63,7 @@ public class MedicationServiceImpl implements MedicationService {
         List<MedicationDTO> dtoList = new ArrayList<>();
 
         for (Medication m : meds) {
-            dtoList.add(new MedicationDTO(
-                    m.getCode(),
-                    m.getName(),
-                    m.getBrand(),
-                    m.getDescription()
-            ));
+            dtoList.add(mapToDTO(m));
         }
 
         return dtoList;
@@ -79,15 +72,11 @@ public class MedicationServiceImpl implements MedicationService {
     @Override
     public MedicationDTO getByNameAndBrand(String name, String brand) {
         Medication m = medicationRepository.findByNameAndBrand(name, brand)
-                .orElseThrow(() -> new RuntimeException(
-                        "Medication not found with name: " + name + " and brand: " + brand));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Medication not found with name: " + name + " and brand: " + brand));
 
-        return new MedicationDTO(
-                m.getCode(),
-                m.getName(),
-                m.getBrand(),
-                m.getDescription()
-        );
+        return mapToDTO(m);
     }
 
     @Override
@@ -96,12 +85,7 @@ public class MedicationServiceImpl implements MedicationService {
         List<MedicationDTO> dtoList = new ArrayList<>();
 
         for (Medication m : meds) {
-            dtoList.add(new MedicationDTO(
-                    m.getCode(),
-                    m.getName(),
-                    m.getBrand(),
-                    m.getDescription()
-            ));
+            dtoList.add(mapToDTO(m));
         }
 
         return dtoList;
@@ -116,7 +100,7 @@ public class MedicationServiceImpl implements MedicationService {
     public long count() {
         return medicationRepository.count();
     }
-    
+
     @Override
     public MedicationDTO create(MedicationDTO dto) {
 
@@ -127,12 +111,8 @@ public class MedicationServiceImpl implements MedicationService {
 
         Medication saved = medicationRepository.save(med);
 
-        return new MedicationDTO(
-                saved.getCode(),
-                saved.getName(),
-                saved.getBrand(),
-                saved.getDescription()
-        );
+        return mapToDTO(saved);
     }
-    
+
+
 }
