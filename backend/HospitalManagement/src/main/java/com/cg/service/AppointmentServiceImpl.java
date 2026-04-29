@@ -1,11 +1,18 @@
 package com.cg.service;
 
+import com.cg.controller.AppointmentResponse;
+import com.cg.controller.ResponseStatusException;
 import com.cg.entity.Appointment;
+import com.cg.entity.Nurse;
+import com.cg.entity.Patient;
 import com.cg.exception.BadRequestException;
 import com.cg.exception.DuplicateResourceException;
 import com.cg.exception.IllegalOperationException;
 import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.AppointmentRepository;
+import com.cg.repo.NurseRepository;
+import com.cg.repo.PatientRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,55 +21,93 @@ import java.util.List;
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
 
-    @Autowired
-    private AppointmentRepository repository;
+	@Autowired
+	private AppointmentRepository repository;
 
-    @Override
-    public List<Appointment> getAllAppointments() {
-        return repository.findAll();
-    }
+	@Autowired
+	private PatientRepository patientRepo;
 
-    @Override
-    public Appointment getAppointmentById(Integer id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with ID: " + id));
-    }
+	@Autowired
+	private NurseRepository nurseRepo;
 
-    @Override
-    public List<Appointment> getByPatientId(Long patientId) {
-        return repository.findByPatient_Ssn(patientId);
-    }
+	@Override
+	public List<Appointment> getAllAppointments() {
+		return repository.findAll();
+	}
 
-    @Override
-    public List<Appointment> getByPhysicianId(Integer physicianId) {
-        return repository.findByPhysician_EmployeeId(physicianId);
-    }
+	@Override
+	public Appointment getAppointmentById(Integer id) {
+		return repository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Appointment not found with ID: " + id));
+	}
 
-    @Override
-    public List<Appointment> getByNurseId(Integer nurseId) {
-        return repository.findByPrepNurse_EmployeeId(nurseId);
-    }
+	@Override
+	public List<Appointment> getByPatientId(Long patientId) {
+		patientRepo.findById(patientId)
+				.orElseThrow(() -> new ResourceNotFoundException("Patient not found with id " + patientId));
 
-    @Override
-    public List<Appointment> getByRoom(String room) {
-        return repository.findByExaminationRoom(room);
-    }
-    
-    @Override
-    public Appointment save(Appointment a) {
+		return repository.findByPatient_Ssn(patientId);
+	}
 
-        if (a.getAppointmentID() == null) {
-            throw new BadRequestException("Appointment ID cannot be null");
-        }
+	@Override
+	public List<Appointment> getByPhysicianId(Integer physicianId) {
+		return repository.findByPhysician_EmployeeId(physicianId);
+	}
 
-        if (repository.existsById(a.getAppointmentID())) {
-            throw new DuplicateResourceException("Appointment already exists");
-        }
+	@Override
+	public List<Appointment> getByNurseId(Integer nurseId) {
+		return repository.findByPrepNurse_EmployeeId(nurseId);
+	}
 
-        if (a.getEndo().isBefore(a.getStarto())) {
-            throw new IllegalOperationException("End time cannot be before start time");
-        }
+	@Override
+	public List<Appointment> getByRoom(String room) {
+		return repository.findByExaminationRoom(room);
+	}
 
-        return repository.save(a);
-    }
+	@Override
+	public Appointment save(Appointment a) {
+
+		if (a.getAppointmentID() == null) {
+			throw new BadRequestException("Appointment ID cannot be null");
+		}
+
+		if (repository.existsById(a.getAppointmentID())) {
+			throw new DuplicateResourceException("Appointment already exists");
+		}
+
+		if (a.getEndo().isBefore(a.getStarto())) {
+			throw new IllegalOperationException("End time cannot be before start time");
+		}
+
+		return repository.save(a);
+	}
+
+	@Override
+	public Appointment assignPrepNurse(Integer appointmentId, Integer nurseId) {
+
+		Appointment appointment = repository.findById(appointmentId).orElseThrow(
+				() -> new ResourceNotFoundException("appointment does not exist with id " + appointmentId));
+
+		Nurse nurse = nurseRepo.findById(nurseId)
+				.orElseThrow(() -> new ResourceNotFoundException("nurse not found with id " + nurseId));
+
+		boolean isOnCall = nurseRepo.isNurseOnCallDuring(nurseId, appointment.getStarto(), appointment.getEndo());
+
+		if (!isOnCall) {
+			throw new BadRequestException(
+					"Nurse " + nurse.getName() + " is not on-call during this appointment window.");
+		}
+
+		boolean alreadyBooked = repository.isNurseBookedDuring(nurseId, appointment.getStarto(), appointment.getEndo(),
+				appointmentId);
+
+		if (alreadyBooked) {
+			throw new BadRequestException(
+					"Nurse " + nurse.getName() + " is already assigned to another appointment at this time.");
+		}
+		
+		appointment.setPrepNurse(nurse);
+		Appointment saved = repository.save(appointment);
+		return saved;
+	}
 }

@@ -2,6 +2,7 @@ package com.cg.controller;
 
 import com.cg.dto.RoomDTO;
 import com.cg.entity.Room;
+import com.cg.exception.ResourceNotFoundException;
 import com.cg.service.RoomService;
 
 import org.springframework.http.ResponseEntity;
@@ -15,104 +16,72 @@ import java.util.stream.Collectors;
 @RequestMapping("/rooms")
 public class RoomController {
 
-    private final RoomService roomService;
+	private final RoomService roomService;
 
-    public RoomController(RoomService roomService) {
-        this.roomService = roomService;
-    }
+	public RoomController(RoomService roomService) {
+		this.roomService = roomService;
+	}
 
-    private RoomDTO convertToDTO(Room room) {
-        return new RoomDTO(
-                room.getRoomNumber(),
-                room.getRoomType(),
-                room.getUnavailable(),
-                room.getBlock().getId().getBlockFloor(),
-                room.getBlock().getId().getBlockCode()
-        );
-    }
+	private RoomDTO convertToDTO(Room room) {
+		return new RoomDTO(room.getRoomNumber(), room.getRoomType(), room.getUnavailable(),
+				room.getBlock().getId().getBlockFloor(), room.getBlock().getId().getBlockCode());
+	}
 
-    @GetMapping
-    public ResponseEntity<List<RoomDTO>> getAllRooms() {
+	@GetMapping
+	public ResponseEntity<List<RoomDTO>> getAllRooms() {
 
-        List<RoomDTO> roomDTOs = roomService.getAllRooms()
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+		List<RoomDTO> roomDTOs = roomService.getAllRooms().stream().map(this::convertToDTO)
+				.collect(Collectors.toList());
 
-        return ResponseEntity.ok(roomDTOs);
-    }
+		return ResponseEntity.ok(roomDTOs);
+	}
 
-    @GetMapping("/{roomNumber}")
-    public ResponseEntity<RoomDTO> getRoomById(
-            @PathVariable Integer roomNumber
-    ) {
-        Optional<Room> room = roomService.getRoomById(roomNumber);
+	@GetMapping("/{roomNumber}")
+	public ResponseEntity<RoomDTO> getRoomById(@PathVariable Integer roomNumber) {
+		Room room = roomService.getRoomById(roomNumber)
+				.orElseThrow(() -> new ResourceNotFoundException("Room not found with id: " + roomNumber));
 
-        return room.map(value ->
-                        ResponseEntity.ok(convertToDTO(value)))
-                .orElseGet(() ->
-                        ResponseEntity.notFound().build());
-    }
+		return ResponseEntity.ok(convertToDTO(room));
+	}
 
-    @GetMapping("/type/{roomType}")
-    public ResponseEntity<List<RoomDTO>> getRoomsByRoomType(
-            @PathVariable String roomType
-    ) {
-        List<RoomDTO> rooms = roomService.getRoomsByRoomType(roomType)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+	@GetMapping("/type/{roomType}")
+	public ResponseEntity<List<RoomDTO>> getRoomsByRoomType(@PathVariable String roomType) {
+		List<RoomDTO> rooms = roomService.getRoomsByRoomType(roomType).stream().map(this::convertToDTO)
+				.collect(Collectors.toList());
 
-        return ResponseEntity.ok(rooms);
-    }
+		return ResponseEntity.ok(rooms);
+	}
 
-    @GetMapping("/availability")
-    public ResponseEntity<List<RoomDTO>> getRoomsByAvailability(
-            @RequestParam Boolean unavailable
-    ) {
-        List<RoomDTO> rooms = roomService.getRoomsByAvailability(unavailable)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+	@GetMapping("/availability")
+	public ResponseEntity<List<RoomDTO>> getRoomsByAvailability(@RequestParam Boolean unavailable) {
+		List<RoomDTO> rooms = roomService.getRoomsByAvailability(unavailable).stream().map(this::convertToDTO)
+				.collect(Collectors.toList());
 
-        return ResponseEntity.ok(rooms);
-    }
+		return ResponseEntity.ok(rooms);
+	}
 
-    @GetMapping("/block/floor/{blockFloor}")
-    public ResponseEntity<List<RoomDTO>> getRoomsByBlockFloor(
-            @PathVariable Integer blockFloor
-    ) {
-        List<RoomDTO> rooms = roomService.getRoomsByBlockFloor(blockFloor)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+	@GetMapping("/block/floor/{blockFloor}")
+	public ResponseEntity<List<RoomDTO>> getRoomsByBlockFloor(@PathVariable Integer blockFloor) {
+		List<RoomDTO> rooms = roomService.getRoomsByBlockFloor(blockFloor).stream().map(this::convertToDTO)
+				.collect(Collectors.toList());
 
-        return ResponseEntity.ok(rooms);
-    }
+		return ResponseEntity.ok(rooms);
+	}
 
-    @GetMapping("/block/code/{blockCode}")
-    public ResponseEntity<List<RoomDTO>> getRoomsByBlockCode(
-            @PathVariable Integer blockCode
-    ) {
-        List<RoomDTO> rooms = roomService.getRoomsByBlockCode(blockCode)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+	@GetMapping("/block/code/{blockCode}")
+	public ResponseEntity<List<RoomDTO>> getRoomsByBlockCode(@PathVariable Integer blockCode) {
+		List<RoomDTO> rooms = roomService.getRoomsByBlockCode(blockCode).stream().map(this::convertToDTO)
+				.collect(Collectors.toList());
 
-        return ResponseEntity.ok(rooms);
-    }
+		return ResponseEntity.ok(rooms);
+	}
 
-    @GetMapping("/block/{blockFloor}/{blockCode}")
-    public ResponseEntity<List<RoomDTO>> getRoomsByBlock(
-            @PathVariable Integer blockFloor,
-            @PathVariable Integer blockCode
-    ) {
-        List<RoomDTO> rooms = roomService
-                .getRoomsByBlock(blockFloor, blockCode)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+	@GetMapping("/block/{blockFloor}/{blockCode}")
+	public ResponseEntity<List<RoomDTO>> getRoomsByBlock(@PathVariable Integer blockFloor,
+			@PathVariable Integer blockCode) {
+		List<RoomDTO> rooms = roomService.getRoomsByBlock(blockFloor, blockCode).stream().map(this::convertToDTO)
+				.collect(Collectors.toList());
 
-        return ResponseEntity.ok(rooms);
-    }
+		return ResponseEntity.ok(rooms);
+	}
 }
