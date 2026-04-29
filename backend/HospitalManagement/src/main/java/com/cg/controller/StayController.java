@@ -71,15 +71,15 @@ public class StayController {
         return ResponseEntity.ok(stayService.getPatientStayHistory(ssn));
     }
 
-    @GetMapping("/exists/{id}")
-    public ResponseEntity<Boolean> exists(@PathVariable Integer id) {
-        return ResponseEntity.ok(stayService.exists(id));
-    }
-
-    @GetMapping("/count")
-    public ResponseEntity<Long> count() {
-        return ResponseEntity.ok(stayService.count());
-    }
+//    @GetMapping("/exists/{id}")
+//    public ResponseEntity<Boolean> exists(@PathVariable Integer id) {
+//        return ResponseEntity.ok(stayService.exists(id));
+//    }
+//
+//    @GetMapping("/count")
+//    public ResponseEntity<Long> count() {
+//        return ResponseEntity.ok(stayService.count());
+//    }
 
     @GetMapping("/active/patient/{ssn}")
     public ResponseEntity<Boolean> isPatientActive(@PathVariable Long ssn) {

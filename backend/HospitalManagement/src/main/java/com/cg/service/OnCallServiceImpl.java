@@ -58,5 +58,10 @@ public class OnCallServiceImpl implements OnCallService {
 
         return repository.save(o);
     }
+    
+    @Override
+    public void delete(OnCallId id) {
+        repository.deleteById(id);
+    }
 
 }

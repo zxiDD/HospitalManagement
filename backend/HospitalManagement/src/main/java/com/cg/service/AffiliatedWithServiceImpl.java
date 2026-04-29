@@ -116,15 +116,15 @@ public class AffiliatedWithServiceImpl implements AffiliatedWithService {
         );
     }
 
-    @Override
-    public boolean exists(AffiliatedWithId id) {
-        return affiliatedWithRepository.existsById(id);
-    }
-
-    @Override
-    public long count() {
-        return affiliatedWithRepository.count();
-    }
+//    @Override
+//    public boolean exists(AffiliatedWithId id) {
+//        return affiliatedWithRepository.existsById(id);
+//    }
+//
+//    @Override
+//    public long count() {
+//        return affiliatedWithRepository.count();
+//    }
 
     @Override
     public AffiliatedWithDTO create(AffiliatedWithDTO dto) {

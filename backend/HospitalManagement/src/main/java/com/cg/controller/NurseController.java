@@ -1,14 +1,20 @@
 package com.cg.controller;
 
 import com.cg.dto.NurseDTO;
+import com.cg.dto.OnCallDTO;
 import com.cg.entity.Nurse;
+import com.cg.entity.OnCall;
+import com.cg.entity.OnCallId;
 import com.cg.service.NurseService;
+import com.cg.service.OnCallService;
 
 import jakarta.validation.Valid;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,9 +23,11 @@ import java.util.stream.Collectors;
 public class NurseController {
 
     private final NurseService service;
+    private final OnCallService onCallService; 
 
-    public NurseController(NurseService service) {
+    public NurseController(NurseService service, OnCallService onCallService) {
         this.service = service;
+        this.onCallService = onCallService;
     }
 
     private NurseDTO mapToDTO(Nurse n) {
@@ -82,4 +90,5 @@ public class NurseController {
 
         return ResponseEntity.status(201).body(mapToDTO(saved));
     }
+   
 }

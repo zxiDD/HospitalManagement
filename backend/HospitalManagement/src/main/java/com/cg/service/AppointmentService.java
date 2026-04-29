@@ -20,4 +20,5 @@ public interface AppointmentService {
     Appointment save(Appointment a);
     
     public Appointment assignPrepNurse(Integer appointmentId, Integer nurseId);
+    void cancelAppointment(Integer id);
 }

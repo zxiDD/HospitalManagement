@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.cg.entity.Room;
+import com.cg.exception.BadRequestException;
+import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.RoomRepository;
 
 @Service
@@ -48,6 +50,23 @@ public class RoomServiceImpl implements RoomService {
 	@Override
 	public List<Room> getRoomsByBlock(Integer blockFloor, Integer blockCode) {
 		return roomRepository.findByBlock_Id_BlockFloorAndBlock_Id_BlockCode(blockFloor, blockCode);
+	}
+	
+	@Override
+	public Room markRoomUnavailable(Integer roomNumber) {
+
+	    Room room = roomRepository.findById(roomNumber)
+	            .orElseThrow(() ->
+	                    new ResourceNotFoundException("Room not found with number: " + roomNumber));
+
+	    // 🔴 Business validation
+	    if (room.getUnavailable()) {
+	        throw new BadRequestException("Room is already unavailable");
+	    }
+
+	    room.setUnavailable(true);
+
+	    return roomRepository.save(room);
 	}
 
 }

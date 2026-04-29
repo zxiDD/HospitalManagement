@@ -109,5 +109,5 @@ public class AppointmentServiceImpl implements AppointmentService {
 		appointment.setPrepNurse(nurse);
 		Appointment saved = repository.save(appointment);
 		return saved;
-	}
+  }
 }

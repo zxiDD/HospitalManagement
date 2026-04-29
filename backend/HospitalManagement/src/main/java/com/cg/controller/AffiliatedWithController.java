@@ -73,19 +73,19 @@ public class AffiliatedWithController {
         return ResponseEntity.ok(affiliatedWithService.getPrimaryDepartment(physicianId));
     }
 
-    @GetMapping("/exists/{physicianId}/{departmentId}")
-    public ResponseEntity<Boolean> exists(@PathVariable Integer physicianId,
-                                         @PathVariable Integer departmentId) {
-
-        AffiliatedWithId id = new AffiliatedWithId();
-        id.setPhysicianId(physicianId);
-        id.setDepartmentId(departmentId);
-
-        return ResponseEntity.ok(affiliatedWithService.exists(id));
-    }
-
-    @GetMapping("/count")
-    public ResponseEntity<Long> count() {
-        return ResponseEntity.ok(affiliatedWithService.count());
-    }
+//    @GetMapping("/exists/{physicianId}/{departmentId}")
+//    public ResponseEntity<Boolean> exists(@PathVariable Integer physicianId,
+//                                         @PathVariable Integer departmentId) {
+//
+//        AffiliatedWithId id = new AffiliatedWithId();
+//        id.setPhysicianId(physicianId);
+//        id.setDepartmentId(departmentId);
+//
+//        return ResponseEntity.ok(affiliatedWithService.exists(id));
+//    }
+//
+//    @GetMapping("/count")
+//    public ResponseEntity<Long> count() {
+//        return ResponseEntity.ok(affiliatedWithService.count());
+//    }
 }
