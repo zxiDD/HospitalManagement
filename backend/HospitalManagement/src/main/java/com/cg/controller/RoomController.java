@@ -2,6 +2,7 @@ package com.cg.controller;
 
 import com.cg.dto.RoomDTO;
 import com.cg.entity.Room;
+import com.cg.exception.ResourceNotFoundException;
 import com.cg.service.RoomService;
 
 import org.springframework.http.ResponseEntity;
