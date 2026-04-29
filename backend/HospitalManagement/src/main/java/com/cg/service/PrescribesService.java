@@ -16,5 +16,5 @@ public interface PrescribesService {
     
     Prescribes save(Prescribes prescribe);
 
-    long count();
+//    long count();
 }
