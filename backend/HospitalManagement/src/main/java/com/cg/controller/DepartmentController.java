@@ -56,7 +56,7 @@ public class DepartmentController {
 //        return ResponseEntity.ok(departmentService.count());
 //    }
 
-    @PostMapping
+    @PostMapping("/admin/departments")
     public ResponseEntity<DepartmentDTO> createDepartment(
             @Valid @RequestBody DepartmentDTO dto,
             BindingResult br) {

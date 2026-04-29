@@ -16,18 +16,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/stays")
 public class StayController {
 
     @Autowired
     private StayService stayService;
 
-    @GetMapping
+    @GetMapping("/stays")
     public ResponseEntity<List<StayDTO>> getAll() {
         return ResponseEntity.ok(stayService.getAll());
     }
 
-    @PostMapping
+    @PostMapping("/admin/stays")
     public ResponseEntity<StayDTO> createStay(
             @Valid @RequestBody StayDTO dto,
             BindingResult br) {
@@ -40,33 +39,33 @@ public class StayController {
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/stays/{id}")
     public ResponseEntity<StayDTO> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(stayService.getById(id));
     }
 
-    @GetMapping("/patient/{ssn}")
+    @GetMapping("/stays/patient/{ssn}")
     public ResponseEntity<List<StayDTO>> getByPatientSsn(@PathVariable Long ssn) {
         return ResponseEntity.ok(stayService.getByPatientSsn(ssn));
     }
 
-    @GetMapping("/room/{roomNumber}")
+    @GetMapping("/stays/room/{roomNumber}")
     public ResponseEntity<List<StayDTO>> getByRoomNumber(@PathVariable Integer roomNumber) {
         return ResponseEntity.ok(stayService.getByRoomNumber(roomNumber));
     }
 
-    @GetMapping("/after")
+    @GetMapping("/stays/after")
     public ResponseEntity<List<StayDTO>> getStaysAfter(@RequestParam String dateTime) {
         LocalDateTime date = LocalDateTime.parse(dateTime);
         return ResponseEntity.ok(stayService.getStaysAfter(date));
     }
 
-    @GetMapping("/active")
+    @GetMapping("/stays/active")
     public ResponseEntity<List<StayDTO>> getActiveStays() {
         return ResponseEntity.ok(stayService.getActiveStays());
     }
 
-    @GetMapping("/history/{ssn}")
+    @GetMapping("/stays/history/{ssn}")
     public ResponseEntity<List<StayDTO>> getPatientStayHistory(@PathVariable Long ssn) {
         return ResponseEntity.ok(stayService.getPatientStayHistory(ssn));
     }
@@ -81,7 +80,7 @@ public class StayController {
 //        return ResponseEntity.ok(stayService.count());
 //    }
 
-    @GetMapping("/active/patient/{ssn}")
+    @GetMapping("/stays/active/patient/{ssn}")
     public ResponseEntity<Boolean> isPatientActive(@PathVariable Long ssn) {
         return ResponseEntity.ok(stayService.isPatientActive(ssn));
     }
