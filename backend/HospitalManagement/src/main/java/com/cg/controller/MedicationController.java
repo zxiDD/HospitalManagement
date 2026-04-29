@@ -47,20 +47,20 @@ public class MedicationController {
         return ResponseEntity.ok(medicationService.getByNameAndBrand(name, brand));
     }
 
-    @GetMapping("/sorted")
-    public ResponseEntity<List<MedicationDTO>> getAllSorted() {
-        return ResponseEntity.ok(medicationService.getAllSorted());
-    }
-
-    @GetMapping("/exists/{code}")
-    public ResponseEntity<Boolean> exists(@PathVariable Integer code) {
-        return ResponseEntity.ok(medicationService.exists(code));
-    }
-
-    @GetMapping("/count")
-    public ResponseEntity<Long> count() {
-        return ResponseEntity.ok(medicationService.count());
-    }
+//    @GetMapping("/sorted")
+//    public ResponseEntity<List<MedicationDTO>> getAllSorted() {
+//        return ResponseEntity.ok(medicationService.getAllSorted());
+//    }
+//
+//    @GetMapping("/exists/{code}")
+//    public ResponseEntity<Boolean> exists(@PathVariable Integer code) {
+//        return ResponseEntity.ok(medicationService.exists(code));
+//    }
+//
+//    @GetMapping("/count")
+//    public ResponseEntity<Long> count() {
+//        return ResponseEntity.ok(medicationService.count());
+//    }
 
     @PostMapping
     public ResponseEntity<MedicationDTO> createMedication(

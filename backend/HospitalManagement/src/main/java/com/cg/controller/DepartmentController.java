@@ -41,20 +41,20 @@ public class DepartmentController {
         return ResponseEntity.ok(departmentService.getByHeadId(headId));
     }
 
-    @GetMapping("/sorted")
-    public ResponseEntity<List<DepartmentDTO>> getSorted() {
-        return ResponseEntity.ok(departmentService.getAllSorted());
-    }
-
-    @GetMapping("/exists/{id}")
-    public ResponseEntity<Boolean> exists(@PathVariable Integer id) {
-        return ResponseEntity.ok(departmentService.exists(id));
-    }
-
-    @GetMapping("/count")
-    public ResponseEntity<Long> count() {
-        return ResponseEntity.ok(departmentService.count());
-    }
+//    @GetMapping("/sorted")
+//    public ResponseEntity<List<DepartmentDTO>> getSorted() {
+//        return ResponseEntity.ok(departmentService.getAllSorted());
+//    }
+//
+//    @GetMapping("/exists/{id}")
+//    public ResponseEntity<Boolean> exists(@PathVariable Integer id) {
+//        return ResponseEntity.ok(departmentService.exists(id));
+//    }
+//
+//    @GetMapping("/count")
+//    public ResponseEntity<Long> count() {
+//        return ResponseEntity.ok(departmentService.count());
+//    }
 
     @PostMapping
     public ResponseEntity<DepartmentDTO> createDepartment(

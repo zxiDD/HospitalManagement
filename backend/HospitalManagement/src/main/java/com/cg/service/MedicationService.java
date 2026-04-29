@@ -15,11 +15,11 @@ public interface MedicationService {
 
     MedicationDTO getByNameAndBrand(String name, String brand);
 
-    List<MedicationDTO> getAllSorted();
-
-    boolean exists(Integer code);
-
-    long count();
+//    List<MedicationDTO> getAllSorted();
+//
+//    boolean exists(Integer code);
+//
+//    long count();
     
     MedicationDTO create(MedicationDTO dto);
 }
