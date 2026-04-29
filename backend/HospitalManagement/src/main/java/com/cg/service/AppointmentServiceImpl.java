@@ -87,10 +87,12 @@ public class AppointmentServiceImpl implements AppointmentService {
 	@Override
 	public void cancelAppointment(Integer id) {
 
-		Appointment appointment = repository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Appointment not found with ID: " + id));
+	    Appointment appointment = repository.findById(id)
+	        .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with ID: " + id));
 
-		repository.delete(appointment);
+	    appointment.setActive(false);
+
+	    repository.save(appointment);
 	}
 
 	@Override
