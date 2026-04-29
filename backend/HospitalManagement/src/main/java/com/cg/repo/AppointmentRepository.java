@@ -4,10 +4,12 @@ import com.cg.entity.Appointment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Integer> {
 
 	// based on relationships
@@ -28,7 +30,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
 	        SELECT COUNT(a) > 0
 	        FROM Appointment a
 	        WHERE a.prepNurse.employeeId = :nurseId
-	          AND a.appointmentId <> :excludeId
+	          AND a.appointmentID <> :excludeId
 	          AND a.starto < :end
 	          AND a.endo   > :start
 	    """)

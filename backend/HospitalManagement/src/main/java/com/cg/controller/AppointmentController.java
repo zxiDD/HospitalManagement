@@ -37,13 +37,7 @@ public class AppointmentController {
                 a.getExaminationRoom()
         );
     }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelAppointment(@PathVariable Integer id) {
 
-        service.cancelAppointment(id);
-
-        return ResponseEntity.noContent().build(); // 204
-    }
 
     @GetMapping
     public ResponseEntity<List<AppointmentDTO>> getAll() {
@@ -58,6 +52,11 @@ public class AppointmentController {
     @GetMapping("/{id}")
     public ResponseEntity<AppointmentDTO> getById(@PathVariable Integer id) {
         Appointment a = service.getAppointmentById(id);
+
+        if (a == null) {
+            return ResponseEntity.notFound().build();
+        }
+
         return ResponseEntity.ok(convertToDTO(a));
     }
     
@@ -143,6 +142,6 @@ public class AppointmentController {
             @Valid @RequestBody NurseDTO request) {
  
         Appointment updated = service.assignPrepNurse(appointmentId, request.getEmployeeId());
-        return ResponseEntity.ok(convertToDTO(updated));
+		return ResponseEntity.ok(convertToDTO(updated));
     }
 }
