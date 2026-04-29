@@ -21,27 +21,27 @@ public class MedicationController {
     @Autowired
     private MedicationService medicationService;
 
-    @GetMapping
+    @GetMapping("/medications")
     public ResponseEntity<List<MedicationDTO>> getAll() {
         return ResponseEntity.ok(medicationService.getAll());
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/medications/{code}")
     public ResponseEntity<MedicationDTO> getById(@PathVariable Integer code) {
         return ResponseEntity.ok(medicationService.getById(code));
     }
 
-    @GetMapping("/name/{name}")
+    @GetMapping("/medications/name/{name}")
     public ResponseEntity<MedicationDTO> getByName(@PathVariable String name) {
         return ResponseEntity.ok(medicationService.getByName(name));
     }
 
-    @GetMapping("/brand/{brand}")
+    @GetMapping("/medications/brand/{brand}")
     public ResponseEntity<List<MedicationDTO>> getByBrand(@PathVariable String brand) {
         return ResponseEntity.ok(medicationService.getByBrand(brand));
     }
 
-    @GetMapping("/search")
+    @GetMapping("/medications/search")
     public ResponseEntity<MedicationDTO> getByNameAndBrand(@RequestParam String name,
                                                           @RequestParam String brand) {
         return ResponseEntity.ok(medicationService.getByNameAndBrand(name, brand));
@@ -62,7 +62,7 @@ public class MedicationController {
 //        return ResponseEntity.ok(medicationService.count());
 //    }
 
-    @PostMapping
+    @PostMapping("/admin/medications")
     public ResponseEntity<MedicationDTO> createMedication(
             @Valid @RequestBody MedicationDTO dto,
             BindingResult br) {

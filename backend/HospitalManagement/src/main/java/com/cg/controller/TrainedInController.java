@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/trainedin")
 public class TrainedInController {
 
     @Autowired
@@ -30,7 +29,7 @@ public class TrainedInController {
         );
     }
 
-    @GetMapping
+    @GetMapping("/trainedin")
     public ResponseEntity<List<TrainedInDTO>> getAll() {
         List<TrainedInDTO> list = service.getAll()
                 .stream()
@@ -40,7 +39,7 @@ public class TrainedInController {
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/physician/{id}")
+    @GetMapping("/trainedin/physician/{id}")
     public ResponseEntity<List<TrainedInDTO>> getByPhysician(@PathVariable Integer id) {
         List<TrainedInDTO> list = service.getByPhysicianId(id)
                 .stream()
@@ -51,7 +50,7 @@ public class TrainedInController {
     }
 
 
-    @PostMapping("/trainings")
+    @PostMapping("/admin/trainedin/trainings")
     public ResponseEntity<?> addTraining(@Valid @RequestBody TrainedInDTO dto) {
 
         if (dto.getCertificationExpires().isBefore(dto.getCertificationDate())) {

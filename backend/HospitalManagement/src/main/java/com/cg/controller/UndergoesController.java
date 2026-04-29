@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/undergoes")
 public class UndergoesController {
 
 	@Autowired
@@ -60,7 +59,7 @@ public class UndergoesController {
 				undergoes.getAssistingNurse() != null ? undergoes.getAssistingNurse().getEmployeeId() : null);
 	}
 
-	@GetMapping
+	@GetMapping("/undergoes")
 	public ResponseEntity<List<UndergoesDTO>> getAllUndergoes() {
 
 		List<UndergoesDTO> undergoesDTOs = undergoesService.getAllUndergoes().stream().map(this::convertToDTO)
@@ -69,7 +68,7 @@ public class UndergoesController {
 		return ResponseEntity.ok(undergoesDTOs);
 	}
 
-	@GetMapping("/id")
+	@GetMapping("/undergoes/id")
 	public ResponseEntity<UndergoesDTO> getUndergoesById(@RequestParam Long patientId,
 			@RequestParam Integer procedureCode, @RequestParam Integer stayId,
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
@@ -81,7 +80,7 @@ public class UndergoesController {
 				.orElseGet(() -> ResponseEntity.notFound().build());
 	}
 
-	@GetMapping("/patient/{patientId}")
+	@GetMapping("/undergoes/patient/{patientId}")
 	public ResponseEntity<List<UndergoesDTO>> getUndergoesByPatient(@PathVariable Long patientId) {
 		List<UndergoesDTO> records = undergoesService.getUndergoesByPatient(patientId).stream().map(this::convertToDTO)
 				.collect(Collectors.toList());
@@ -89,7 +88,7 @@ public class UndergoesController {
 		return ResponseEntity.ok(records);
 	}
 
-	@GetMapping("/procedure/{procedureCode}")
+	@GetMapping("/undergoes/procedure/{procedureCode}")
 	public ResponseEntity<List<UndergoesDTO>> getUndergoesByProcedure(@PathVariable Integer procedureCode) {
 		List<UndergoesDTO> records = undergoesService.getUndergoesByProcedure(procedureCode).stream()
 				.map(this::convertToDTO).collect(Collectors.toList());
@@ -97,7 +96,7 @@ public class UndergoesController {
 		return ResponseEntity.ok(records);
 	}
 
-	@GetMapping("/stay/{stayId}")
+	@GetMapping("/undergoes/stay/{stayId}")
 	public ResponseEntity<List<UndergoesDTO>> getUndergoesByStay(@PathVariable Integer stayId) {
 		List<UndergoesDTO> records = undergoesService.getUndergoesByStay(stayId).stream().map(this::convertToDTO)
 				.collect(Collectors.toList());
@@ -105,7 +104,7 @@ public class UndergoesController {
 		return ResponseEntity.ok(records);
 	}
 
-	@GetMapping("/physician/{physicianId}")
+	@GetMapping("/undergoes/physician/{physicianId}")
 	public ResponseEntity<List<UndergoesDTO>> getUndergoesByPhysician(@PathVariable Integer physicianId) {
 		List<UndergoesDTO> records = undergoesService.getUndergoesByPhysician(physicianId).stream()
 				.map(this::convertToDTO).collect(Collectors.toList());
@@ -113,7 +112,7 @@ public class UndergoesController {
 		return ResponseEntity.ok(records);
 	}
 
-	@GetMapping("/nurse/{nurseId}")
+	@GetMapping("/undergoes/nurse/{nurseId}")
 	public ResponseEntity<List<UndergoesDTO>> getUndergoesByAssistingNurse(@PathVariable Integer nurseId) {
 		List<UndergoesDTO> records = undergoesService.getUndergoesByAssistingNurse(nurseId).stream()
 				.map(this::convertToDTO).collect(Collectors.toList());
@@ -121,7 +120,7 @@ public class UndergoesController {
 		return ResponseEntity.ok(records);
 	}
 
-	@GetMapping("/date")
+	@GetMapping("/undergoes/date")
 	public ResponseEntity<List<UndergoesDTO>> getUndergoesByDate(
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
 		List<UndergoesDTO> records = undergoesService.getUndergoesByDate(date).stream().map(this::convertToDTO)
@@ -130,7 +129,7 @@ public class UndergoesController {
 		return ResponseEntity.ok(records);
 	}
 
-	@GetMapping("/date-range")
+	@GetMapping("/undergoes/date-range")
 	public ResponseEntity<List<UndergoesDTO>> getUndergoesBetweenDates(
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
 
@@ -141,7 +140,7 @@ public class UndergoesController {
 		return ResponseEntity.ok(records);
 	}
 
-	@PostMapping
+	@PostMapping("/admin/undergoes")
 	public ResponseEntity<UndergoesDTO> createUndergoes(@RequestBody UndergoesDTO dto) {
 		UndergoesId id = new UndergoesId(dto.getPatientId(), dto.getProcedureCode(), dto.getStayId(),
 				dto.getDateUndergoes());
