@@ -13,13 +13,13 @@ public interface PhysicianService {
 
     Page<Physician> getAllPaged(int page, int size);
 
-    List<Physician> getAllSorted();
-
-    boolean exists(Integer id);
+//    List<Physician> getAllSorted();
+//
+//    boolean exists(Integer id);
     
     Physician save(Physician physician);
 
-    long count();
+//    long count();
     
     List<Physician> getByPosition(String position);
     

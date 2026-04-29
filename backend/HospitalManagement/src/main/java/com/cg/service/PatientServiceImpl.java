@@ -42,20 +42,20 @@ public class PatientServiceImpl implements PatientService {
         return repo.findByNameAndAddress(name, address);
     }
 
-    @Override
-    public List<Patient> getAllSorted() {
-        return repo.findAll(Sort.by("name"));
-    }
-
-    @Override
-    public boolean exists(Long id) {
-        return repo.existsById(id);
-    }
-
-    @Override
-    public long count() {
-        return repo.count();
-    }
+//    @Override
+//    public List<Patient> getAllSorted() {
+//        return repo.findAll(Sort.by("name"));
+//    }
+//
+//    @Override
+//    public boolean exists(Long id) {
+//        return repo.existsById(id);
+//    }
+//
+//    @Override
+//    public long count() {
+//        return repo.count();
+//    }
 
     @Override
     public Patient save(Patient patient) {
