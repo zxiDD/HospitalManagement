@@ -10,6 +10,7 @@ import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.AppointmentRepository;
 import com.cg.repo.NurseRepository;
 import com.cg.repo.PatientRepository;
+import com.cg.repo.PhysicianRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 
 	@Autowired
 	private NurseRepository nurseRepo;
+
+	@Autowired
+	private PhysicianRepository physicianRepo;
 
 	@Override
 	public List<Appointment> getAllAppointments() {
@@ -116,5 +120,15 @@ public class AppointmentServiceImpl implements AppointmentService {
 		appointment.setPrepNurse(nurse);
 		Appointment saved = repository.save(appointment);
 		return saved;
+	}
+
+	@Override
+	public List<Patient> getPatientsByPhysician(Integer physicianId) {
+		physicianRepo.findById(physicianId)
+				.orElseThrow(() -> new ResourceNotFoundException("Physician not found with id " + physicianId));
+
+		List<Patient> patients = patientRepo.findByPhysicianEmployeeId(physicianId);
+
+		return patients;
 	}
 }

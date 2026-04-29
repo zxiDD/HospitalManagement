@@ -14,4 +14,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     List<Patient> findByIsActiveTrue();
     
     List<Patient> findByPhone(String phone);
+    
+    List<Patient> findByPhysicianEmployeeId(Integer employeeId);
 }
