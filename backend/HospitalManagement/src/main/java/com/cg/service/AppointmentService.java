@@ -1,6 +1,8 @@
 package com.cg.service;
 
 import com.cg.entity.Appointment;
+import com.cg.entity.Patient;
+
 import java.util.List;
 
 public interface AppointmentService {
@@ -17,9 +19,7 @@ public interface AppointmentService {
 
     List<Appointment> getByRoom(String room);
     
-    List<String> getPatientsByPhysician(Integer physicianId);
-    
-    List<Appointment> getAppointmentsByPhysician(Integer physicianId);
+    List<Patient> getPatientsByPhysician(Integer physicianId);
     
     Appointment save(Appointment a);
     
