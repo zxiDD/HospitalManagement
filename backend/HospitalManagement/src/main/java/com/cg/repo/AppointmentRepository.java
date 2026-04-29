@@ -26,6 +26,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
 
 	public List<Appointment> findByPatient_SsnOrderByStartoDesc(Long ssn);
 	
+	List<Appointment> findByIsActiveTrue();
+	
 	@Query("""
 	        SELECT COUNT(a) > 0
 	        FROM Appointment a
