@@ -1,10 +1,13 @@
 package com.cg.service;
 
 import com.cg.dto.AffiliatedWithDTO;
+import com.cg.dto.DepartmentDTO;
 import com.cg.entity.AffiliatedWith;
 import com.cg.entity.AffiliatedWithId;
 import com.cg.entity.Department;
 import com.cg.entity.Physician;
+import com.cg.exception.DuplicateResourceException;
+import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.AffiliatedWithRepository;
 import com.cg.repo.DepartmentRepository;
 import com.cg.repo.PhysicianRepository;
@@ -22,29 +25,14 @@ public class AffiliatedWithServiceImpl implements AffiliatedWithService {
     @Autowired
     private AffiliatedWithRepository affiliatedWithRepository;
 
-    @Override
-    public List<AffiliatedWithDTO> getAll() {
-        List<AffiliatedWith> list = affiliatedWithRepository.findAll();
-        List<AffiliatedWithDTO> dtoList = new ArrayList<>();
+    @Autowired
+    private PhysicianRepository physicianRepository;
 
-        for (AffiliatedWith a : list) {
-            dtoList.add(new AffiliatedWithDTO(
-                    a.getPhysician().getEmployeeId(),
-                    a.getPhysician().getName(),
-                    a.getDepartment().getDepartmentId(),
-                    a.getDepartment().getName(),
-                    a.getPrimaryAffiliation()
-            ));
-        }
+    @Autowired
+    private DepartmentRepository departmentRepository;
 
-        return dtoList;
-    }
-
-    @Override
-    public AffiliatedWithDTO getById(AffiliatedWithId id) {
-        AffiliatedWith a = affiliatedWithRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Affiliation not found"));
-
+    // 🔥 helper method (centralized mapping)
+    private AffiliatedWithDTO mapToDTO(AffiliatedWith a) {
         return new AffiliatedWithDTO(
                 a.getPhysician().getEmployeeId(),
                 a.getPhysician().getName(),
@@ -53,6 +41,26 @@ public class AffiliatedWithServiceImpl implements AffiliatedWithService {
                 a.getPrimaryAffiliation()
         );
     }
+    
+    @Override
+    public List<AffiliatedWithDTO> getAll() {
+        List<AffiliatedWith> list = affiliatedWithRepository.findAll();
+        List<AffiliatedWithDTO> dtoList = new ArrayList<>();
+
+        for (AffiliatedWith a : list) {
+            dtoList.add(mapToDTO(a));
+        }
+
+        return dtoList;
+    }
+
+    @Override
+    public AffiliatedWithDTO getById(AffiliatedWithId id) {
+        AffiliatedWith a = affiliatedWithRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Affiliation not found"));
+
+        return mapToDTO(a);
+    }
 
     @Override
     public List<AffiliatedWithDTO> getByPhysicianId(Integer physicianId) {
@@ -60,13 +68,7 @@ public class AffiliatedWithServiceImpl implements AffiliatedWithService {
         List<AffiliatedWithDTO> dtoList = new ArrayList<>();
 
         for (AffiliatedWith a : list) {
-            dtoList.add(new AffiliatedWithDTO(
-                    a.getPhysician().getEmployeeId(),
-                    a.getPhysician().getName(),
-                    a.getDepartment().getDepartmentId(),
-                    a.getDepartment().getName(),
-                    a.getPrimaryAffiliation()
-            ));
+            dtoList.add(mapToDTO(a));
         }
 
         return dtoList;
@@ -78,13 +80,7 @@ public class AffiliatedWithServiceImpl implements AffiliatedWithService {
         List<AffiliatedWithDTO> dtoList = new ArrayList<>();
 
         for (AffiliatedWith a : list) {
-            dtoList.add(new AffiliatedWithDTO(
-                    a.getPhysician().getEmployeeId(),
-                    a.getPhysician().getName(),
-                    a.getDepartment().getDepartmentId(),
-                    a.getDepartment().getName(),
-                    a.getPrimaryAffiliation()
-            ));
+            dtoList.add(mapToDTO(a));
         }
 
         return dtoList;
@@ -96,24 +92,28 @@ public class AffiliatedWithServiceImpl implements AffiliatedWithService {
         List<AffiliatedWithDTO> dtoList = new ArrayList<>();
 
         for (AffiliatedWith a : list) {
-            dtoList.add(new AffiliatedWithDTO(
-                    a.getPhysician().getEmployeeId(),
-                    a.getPhysician().getName(),
-                    a.getDepartment().getDepartmentId(),
-                    a.getDepartment().getName(),
-                    a.getPrimaryAffiliation()
-            ));
+            dtoList.add(mapToDTO(a));
         }
 
         return dtoList;
     }
 
     @Override
-    public Department getPrimaryDepartment(Integer physicianId) {
-        return affiliatedWithRepository
+    public DepartmentDTO getPrimaryDepartment(Integer physicianId) {
+
+        AffiliatedWith a = affiliatedWithRepository
                 .findByPhysician_EmployeeIdAndPrimaryAffiliationTrue(physicianId)
-                .orElseThrow(() -> new RuntimeException("Primary affiliation not found"))
-                .getDepartment();
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Primary affiliation not found"));
+
+        Department d = a.getDepartment();
+
+        return new DepartmentDTO(
+                d.getDepartmentId(),
+                d.getName(),
+                d.getHead().getEmployeeId(),
+                d.getHead().getName()
+        );
     }
 
     @Override
@@ -125,57 +125,41 @@ public class AffiliatedWithServiceImpl implements AffiliatedWithService {
     public long count() {
         return affiliatedWithRepository.count();
     }
-    
-    @Autowired
-    private PhysicianRepository physicianRepository;
-
-    @Autowired
-    private DepartmentRepository departmentRepository;
 
     @Override
     public AffiliatedWithDTO create(AffiliatedWithDTO dto) {
 
-        // 🔴 VALIDATION (put it here)
+        // 🔴 Business rule: only one primary affiliation
         if (dto.getPrimaryAffiliation()) {
             Optional<AffiliatedWith> existing =
                     affiliatedWithRepository
                     .findByPhysician_EmployeeIdAndPrimaryAffiliationTrue(dto.getPhysicianId());
 
             if (existing.isPresent()) {
-                throw new RuntimeException("Primary affiliation already exists for this physician");
+                throw new DuplicateResourceException(
+                        "Primary affiliation already exists for this physician");
             }
         }
 
-        // 🔹 Fetch Physician
         Physician physician = physicianRepository.findById(dto.getPhysicianId())
-                .orElseThrow(() -> new RuntimeException("Physician not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Physician not found"));
 
-        // 🔹 Fetch Department
         Department department = departmentRepository.findById(dto.getDepartmentId())
-                .orElseThrow(() -> new RuntimeException("Department not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
 
-        // 🔹 Create ID
         AffiliatedWithId id = new AffiliatedWithId();
         id.setPhysicianId(dto.getPhysicianId());
         id.setDepartmentId(dto.getDepartmentId());
 
-        // 🔹 Create Entity
         AffiliatedWith aff = new AffiliatedWith();
         aff.setId(id);
         aff.setPhysician(physician);
         aff.setDepartment(department);
         aff.setPrimaryAffiliation(dto.getPrimaryAffiliation());
 
-        // 🔹 Save
         AffiliatedWith saved = affiliatedWithRepository.save(aff);
 
-        // 🔹 Return DTO
-        return new AffiliatedWithDTO(
-                saved.getPhysician().getEmployeeId(),
-                saved.getPhysician().getName(),
-                saved.getDepartment().getDepartmentId(),
-                saved.getDepartment().getName(),
-                saved.getPrimaryAffiliation()
-        );
+        return mapToDTO(saved);
     }
+
 }

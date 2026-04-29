@@ -1,6 +1,7 @@
 package com.cg.service;
 
 import com.cg.dto.AffiliatedWithDTO;
+import com.cg.dto.DepartmentDTO;
 import com.cg.entity.AffiliatedWithId;
 import com.cg.entity.Department;
 
@@ -18,7 +19,7 @@ public interface AffiliatedWithService {
 
     List<AffiliatedWithDTO> getPrimaryAffiliations();
 
-    Department getPrimaryDepartment(Integer physicianId);
+    DepartmentDTO getPrimaryDepartment(Integer physicianId);
 
     boolean exists(AffiliatedWithId id);
 

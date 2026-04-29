@@ -1,11 +1,15 @@
 package com.cg.controller;
 
 import com.cg.dto.MedicationDTO;
+import com.cg.exception.ValidationException;
 import com.cg.service.MedicationService;
+
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,101 +23,55 @@ public class MedicationController {
 
     @GetMapping
     public ResponseEntity<List<MedicationDTO>> getAll() {
-        List<MedicationDTO> list = medicationService.getAll();
-
-        if (list != null && !list.isEmpty()) {
-            return ResponseEntity.ok(list);
-        } else {
-            return ResponseEntity.status(204).body(null);
-        }
+        return ResponseEntity.ok(medicationService.getAll());
     }
 
     @GetMapping("/{code}")
     public ResponseEntity<MedicationDTO> getById(@PathVariable Integer code) {
-        MedicationDTO dto = medicationService.getById(code);
-
-        if (dto != null) {
-            return ResponseEntity.ok(dto);
-        } else {
-            return ResponseEntity.status(404).body(null);
-        }
+        return ResponseEntity.ok(medicationService.getById(code));
     }
 
     @GetMapping("/name/{name}")
     public ResponseEntity<MedicationDTO> getByName(@PathVariable String name) {
-        MedicationDTO dto = medicationService.getByName(name);
-
-        if (dto != null) {
-            return ResponseEntity.ok(dto);
-        } else {
-            return ResponseEntity.status(404).body(null);
-        }
+        return ResponseEntity.ok(medicationService.getByName(name));
     }
 
     @GetMapping("/brand/{brand}")
     public ResponseEntity<List<MedicationDTO>> getByBrand(@PathVariable String brand) {
-        List<MedicationDTO> list = medicationService.getByBrand(brand);
-
-        if (list != null && !list.isEmpty()) {
-            return ResponseEntity.ok(list);
-        } else {
-            return ResponseEntity.status(204).body(null);
-        }
+        return ResponseEntity.ok(medicationService.getByBrand(brand));
     }
 
     @GetMapping("/search")
     public ResponseEntity<MedicationDTO> getByNameAndBrand(@RequestParam String name,
-                                                           @RequestParam String brand) {
-        MedicationDTO dto = medicationService.getByNameAndBrand(name, brand);
-
-        if (dto != null) {
-            return ResponseEntity.ok(dto);
-        } else {
-            return ResponseEntity.status(404).body(null);
-        }
+                                                          @RequestParam String brand) {
+        return ResponseEntity.ok(medicationService.getByNameAndBrand(name, brand));
     }
 
     @GetMapping("/sorted")
     public ResponseEntity<List<MedicationDTO>> getAllSorted() {
-        List<MedicationDTO> list = medicationService.getAllSorted();
-
-        if (list != null && !list.isEmpty()) {
-            return ResponseEntity.ok(list);
-        } else {
-            return ResponseEntity.status(204).body(null);
-        }
+        return ResponseEntity.ok(medicationService.getAllSorted());
     }
 
     @GetMapping("/exists/{code}")
     public ResponseEntity<Boolean> exists(@PathVariable Integer code) {
-        boolean exists = medicationService.exists(code);
-
-        if (exists) {
-            return ResponseEntity.ok(true);
-        } else {
-            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
-        }
+        return ResponseEntity.ok(medicationService.exists(code));
     }
 
     @GetMapping("/count")
     public ResponseEntity<Long> count() {
-        long count = medicationService.count();
-
-        if (count > 0) {
-            return ResponseEntity.ok(count);
-        } else {
-            return new ResponseEntity<>(0L, HttpStatus.NO_CONTENT);
-        }
+        return ResponseEntity.ok(medicationService.count());
     }
 
     @PostMapping
-    public ResponseEntity<MedicationDTO> createMedication(@RequestBody MedicationDTO dto) {
-        MedicationDTO created = medicationService.create(dto);
+    public ResponseEntity<MedicationDTO> createMedication(
+            @Valid @RequestBody MedicationDTO dto,
+            BindingResult br) {
 
-        if (created != null) {
-            return new ResponseEntity<>(created, HttpStatus.CREATED);
-        } else {
-            return ResponseEntity.status(400).body(null);
+        if (br.hasErrors()) {
+            throw new ValidationException(br.getFieldErrors());
         }
+
+        MedicationDTO created = medicationService.create(dto);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 }

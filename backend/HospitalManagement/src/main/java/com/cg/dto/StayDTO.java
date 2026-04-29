@@ -1,20 +1,26 @@
 package com.cg.dto;
 
+import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 
 public class StayDTO {
 
     private Integer stayId;
 
-    private Long patientSsn;     
-    private String patientName;  
+    @NotNull(message = "Patient SSN is required")
+    private Long patientSsn;
 
-    private Integer roomNumber;    
-    private String roomType;        
+    private String patientName;   // response only
 
+    @NotNull(message = "Room number is required")
+    private Integer roomNumber;
+
+    private String roomType;      // response only
+
+    @NotNull(message = "Stay start time is required")
     private LocalDateTime stayStart;
-    private LocalDateTime stayEnd;
 
+    private LocalDateTime stayEnd;  // can be null (active stay)
 
     public StayDTO() {}
 
@@ -30,7 +36,6 @@ public class StayDTO {
         this.stayEnd = stayEnd;
     }
 
-    // Getters & Setters
     public Integer getStayId() {
         return stayId;
     }
