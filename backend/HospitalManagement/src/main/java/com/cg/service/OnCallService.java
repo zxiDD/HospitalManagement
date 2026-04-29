@@ -16,4 +16,6 @@ public interface OnCallService {
     List<OnCall> getByBlockCode(String blockCode);
     
     OnCall save(OnCall o);
+    
+    void delete(OnCallId id);
 }
