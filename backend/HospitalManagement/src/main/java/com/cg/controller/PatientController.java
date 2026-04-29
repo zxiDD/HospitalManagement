@@ -6,6 +6,8 @@ import com.cg.entity.Physician;
 import com.cg.service.PatientService;
 import com.cg.service.PhysicianService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,8 +48,9 @@ public class PatientController {
     }
 
     @GetMapping("/{ssn}")
-    public PatientDTO getBySsn(@PathVariable Long ssn) {
-        return mapToDTO(service.getById(ssn));
+    public ResponseEntity<PatientDTO> getBySsn(@PathVariable Long ssn) {
+        Patient p = service.getById(ssn);
+        return ResponseEntity.ok(mapToDTO(p));
     }
 
     @GetMapping("/name/{name}")
@@ -72,7 +75,7 @@ public class PatientController {
 
         return ResponseEntity.ok(list);
     }
-
+    
     @GetMapping("/sorted")
     public ResponseEntity<List<PatientDTO>> getAllSorted() {
         List<PatientDTO> list = service.getAllSorted()
@@ -94,11 +97,7 @@ public class PatientController {
     }
 
     @PostMapping
-    public ResponseEntity<PatientDTO> create(@RequestBody PatientDTO dto) {
-
-        if (dto.getPhysicianId() == null) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<PatientDTO> create(@Valid @RequestBody PatientDTO dto) {
 
         Physician physician = physicianService.getById(dto.getPhysicianId());
 
@@ -112,6 +111,6 @@ public class PatientController {
 
         Patient saved = service.save(patient);
 
-        return ResponseEntity.ok(mapToDTO(saved));
+        return ResponseEntity.status(201).body(mapToDTO(saved));
     }
 }

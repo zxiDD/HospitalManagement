@@ -4,6 +4,8 @@ import com.cg.dto.NurseDTO;
 import com.cg.entity.Nurse;
 import com.cg.service.NurseService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +21,7 @@ public class NurseController {
     public NurseController(NurseService service) {
         this.service = service;
     }
-    
+
     private NurseDTO mapToDTO(Nurse n) {
         return new NurseDTO(
                 n.getEmployeeId(),
@@ -67,11 +69,7 @@ public class NurseController {
     }
 
     @PostMapping
-    public ResponseEntity<NurseDTO> create(@RequestBody NurseDTO dto) {
-
-        if (dto.getEmployeeId() == null) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<NurseDTO> create(@Valid @RequestBody NurseDTO dto) {
 
         Nurse n = new Nurse();
         n.setEmployeeId(dto.getEmployeeId());
