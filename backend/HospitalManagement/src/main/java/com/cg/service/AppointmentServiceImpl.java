@@ -49,6 +49,33 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
     
     @Override
+    public List<Appointment> getAppointmentsByPhysician(Integer physicianId) {
+
+        List<Appointment> list = repository.findByPhysician_EmployeeId(physicianId);
+
+        if (list.isEmpty()) {
+            throw new ResourceNotFoundException("No appointments found");
+        }
+
+        return list;
+    }
+    
+    @Override
+    public List<String> getPatientsByPhysician(Integer physicianId) {
+
+        List<Appointment> list = repository.findByPhysician_EmployeeId(physicianId);
+
+        if (list.isEmpty()) {
+            throw new ResourceNotFoundException("No patients found");
+        }
+
+        return list.stream()
+                .map(a -> a.getPatient().getName())
+                .distinct()
+                .toList();
+    }
+    
+    @Override
     public Appointment save(Appointment a) {
 
         if (a.getAppointmentID() == null) {

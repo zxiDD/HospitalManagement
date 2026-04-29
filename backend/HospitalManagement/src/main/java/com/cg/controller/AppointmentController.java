@@ -58,6 +58,23 @@ public class AppointmentController {
 
         return ResponseEntity.ok(convertToDTO(a));
     }
+    
+    @GetMapping("/physician/{physicianId}/patients")
+    public ResponseEntity<List<String>> getPatientsByPhysician(@PathVariable Integer physicianId) {
+        return ResponseEntity.ok(service.getPatientsByPhysician(physicianId));
+    }
+    
+    @GetMapping("/physician/{physicianId}/appointments")
+    public ResponseEntity<List<AppointmentDTO>> getAppointmentsByPhysician(
+            @PathVariable Integer physicianId) {
+
+        List<AppointmentDTO> list = service.getAppointmentsByPhysician(physicianId)
+                .stream()
+                .map(this::convertToDTO)
+                .toList();
+
+        return ResponseEntity.ok(list);
+    }
 
 
     @PostMapping
