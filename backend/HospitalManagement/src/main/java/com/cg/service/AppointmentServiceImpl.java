@@ -1,7 +1,5 @@
 package com.cg.service;
 
-import com.cg.controller.AppointmentResponse;
-import com.cg.controller.ResponseStatusException;
 import com.cg.entity.Appointment;
 import com.cg.entity.Nurse;
 import com.cg.entity.Patient;
@@ -83,6 +81,15 @@ public class AppointmentServiceImpl implements AppointmentService {
 	}
 
 	@Override
+	public void cancelAppointment(Integer id) {
+
+		Appointment appointment = repository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Appointment not found with ID: " + id));
+
+		repository.delete(appointment);
+	}
+
+	@Override
 	public Appointment assignPrepNurse(Integer appointmentId, Integer nurseId) {
 
 		Appointment appointment = repository.findById(appointmentId).orElseThrow(
@@ -105,9 +112,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 			throw new BadRequestException(
 					"Nurse " + nurse.getName() + " is already assigned to another appointment at this time.");
 		}
-		
+
 		appointment.setPrepNurse(nurse);
 		Appointment saved = repository.save(appointment);
 		return saved;
-  }
+	}
 }
