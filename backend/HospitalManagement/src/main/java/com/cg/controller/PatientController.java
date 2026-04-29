@@ -3,6 +3,7 @@ package com.cg.controller;
 import com.cg.dto.PatientDTO;
 import com.cg.entity.Patient;
 import com.cg.entity.Physician;
+import com.cg.exception.BadRequestException;
 import com.cg.service.PatientService;
 import com.cg.service.PhysicianService;
 
@@ -98,6 +99,10 @@ public class PatientController {
 
     @PostMapping
     public ResponseEntity<PatientDTO> create(@Valid @RequestBody PatientDTO dto) {
+
+        if (dto.getPhysicianId() == null) {
+            throw new BadRequestException("Physician ID is required");
+        }
 
         Physician physician = physicianService.getById(dto.getPhysicianId());
 
