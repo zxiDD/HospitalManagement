@@ -1,13 +1,18 @@
 package com.cg.controller;
 
 import com.cg.dto.AffiliatedWithDTO;
+import com.cg.dto.DepartmentDTO;
 import com.cg.entity.AffiliatedWithId;
 import com.cg.entity.Department;
+import com.cg.exception.ValidationException;
 import com.cg.service.AffiliatedWithService;
+
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,25 +25,21 @@ public class AffiliatedWithController {
     private AffiliatedWithService affiliatedWithService;
 
     @PostMapping
-    public ResponseEntity<AffiliatedWithDTO> createAffiliation(@RequestBody AffiliatedWithDTO dto) {
-        AffiliatedWithDTO created = affiliatedWithService.create(dto);
+    public ResponseEntity<AffiliatedWithDTO> createAffiliation(
+            @Valid @RequestBody AffiliatedWithDTO dto,
+            BindingResult br) {
 
-        if (created != null) {
-            return new ResponseEntity<>(created, HttpStatus.CREATED);
-        } else {
-            return ResponseEntity.status(400).body(null);
+        if (br.hasErrors()) {
+            throw new ValidationException(br.getFieldErrors());
         }
+
+        AffiliatedWithDTO created = affiliatedWithService.create(dto);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @GetMapping
     public ResponseEntity<List<AffiliatedWithDTO>> getAll() {
-        List<AffiliatedWithDTO> list = affiliatedWithService.getAll();
-
-        if (list != null && !list.isEmpty()) {
-            return ResponseEntity.ok(list);
-        } else {
-            return ResponseEntity.status(204).body(null);
-        }
+        return ResponseEntity.ok(affiliatedWithService.getAll());
     }
 
     @GetMapping("/{physicianId}/{departmentId}")
@@ -49,57 +50,27 @@ public class AffiliatedWithController {
         id.setPhysicianId(physicianId);
         id.setDepartmentId(departmentId);
 
-        AffiliatedWithDTO dto = affiliatedWithService.getById(id);
-
-        if (dto != null) {
-            return ResponseEntity.ok(dto);
-        } else {
-            return ResponseEntity.status(404).body(null);
-        }
+        return ResponseEntity.ok(affiliatedWithService.getById(id));
     }
 
     @GetMapping("/physician/{physicianId}")
     public ResponseEntity<List<AffiliatedWithDTO>> getByPhysicianId(@PathVariable Integer physicianId) {
-        List<AffiliatedWithDTO> list = affiliatedWithService.getByPhysicianId(physicianId);
-
-        if (list != null && !list.isEmpty()) {
-            return ResponseEntity.ok(list);
-        } else {
-            return ResponseEntity.status(204).body(null);
-        }
+        return ResponseEntity.ok(affiliatedWithService.getByPhysicianId(physicianId));
     }
 
     @GetMapping("/department/{departmentId}")
     public ResponseEntity<List<AffiliatedWithDTO>> getByDepartmentId(@PathVariable Integer departmentId) {
-        List<AffiliatedWithDTO> list = affiliatedWithService.getByDepartmentId(departmentId);
-
-        if (list != null && !list.isEmpty()) {
-            return ResponseEntity.ok(list);
-        } else {
-            return ResponseEntity.status(204).body(null);
-        }
+        return ResponseEntity.ok(affiliatedWithService.getByDepartmentId(departmentId));
     }
 
     @GetMapping("/primary")
     public ResponseEntity<List<AffiliatedWithDTO>> getPrimaryAffiliations() {
-        List<AffiliatedWithDTO> list = affiliatedWithService.getPrimaryAffiliations();
-
-        if (list != null && !list.isEmpty()) {
-            return ResponseEntity.ok(list);
-        } else {
-            return ResponseEntity.status(204).body(null);
-        }
+        return ResponseEntity.ok(affiliatedWithService.getPrimaryAffiliations());
     }
 
     @GetMapping("/primary/{physicianId}")
-    public ResponseEntity<Department> getPrimaryDepartment(@PathVariable Integer physicianId) {
-        Department dept = affiliatedWithService.getPrimaryDepartment(physicianId);
-
-        if (dept != null) {
-            return ResponseEntity.ok(dept);
-        } else {
-            return ResponseEntity.status(404).body(null);
-        }
+    public ResponseEntity<DepartmentDTO> getPrimaryDepartment(@PathVariable Integer physicianId) {
+        return ResponseEntity.ok(affiliatedWithService.getPrimaryDepartment(physicianId));
     }
 
     @GetMapping("/exists/{physicianId}/{departmentId}")
@@ -110,23 +81,11 @@ public class AffiliatedWithController {
         id.setPhysicianId(physicianId);
         id.setDepartmentId(departmentId);
 
-        boolean exists = affiliatedWithService.exists(id);
-
-        if (exists) {
-            return ResponseEntity.ok(true);
-        } else {
-            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
-        }
+        return ResponseEntity.ok(affiliatedWithService.exists(id));
     }
 
     @GetMapping("/count")
     public ResponseEntity<Long> count() {
-        long count = affiliatedWithService.count();
-
-        if (count > 0) {
-            return ResponseEntity.ok(count);
-        } else {
-            return new ResponseEntity<>(0L, HttpStatus.NO_CONTENT);
-        }
+        return ResponseEntity.ok(affiliatedWithService.count());
     }
 }
