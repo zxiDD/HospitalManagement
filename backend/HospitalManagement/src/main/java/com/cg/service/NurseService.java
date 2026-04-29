@@ -10,13 +10,13 @@ public interface NurseService {
 
     Nurse getById(Integer id);
 
-    List<Nurse> getAllSorted();
-
-    boolean exists(Integer id);
+//    List<Nurse> getAllSorted();
+//
+//    boolean exists(Integer id);
     
     Nurse save(Nurse nurse);
 
-    long count();
+//    long count();
     
     void delete(Integer employeeId);
 }
