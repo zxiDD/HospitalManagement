@@ -122,15 +122,15 @@ public class StayServiceImpl implements StayService {
         return dtoList;
     }
 
-    @Override
-    public boolean exists(Integer id) {
-        return stayRepository.existsById(id);
-    }
-
-    @Override
-    public long count() {
-        return stayRepository.count();
-    }
+//    @Override
+//    public boolean exists(Integer id) {
+//        return stayRepository.existsById(id);
+//    }
+//
+//    @Override
+//    public long count() {
+//        return stayRepository.count();
+//    }
 
     @Override
     public StayDTO create(StayDTO dto) {
