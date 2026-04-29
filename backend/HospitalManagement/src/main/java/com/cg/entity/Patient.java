@@ -22,8 +22,12 @@ public class Patient {
 
     @Column(name = "insuranceid", nullable = false)
     private Integer insuranceId;
+    
+    @Column(name = "is_active")
+    private Boolean isActive = true;
 
-    // Relationship
+   
+	// Relationship
     @ManyToOne
     @JoinColumn(name = "pcp", nullable = false)
     private Physician physician;
@@ -88,4 +92,13 @@ public class Patient {
     public void setPhysician(Physician physician) {
         this.physician = physician;
     }
+    
+    public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+
 }

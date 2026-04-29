@@ -13,6 +13,9 @@ public class Physician {
 
     @Column(name = "name", nullable = false)
     private String name;
+    
+    @Column(name = "is_active")
+    private Boolean isActive = true;
 
     @Column(name = "position", nullable = false)
     private String position;
@@ -62,4 +65,7 @@ public class Physician {
     public void setSsn(Long ssn) {
         this.ssn = ssn;
     }
+    
+    public Boolean getIsActive() { return isActive; }
+    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
 }
