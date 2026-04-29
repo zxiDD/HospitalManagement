@@ -51,6 +51,11 @@ public class PhysicianServiceImpl implements PhysicianService {
     public long count() {
         return repo.count();
     }
+    
+    @Override
+    public List<Physician> getByPosition(String position) {
+        return repo.findByPosition(position);
+    }
 
     @Override
     public Physician save(Physician physician) {
@@ -62,5 +67,15 @@ public class PhysicianServiceImpl implements PhysicianService {
         }
 
         return repo.save(physician);
+    }
+    
+    @Override
+    public void delete(Integer id) {
+        Physician physician = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Physician not found"));
+
+        physician.setIsActive(false); // 👈 SOFT DELETE
+
+        repo.save(physician);
     }
 }

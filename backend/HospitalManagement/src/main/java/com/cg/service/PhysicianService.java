@@ -20,4 +20,8 @@ public interface PhysicianService {
     Physician save(Physician physician);
 
     long count();
+    
+    List<Physician> getByPosition(String position);
+    
+    void delete(Integer id);
 }
