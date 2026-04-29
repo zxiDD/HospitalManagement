@@ -2,6 +2,7 @@ package com.cg.controller;
 
 import com.cg.dto.RoomDTO;
 import com.cg.entity.Room;
+import com.cg.exception.ResourceNotFoundException;
 import com.cg.service.RoomService;
 
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,13 @@ public class RoomController {
                 room.getBlock().getId().getBlockCode()
         );
     }
+    @PutMapping("/{roomNumber}/unavailable")
+    public ResponseEntity<RoomDTO> markRoomUnavailable(@PathVariable Integer roomNumber) {
 
+        Room room = roomService.markRoomUnavailable(roomNumber);
+
+        return ResponseEntity.ok(convertToDTO(room));
+    }
     @GetMapping
     public ResponseEntity<List<RoomDTO>> getAllRooms() {
 

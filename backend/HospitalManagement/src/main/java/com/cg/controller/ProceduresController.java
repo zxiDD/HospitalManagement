@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cg.dto.ProceduresDTO;
 import com.cg.entity.Procedures;
+import com.cg.exception.ResourceNotFoundException;
 import com.cg.service.ProceduresService;
 
 @RestController
@@ -41,10 +42,10 @@ public class ProceduresController {
 
 	@GetMapping("/{code}")
 	public ResponseEntity<ProceduresDTO> getProcedureById(@PathVariable Integer code) {
-		Optional<Procedures> procedure = proceduresService.getProcedureById(code);
+		Procedures procedure = proceduresService.getProcedureById(code)
+				.orElseThrow(() -> new ResourceNotFoundException("Procedure not found with code : " + code));
 
-		return procedure.map(value -> ResponseEntity.ok(convertToDTO(value)))
-				.orElseGet(() -> ResponseEntity.notFound().build());
+		return ResponseEntity.ok(convertToDTO(procedure));
 	}
 
 	@GetMapping("/name/{name}")
@@ -87,25 +88,20 @@ public class ProceduresController {
 
 		return ResponseEntity.ok(procedures);
 	}
-	
+
 	@PostMapping
-	public ResponseEntity<ProceduresDTO> createProcedure(
-	        @RequestBody ProceduresDTO proceduresDTO
-	) {
+	public ResponseEntity<ProceduresDTO> createProcedure(@RequestBody ProceduresDTO proceduresDTO) {
 
-	    Procedures procedure = new Procedures();
-	    procedure.setCode(proceduresDTO.getCode());
-	    procedure.setName(proceduresDTO.getName());
-	    procedure.setCost(proceduresDTO.getCost());
+		Procedures procedure = new Procedures();
+		procedure.setCode(proceduresDTO.getCode());
+		procedure.setName(proceduresDTO.getName());
+		procedure.setCost(proceduresDTO.getCost());
 
-	    Procedures savedProcedure = proceduresService.saveProcedures(procedure);
+		Procedures savedProcedure = proceduresService.saveProcedures(procedure);
 
-	    ProceduresDTO responseDTO = new ProceduresDTO(
-	            savedProcedure.getCode(),
-	            savedProcedure.getName(),
-	            savedProcedure.getCost()
-	    );
+		ProceduresDTO responseDTO = new ProceduresDTO(savedProcedure.getCode(), savedProcedure.getName(),
+				savedProcedure.getCost());
 
-	    return ResponseEntity.ok(responseDTO);
+		return ResponseEntity.ok(responseDTO);
 	}
 }

@@ -26,6 +26,7 @@ public interface UndergoesRepository extends JpaRepository<Undergoes, UndergoesI
 
 	// Find by exact date
 	List<Undergoes> findById_DateUndergoes(LocalDateTime date);
+	
 
 	// Find by date range
 	List<Undergoes> findById_DateUndergoesBetween(LocalDateTime startDate, LocalDateTime endDate);

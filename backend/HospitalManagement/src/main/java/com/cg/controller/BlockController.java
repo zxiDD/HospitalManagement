@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cg.dto.BlockDTO;
 import com.cg.entity.Block;
 import com.cg.entity.BlockId;
+import com.cg.exception.ResourceNotFoundException;
 import com.cg.service.BlockService;
 
 @RestController
@@ -41,17 +42,18 @@ public class BlockController {
 	public ResponseEntity<BlockDTO> getBlockById(@RequestParam Integer floor, @RequestParam Integer code) {
 		BlockId blockId = new BlockId(floor, code);
 
-		Optional<Block> block = blockService.getBlockById(blockId);
+		Block block = blockService.getBlockById(blockId).orElseThrow(() -> new ResourceNotFoundException(
+				"Block not found with block floor " + floor + " and " + " block code " + code));
 
-		return block.map(value -> ResponseEntity.ok(convertToDTO(value)))
-				.orElseGet(() -> ResponseEntity.notFound().build());
+		return ResponseEntity.ok(convertToDTO(block));
 	}
 
 	@GetMapping("/{floor}/{code}")
 	public ResponseEntity<BlockDTO> getBlockByFloorAndCode(@PathVariable Integer floor, @PathVariable Integer code) {
-		Optional<Block> block = blockService.getBlockByFloorAndCode(floor, code);
+		Block block = blockService.getBlockByFloorAndCode(floor, code).orElseThrow(() -> new ResourceNotFoundException(
+				"Block not found with block floor " + floor + " and " + " block code " + code));
+		;
 
-		return block.map(value -> ResponseEntity.ok(convertToDTO(value)))
-				.orElseGet(() -> ResponseEntity.notFound().build());
+		return ResponseEntity.ok(convertToDTO(block));
 	}
 }
