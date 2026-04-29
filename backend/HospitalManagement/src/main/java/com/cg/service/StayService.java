@@ -20,9 +20,9 @@ public interface StayService {
 
     List<StayDTO> getPatientStayHistory(Long ssn);
 
-    boolean exists(Integer id);
-
-    long count();
+//    boolean exists(Integer id);
+//
+//    long count();
 
 	StayDTO create(StayDTO dto);
 	

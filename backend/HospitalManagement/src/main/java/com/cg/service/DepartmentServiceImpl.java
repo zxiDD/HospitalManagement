@@ -73,27 +73,27 @@ public class DepartmentServiceImpl implements DepartmentService {
         return dtoList;
     }
 
-    @Override
-    public List<DepartmentDTO> getAllSorted() {
-        List<Department> departments = departmentRepository.findAllByOrderByDepartmentIdAsc();
-        List<DepartmentDTO> dtoList = new ArrayList<>();
-
-        for (Department d : departments) {
-            dtoList.add(mapToDTO(d));
-        }
-
-        return dtoList;
-    }
-
-    @Override
-    public boolean exists(Integer id) {
-        return departmentRepository.existsById(id);
-    }
-
-    @Override
-    public long count() {
-        return departmentRepository.count();
-    }
+//    @Override
+//    public List<DepartmentDTO> getAllSorted() {
+//        List<Department> departments = departmentRepository.findAllByOrderByDepartmentIdAsc();
+//        List<DepartmentDTO> dtoList = new ArrayList<>();
+//
+//        for (Department d : departments) {
+//            dtoList.add(mapToDTO(d));
+//        }
+//
+//        return dtoList;
+//    }
+//
+//    @Override
+//    public boolean exists(Integer id) {
+//        return departmentRepository.existsById(id);
+//    }
+//
+//    @Override
+//    public long count() {
+//        return departmentRepository.count();
+//    }
 
     @Override
     public DepartmentDTO create(DepartmentDTO dto) {
