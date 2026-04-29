@@ -1,6 +1,7 @@
 package com.cg.controller;
 
 import com.cg.dto.AppointmentDTO;
+import com.cg.dto.NurseDTO;
 import com.cg.entity.*;
 import com.cg.exception.BadRequestException;
 import com.cg.exception.IllegalOperationException;
@@ -108,5 +109,23 @@ public class AppointmentController {
         a.setEndo(dto.getEndo());
 
         return ResponseEntity.ok(service.save(a));
+    }
+    
+    @GetMapping("/patients/{patientId}/appointments")
+    public ResponseEntity<List<AppointmentDTO>> getAppointmentsForPatient(
+            @PathVariable Long patientId) {
+ 
+        List<Appointment> appointments = service.getByPatientId(patientId);
+        List<AppointmentDTO> appointmentsDTO = appointments.stream().map(this::convertToDTO).toList();
+        return ResponseEntity.ok(appointmentsDTO);
+    }
+    
+    @PatchMapping("/appointments/{appointmentId}/nurse")
+    public ResponseEntity<AppointmentDTO> assignPrepNurse(
+            @PathVariable Integer appointmentId,
+            @Valid @RequestBody NurseDTO request) {
+ 
+        Appointment updated = service.assignPrepNurse(appointmentId, request.getEmployeeId());
+        return ResponseEntity.ok(convertToDTO(updated));
     }
 }
