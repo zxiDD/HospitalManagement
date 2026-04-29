@@ -17,4 +17,6 @@ public interface NurseService {
     Nurse save(Nurse nurse);
 
     long count();
+    
+    void delete(Integer employeeId);
 }

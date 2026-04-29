@@ -21,4 +21,8 @@ public interface PatientService {
     boolean exists(Long id);
 
     long count();
+    
+    void delete(Long ssn);
+    
+    List<Patient> getByPhone(String phone);
 }

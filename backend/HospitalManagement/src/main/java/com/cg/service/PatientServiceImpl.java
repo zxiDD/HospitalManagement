@@ -68,4 +68,20 @@ public class PatientServiceImpl implements PatientService {
 
         return repo.save(patient);
     }
+    
+    @Override
+    public void delete(Long ssn) {
+
+        Patient patient = repo.findById(ssn)
+                .orElseThrow(() -> new RuntimeException("Patient not found"));
+
+        patient.setIsActive(false); // 👈 soft delete
+
+        repo.save(patient);
+    }
+    
+    @Override
+    public List<Patient> getByPhone(String phone) {
+        return repo.findByPhone(phone);
+    }
 }

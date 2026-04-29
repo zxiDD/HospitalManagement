@@ -22,8 +22,19 @@ public class Nurse {
 
     @Column(name = "ssn", nullable = false)
     private Long ssn;
+    
+    @Column(name = "is_active")
+    private Boolean isActive = true;
 
-    // Constructors
+    public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+
+	// Constructors
     public Nurse() {}
 
     public Nurse(Integer employeeId, String name, String position, Boolean registered, Long ssn) {

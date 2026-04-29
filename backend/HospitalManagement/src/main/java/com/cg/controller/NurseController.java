@@ -56,25 +56,25 @@ public class NurseController {
         return ResponseEntity.ok(mapToDTO(nurse));
     }
 
-    @GetMapping("/sorted")
-    public ResponseEntity<List<NurseDTO>> getAllSorted() {
-        List<NurseDTO> list = service.getAllSorted()
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(list);
-    }
-
-    @GetMapping("/count")
-    public ResponseEntity<Long> count() {
-        return ResponseEntity.ok(service.count());
-    }
-
-    @GetMapping("/exists/{employeeId}")
-    public ResponseEntity<Boolean> exists(@PathVariable Integer employeeId) {
-        return ResponseEntity.ok(service.exists(employeeId));
-    }
+//    @GetMapping("/sorted")
+//    public ResponseEntity<List<NurseDTO>> getAllSorted() {
+//        List<NurseDTO> list = service.getAllSorted()
+//                .stream()
+//                .map(this::mapToDTO)
+//                .collect(Collectors.toList());
+//
+//        return ResponseEntity.ok(list);
+//    }
+//
+//    @GetMapping("/count")
+//    public ResponseEntity<Long> count() {
+//        return ResponseEntity.ok(service.count());
+//    }
+//
+//    @GetMapping("/exists/{employeeId}")
+//    public ResponseEntity<Boolean> exists(@PathVariable Integer employeeId) {
+//        return ResponseEntity.ok(service.exists(employeeId));
+//    }
 
     @PostMapping
     public ResponseEntity<NurseDTO> create(@Valid @RequestBody NurseDTO dto) {
@@ -89,6 +89,31 @@ public class NurseController {
         Nurse saved = service.save(n);
 
         return ResponseEntity.status(201).body(mapToDTO(saved));
+    }
+    
+    @PutMapping("/{employeeId}")
+    public ResponseEntity<NurseDTO> update(
+            @PathVariable Integer employeeId,
+            @Valid @RequestBody NurseDTO dto) {
+
+        Nurse existing = service.getById(employeeId);
+
+        existing.setName(dto.getName());
+        existing.setPosition(dto.getPosition());
+        existing.setRegistered(dto.getRegistered());
+        existing.setSsn(dto.getSsn());
+
+        Nurse updated = service.save(existing);
+
+        return ResponseEntity.ok(mapToDTO(updated));
+    }
+    
+    @DeleteMapping("/{employeeId}")
+    public ResponseEntity<Void> delete(@PathVariable Integer employeeId) {
+
+        service.delete(employeeId); // soft delete
+
+        return ResponseEntity.noContent().build();
     }
    
 }

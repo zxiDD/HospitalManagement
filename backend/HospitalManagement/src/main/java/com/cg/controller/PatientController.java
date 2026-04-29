@@ -78,25 +78,25 @@ public class PatientController {
         return ResponseEntity.ok(list);
     }
     
-    @GetMapping("/sorted")
-    public ResponseEntity<List<PatientDTO>> getAllSorted() {
-        List<PatientDTO> list = service.getAllSorted()
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+//    @GetMapping("/sorted")
+//    public ResponseEntity<List<PatientDTO>> getAllSorted() {
+//        List<PatientDTO> list = service.getAllSorted()
+//                .stream()
+//                .map(this::mapToDTO)
+//                .collect(Collectors.toList());
+//
+//        return ResponseEntity.ok(list);
+//    }
 
-        return ResponseEntity.ok(list);
-    }
+//    @GetMapping("/count")
+//    public ResponseEntity<Long> count() {
+//        return ResponseEntity.ok(service.count());
+//    }
 
-    @GetMapping("/count")
-    public ResponseEntity<Long> count() {
-        return ResponseEntity.ok(service.count());
-    }
-
-    @GetMapping("/exists/{ssn}")
-    public ResponseEntity<Boolean> exists(@PathVariable Long ssn) {
-        return ResponseEntity.ok(service.exists(ssn));
-    }
+//    @GetMapping("/exists/{ssn}")
+//    public ResponseEntity<Boolean> exists(@PathVariable Long ssn) {
+//        return ResponseEntity.ok(service.exists(ssn));
+//    }
 
     @PostMapping
     public ResponseEntity<PatientDTO> create(@Valid @RequestBody PatientDTO dto) {
@@ -118,5 +118,46 @@ public class PatientController {
         Patient saved = service.save(patient);
 
         return ResponseEntity.status(201).body(mapToDTO(saved));
+    }
+    
+    @PutMapping("/{ssn}")
+    public ResponseEntity<PatientDTO> update(
+            @PathVariable Long ssn,
+            @Valid @RequestBody PatientDTO dto) {
+
+        Patient existing = service.getById(ssn);
+
+        existing.setName(dto.getName());
+        existing.setAddress(dto.getAddress());
+        existing.setPhone(dto.getPhone());
+        existing.setInsuranceId(dto.getInsuranceId());
+
+        if (dto.getPhysicianId() != null) {
+            Physician physician = physicianService.getById(dto.getPhysicianId());
+            existing.setPhysician(physician);
+        }
+
+        Patient updated = service.save(existing);
+
+        return ResponseEntity.ok(mapToDTO(updated));
+    }
+    
+    @DeleteMapping("/{ssn}")
+    public ResponseEntity<Void> delete(@PathVariable Long ssn) {
+
+        service.delete(ssn); // soft delete
+
+        return ResponseEntity.noContent().build();
+    }
+    
+    @GetMapping("/phone/{phone}")
+    public ResponseEntity<List<PatientDTO>> getByPhone(@PathVariable String phone) {
+
+        List<PatientDTO> list = service.getByPhone(phone)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(list);
     }
 }
