@@ -140,6 +140,11 @@ public class UndergoesController {
 
 		return ResponseEntity.ok(records);
 	}
+	
+	@GetMapping("/patient/{patientId}/procedures")
+	public ResponseEntity<List<String>> getProceduresByPatient(@PathVariable Long patientId) {
+	    return ResponseEntity.ok(undergoesService.getProceduresByPatient(patientId));
+	}
 
 	@PostMapping
 	public ResponseEntity<UndergoesDTO> createUndergoes(@RequestBody UndergoesDTO dto) {
