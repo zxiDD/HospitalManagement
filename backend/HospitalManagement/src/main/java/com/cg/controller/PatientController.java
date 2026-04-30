@@ -6,6 +6,7 @@ import com.cg.entity.Patient;
 import com.cg.entity.Physician;
 import com.cg.exception.BadRequestException;
 import com.cg.exception.ResourceNotFoundException;
+import com.cg.exception.ValidationException;
 import com.cg.repo.PatientRepository;
 import com.cg.service.PatientService;
 import com.cg.service.PhysicianService;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -89,7 +91,11 @@ public class PatientController {
 //    }
 
 	@PostMapping
-	public ResponseEntity<PatientDTO> create(@Valid @RequestBody PatientDTO dto) {
+	public ResponseEntity<PatientDTO> create(@Valid @RequestBody PatientDTO dto, BindingResult br) {
+
+		if (br.hasErrors()) {
+			throw new ValidationException(br.getFieldErrors());
+		}
 
 		if (dto.getPhysicianId() == null) {
 			throw new BadRequestException("Physician ID is required");
