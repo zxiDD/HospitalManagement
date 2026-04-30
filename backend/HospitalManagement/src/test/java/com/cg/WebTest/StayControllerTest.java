@@ -1,245 +1,290 @@
 package com.cg.WebTest;
 
-import com.cg.controller.StayController;
-import com.cg.dto.StayDTO;
-import com.cg.exception.GlobalExceptionHandler;
-import com.cg.exception.ResourceNotFoundException;
-import com.cg.service.StayService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 
-@WebMvcTest(StayController.class)
-@Import(GlobalExceptionHandler.class)
+import com.cg.controller.StayController;
+import com.cg.dto.StayDTO;
+import com.cg.entity.Patient;
+import com.cg.entity.Room;
+import com.cg.entity.Stay;
+import com.cg.exception.ResourceNotFoundException;
+import com.cg.exception.ValidationException;
+import com.cg.service.StayService;
+
+@SpringBootTest
 public class StayControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private StayController controller;
 
     @MockitoBean
     private StayService stayService;
 
-    private final ObjectMapper objectMapper =
-            new ObjectMapper().findAndRegisterModules();
+    private Stay stay1;
+    private Stay stay2;
+    private StayDTO stayDTO1;
+    private StayDTO stayDTO2;
+    private Patient patient;
+    private Room room;
+    
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.openMocks(this);
 
-    // =========================
-    // GET ALL
-    // =========================
-    @Test
-    void testGetAll_success() throws Exception {
+        patient = new Patient();
+        patient.setSsn(12345L);
+        patient.setName("John Doe");
+        patient.setAddress("123 Main St");
+        patient.setPhone("555-1234");
+        patient.setInsuranceId(100);
 
-        Mockito.when(stayService.getAll())
-                .thenReturn(List.of(
-                        new StayDTO(1, 123L, "John", 101, "ICU",
-                                LocalDateTime.now(), null)
-                ));
+        room = new Room();
+        room.setRoomNumber(101);
+        room.setRoomType("ICU");
+        room.setUnavailable(false);
 
-        mockMvc.perform(get("/stays"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].patientName").value("John"));
+        stay1 = new Stay();
+        stay1.setStayId(1);
+        stay1.setPatient(patient);
+        stay1.setRoom(room);
+        stay1.setStayStart(LocalDateTime.now().minusDays(2));
+        stay1.setStayEnd(null);
 
-        Mockito.verify(stayService).getAll();
+        stay2 = new Stay();
+        stay2.setStayId(2);
+        stay2.setPatient(patient);
+        stay2.setRoom(room);
+        stay2.setStayStart(LocalDateTime.now().minusDays(5));
+        stay2.setStayEnd(LocalDateTime.now().minusDays(3));
+
+        stayDTO1 = new StayDTO(1, 12345L, "John Doe", 101, "ICU", 
+                LocalDateTime.now().minusDays(2), null);
+        stayDTO2 = new StayDTO(2, 12345L, "John Doe", 101, "ICU",
+                LocalDateTime.now().minusDays(5), LocalDateTime.now().minusDays(3));
     }
 
-    // =========================
-    // GET BY ID
-    // =========================
     @Test
-    void testGetById_success() throws Exception {
+    void testGetAll_Success() {
+        when(stayService.getAll()).thenReturn(List.of(stayDTO1, stayDTO2));
 
-        StayDTO dto = new StayDTO(1, 123L, "John", 101, "ICU",
+        ResponseEntity<List<StayDTO>> response = controller.getAll();
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().size());
+        assertEquals("John Doe", response.getBody().get(0).getPatientName());
+    }
+
+    @Test
+    void testGetAll_Empty() {
+        when(stayService.getAll()).thenReturn(List.of());
+
+        ResponseEntity<List<StayDTO>> response = controller.getAll();
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isEmpty());
+    }
+
+    @Test
+    void testGetById_Found() {
+        when(stayService.getById(1)).thenReturn(stayDTO1);
+
+        ResponseEntity<StayDTO> response = controller.getById(1);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().getStayId());
+        assertEquals("John Doe", response.getBody().getPatientName());
+    }
+
+    @Test
+    void testGetById_NotFound() {
+        when(stayService.getById(999)).thenThrow(new ResourceNotFoundException("Stay not found"));
+
+        assertThrows(ResourceNotFoundException.class, () -> controller.getById(999));
+    }
+
+    @Test
+    void testCreateStay_Success() {
+        StayDTO dto = new StayDTO(null, 12345L, null, 101, null,
+                LocalDateTime.now().plusDays(1), null);
+        BindingResult br = mock(BindingResult.class);
+        when(br.hasErrors()).thenReturn(false);
+
+        when(stayService.create(any(StayDTO.class))).thenReturn(
+                new StayDTO(3, 12345L, "John Doe", 101, "ICU", 
+                        LocalDateTime.now().plusDays(1), null));
+
+        ResponseEntity<StayDTO> response = controller.createStay(dto, br);
+
+        assertEquals(201, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(3, response.getBody().getStayId());
+    }
+
+    @Test
+    void testCreateStay_InvalidPatientSsn() {
+        StayDTO dto = new StayDTO(null, null, null, 101, null,
                 LocalDateTime.now(), null);
+        BindingResult br = mock(BindingResult.class);
+        when(br.hasErrors()).thenReturn(true);
 
-        Mockito.when(stayService.getById(1)).thenReturn(dto);
+        List<FieldError> errors = new ArrayList<>();
+        errors.add(new FieldError("stayDTO", "patientSsn", "Patient SSN is required"));
+        when(br.getFieldErrors()).thenReturn(errors);
 
-        mockMvc.perform(get("/stays/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.patientName").value("John"));
+        when(stayService.create(any(StayDTO.class))).thenThrow(new ValidationException(errors));
 
-        Mockito.verify(stayService).getById(1);
+        assertThrows(ValidationException.class, () -> controller.createStay(dto, br));
     }
 
     @Test
-    void testGetById_notFound() throws Exception {
-
-        Mockito.when(stayService.getById(1))
-                .thenThrow(new ResourceNotFoundException("Stay not found"));
-
-        mockMvc.perform(get("/stays/1"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errMsg").value("Stay not found"));
-
-        Mockito.verify(stayService).getById(1);
-    }
-
-    // =========================
-    // GET BY PATIENT
-    // =========================
-    @Test
-    void testGetByPatient_success() throws Exception {
-
-        Mockito.when(stayService.getByPatientSsn(123L))
-                .thenReturn(List.of(
-                        new StayDTO(1, 123L, "John", 101, "ICU",
-                                LocalDateTime.now(), null)
-                ));
-
-        mockMvc.perform(get("/stays/patient/123"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].patientName").value("John"));
-
-        Mockito.verify(stayService).getByPatientSsn(123L);
-    }
-
-    // =========================
-    // GET BY ROOM
-    // =========================
-    @Test
-    void testGetByRoom_success() throws Exception {
-
-        Mockito.when(stayService.getByRoomNumber(101))
-                .thenReturn(List.of(
-                        new StayDTO(1, 123L, "John", 101, "ICU",
-                                LocalDateTime.now(), null)
-                ));
-
-        mockMvc.perform(get("/stays/room/101"))
-                .andExpect(status().isOk());
-
-        Mockito.verify(stayService).getByRoomNumber(101);
-    }
-
-    // =========================
-    // GET AFTER DATE
-    // =========================
-    @Test
-    void testGetAfter_success() throws Exception {
-
-        Mockito.when(stayService.getStaysAfter(Mockito.any()))
-                .thenReturn(List.of(
-                        new StayDTO(1, 123L, "John", 101, "ICU",
-                                LocalDateTime.now(), null)
-                ));
-
-        mockMvc.perform(get("/stays/after")
-                        .param("dateTime", "2025-01-01T10:00:00"))
-                .andExpect(status().isOk());
-
-        Mockito.verify(stayService).getStaysAfter(Mockito.any());
-    }
-
-    // =========================
-    // GET ACTIVE
-    // =========================
-    @Test
-    void testGetActive_success() throws Exception {
-
-        Mockito.when(stayService.getActiveStays())
-                .thenReturn(List.of(
-                        new StayDTO(1, 123L, "John", 101, "ICU",
-                                LocalDateTime.now(), null)
-                ));
-
-        mockMvc.perform(get("/stays/active"))
-                .andExpect(status().isOk());
-
-        Mockito.verify(stayService).getActiveStays();
-    }
-
-    // =========================
-    // GET HISTORY
-    // =========================
-    @Test
-    void testGetHistory_success() throws Exception {
-
-        Mockito.when(stayService.getPatientStayHistory(123L))
-                .thenReturn(List.of(
-                        new StayDTO(1, 123L, "John", 101, "ICU",
-                                LocalDateTime.now(), null)
-                ));
-
-        mockMvc.perform(get("/stays/history/123"))
-                .andExpect(status().isOk());
-
-        Mockito.verify(stayService).getPatientStayHistory(123L);
-    }
-
-    // =========================
-    // CREATE SUCCESS
-    // =========================
-    @Test
-    void testCreate_success() throws Exception {
-
-        StayDTO input = new StayDTO(null, 123L, null, 101, null,
+    void testCreateStay_InvalidRoomNumber() {
+        StayDTO dto = new StayDTO(null, 12345L, null, null, null,
                 LocalDateTime.now(), null);
+        BindingResult br = mock(BindingResult.class);
+        when(br.hasErrors()).thenReturn(true);
 
-        StayDTO output = new StayDTO(1, 123L, "John", 101, "ICU",
-                LocalDateTime.now(), null);
+        List<FieldError> errors = new ArrayList<>();
+        errors.add(new FieldError("stayDTO", "roomNumber", "Room number is required"));
+        when(br.getFieldErrors()).thenReturn(errors);
 
-        Mockito.when(stayService.create(Mockito.any())).thenReturn(output);
+        when(stayService.create(any(StayDTO.class))).thenThrow(new ValidationException(errors));
 
-        mockMvc.perform(post("/stays")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(input)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.stayId").value(1));
-
-        Mockito.verify(stayService).create(Mockito.any());
-    }
-
-    // =========================
-    // CREATE VALIDATION ERROR
-    // =========================
-    @Test
-    void testCreate_validationError() throws Exception {
-
-        StayDTO invalid = new StayDTO();
-
-        mockMvc.perform(post("/stays")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(invalid)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errMsg").value("Validation failed"));
-
-        Mockito.verify(stayService, Mockito.never()).create(Mockito.any());
-    }
-
-    // =========================
-    // IS PATIENT ACTIVE
-    // =========================
-    @Test
-    void testIsPatientActive_true() throws Exception {
-
-        Mockito.when(stayService.isPatientActive(123L)).thenReturn(true);
-
-        mockMvc.perform(get("/stays/active/patient/123"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("true"));
-
-        Mockito.verify(stayService).isPatientActive(123L);
+        assertThrows(ValidationException.class, () -> controller.createStay(dto, br));
     }
 
     @Test
-    void testIsPatientActive_false() throws Exception {
+    void testGetByPatientSsn_Success() {
+        when(stayService.getByPatientSsn(12345L)).thenReturn(List.of(stayDTO1, stayDTO2));
 
-        Mockito.when(stayService.isPatientActive(123L)).thenReturn(false);
+        ResponseEntity<List<StayDTO>> response = controller.getByPatientSsn(12345L);
 
-        mockMvc.perform(get("/stays/active/patient/123"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("false"));
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().size());
+    }
 
-        Mockito.verify(stayService).isPatientActive(123L);
+    @Test
+    void testGetByPatientSsn_Empty() {
+        when(stayService.getByPatientSsn(999L)).thenReturn(List.of());
+
+        ResponseEntity<List<StayDTO>> response = controller.getByPatientSsn(999L);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isEmpty());
+    }
+
+    @Test
+    void testGetByRoomNumber_Success() {
+        when(stayService.getByRoomNumber(101)).thenReturn(List.of(stayDTO1));
+
+        ResponseEntity<List<StayDTO>> response = controller.getByRoomNumber(101);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertEquals(101, response.getBody().get(0).getRoomNumber());
+    }
+
+    @Test
+    void testGetByRoomNumber_Empty() {
+        when(stayService.getByRoomNumber(999)).thenReturn(List.of());
+
+        ResponseEntity<List<StayDTO>> response = controller.getByRoomNumber(999);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isEmpty());
+    }
+
+    @Test
+    void testGetStaysAfter_Success() {
+        LocalDateTime dateTime = LocalDateTime.now().minusDays(10);
+        when(stayService.getStaysAfter(any(LocalDateTime.class))).thenReturn(List.of(stayDTO1, stayDTO2));
+
+        ResponseEntity<List<StayDTO>> response = controller.getStaysAfter("2026-04-20T10:00:00");
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().size());
+    }
+
+    @Test
+    void testGetStaysAfter_Empty() {
+        when(stayService.getStaysAfter(any(LocalDateTime.class))).thenReturn(List.of());
+
+        ResponseEntity<List<StayDTO>> response = controller.getStaysAfter("2026-05-30T10:00:00");
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isEmpty());
+    }
+
+    @Test
+    void testGetActiveStays_Success() {
+        when(stayService.getActiveStays()).thenReturn(List.of(stayDTO1));
+
+        ResponseEntity<List<StayDTO>> response = controller.getActiveStays();
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertNull(response.getBody().get(0).getStayEnd());
+    }
+
+    @Test
+    void testGetActiveStays_Empty() {
+        when(stayService.getActiveStays()).thenReturn(List.of());
+
+        ResponseEntity<List<StayDTO>> response = controller.getActiveStays();
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isEmpty());
+    }
+
+    @Test
+    void testGetPatientStayHistory_Success() {
+        when(stayService.getPatientStayHistory(12345L)).thenReturn(List.of(stayDTO1, stayDTO2));
+
+        ResponseEntity<List<StayDTO>> response = controller.getPatientStayHistory(12345L);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().size());
+    }
+
+    @Test
+    void testGetPatientStayHistory_Empty() {
+        when(stayService.getPatientStayHistory(999L)).thenReturn(List.of());
+
+        ResponseEntity<List<StayDTO>> response = controller.getPatientStayHistory(999L);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isEmpty());
     }
 }

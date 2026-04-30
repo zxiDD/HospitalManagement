@@ -19,14 +19,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.*;
 
-//@SpringBootTest
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+//@ExtendWith(MockitoExtension.class)
 class RoomServiceTest {
 
-	@Mock
+	@MockitoBean
     private RoomRepository roomRepository;
 
-	  @InjectMocks
+	  @Autowired
     private RoomServiceImpl roomService;
 
     private Room room;
