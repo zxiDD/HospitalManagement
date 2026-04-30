@@ -33,7 +33,12 @@ public class Appointment {
 
     @Column(name = "examinationroom")
     private String examinationRoom;
+    
+    @Column(name = "is_active")
+    private boolean isActive = true;
 
+
+    
     public Appointment() {
     }
 
@@ -104,4 +109,14 @@ public class Appointment {
     public void setExaminationRoom(String examinationRoom) {
         this.examinationRoom = examinationRoom;
     }
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+    
+    
 }

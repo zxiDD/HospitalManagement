@@ -15,13 +15,13 @@ public interface PatientService {
 
     List<Patient> getByNameAndAddress(String name, String address);
 
-    List<Patient> getAllSorted();
+//    List<Patient> getAllSorted();
     
     Patient save(Patient patient);
 
-    boolean exists(Long id);
-
-    long count();
+//    boolean exists(Long id);
+//
+//    long count();
     
     void delete(Long ssn);
     
