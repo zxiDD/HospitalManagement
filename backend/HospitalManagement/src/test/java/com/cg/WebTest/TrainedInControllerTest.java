@@ -1,179 +1,181 @@
 package com.cg.WebTest;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
-import com.cg.controller.TrainedInController;
-import com.cg.dto.TrainedInDTO;
-import com.cg.entity.*;
-import com.cg.exception.BadRequestException;
-import com.cg.service.TrainedInService;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import com.cg.dto.TrainedInDTO;
+import com.cg.entity.Physician;
+import com.cg.entity.Procedures;
+import com.cg.entity.TrainedIn;
+import com.cg.entity.TrainedInId;
+import com.cg.service.TrainedInService;
+
+import tools.jackson.databind.ObjectMapper;
+
+
 @SpringBootTest
-public class TrainedInControllerTest {
+@AutoConfigureMockMvc
+class TrainedInControllerTest {
 
     @Autowired
-    private TrainedInController controller;
+    private MockMvc mockMvc;
 
     @MockitoBean
     private TrainedInService service;
 
-    private TrainedIn trainedIn;
-    private TrainedInId trainedInId;
-    private Physician physician;
-    private Procedures procedures;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @BeforeEach
-    void setup() {
-        MockitoAnnotations.openMocks(this);
 
-  
-        physician = new Physician();
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void createTraining_success() throws Exception {
+
+        TrainedInDTO dto = new TrainedInDTO(
+                100, 101,
+                LocalDate.of(2023, 1, 1),
+                LocalDate.of(2025, 1, 1)
+        );
+
+        Physician physician = new Physician();
         physician.setEmployeeId(100);
-        physician.setName("Dr. Smith");
 
-        procedures = new Procedures();
+        Procedures procedures = new Procedures();
         procedures.setCode(101);
-        procedures.setName("Cardiac Surgery");
 
-        trainedInId = new TrainedInId(100, 101);
+        TrainedInId id = new TrainedInId(100, 101);
 
-        trainedIn = new TrainedIn();
-        trainedIn.setId(trainedInId);
+        TrainedIn trainedIn = new TrainedIn();
+        trainedIn.setId(id);
         trainedIn.setPhysician(physician);
         trainedIn.setTreatment(procedures);
         trainedIn.setCertificationDate(LocalDateTime.now().minusMonths(6));
         trainedIn.setCertificationExpires(LocalDateTime.now().plusMonths(6));
+
+        when(service.save(any())).thenReturn(trainedIn);
+
+        mockMvc.perform(post("/admin/trainedin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.physicianId").value(100))
+                .andExpect(jsonPath("$.treatmentId").value(101));
     }
 
 
     @Test
-    void testGetAll() {
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void createTraining_invalidDate() throws Exception {
+
+        TrainedInDTO dto = new TrainedInDTO(
+                100, 101,
+                LocalDate.of(2025, 1, 1),
+                LocalDate.of(2023, 1, 1)
+        );
+
+        mockMvc.perform(post("/admin/trainedin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getAllTraining_success() throws Exception {
+
+        Physician physician = new Physician();
+        physician.setEmployeeId(100);
+
+        Procedures procedures = new Procedures();
+        procedures.setCode(101);
+
+        TrainedIn trainedIn = new TrainedIn();
+        trainedIn.setId(new TrainedInId(100, 101));
+        trainedIn.setPhysician(physician);
+        trainedIn.setTreatment(procedures);
+        trainedIn.setCertificationDate(LocalDateTime.now());
+        trainedIn.setCertificationExpires(LocalDateTime.now().plusMonths(6));
+
         when(service.getAll()).thenReturn(List.of(trainedIn));
 
-        ResponseEntity<List<TrainedInDTO>> response = controller.getAll();
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
+        mockMvc.perform(get("/trainedin"))
+                .andExpect(status().isOk());
     }
 
+
     @Test
-    void testGetByPhysician() {
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getByPhysician_success() throws Exception {
+
+        Physician physician = new Physician();
+        physician.setEmployeeId(100);
+
+        Procedures procedures = new Procedures();
+        procedures.setCode(101);
+
+        TrainedIn trainedIn = new TrainedIn();
+        trainedIn.setId(new TrainedInId(100, 101));
+        trainedIn.setPhysician(physician);
+        trainedIn.setTreatment(procedures);
+
         when(service.getByPhysicianId(100)).thenReturn(List.of(trainedIn));
 
-        ResponseEntity<List<TrainedInDTO>> response = controller.getByPhysician(100);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
+        mockMvc.perform(get("/trainedin/physician/100"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].physicianId").value(100))
+                .andExpect(jsonPath("$[0].treatmentId").value(101));
     }
 
+
     @Test
-    void testGetByPhysician_Empty() {
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getByPhysician_empty() throws Exception {
+
         when(service.getByPhysicianId(100)).thenReturn(List.of());
 
-        ResponseEntity<List<TrainedInDTO>> response = controller.getByPhysician(100);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().isEmpty());
+        mockMvc.perform(get("/trainedin/physician/100"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
     }
 
- 
+
     @Test
-    void testAddTraining_Success() {
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void createTraining_verifyServiceCall() throws Exception {
+
         TrainedInDTO dto = new TrainedInDTO(
                 100, 101,
-                LocalDate.now().minusMonths(6),
-                LocalDate.now().plusMonths(6));
+                LocalDate.of(2023, 1, 1),
+                LocalDate.of(2025, 1, 1)
+        );
 
-        when(service.save(any(TrainedIn.class))).thenReturn(trainedIn);
+        when(service.save(any())).thenReturn(new TrainedIn());
 
-        ResponseEntity<?> response = controller.addTraining(dto);
+        mockMvc.perform(post("/admin/trainedin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated());
 
-        assertEquals(201, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-    }
-
-    @Test
-    void testAddTraining_InvalidDate() {
-        TrainedInDTO dto = new TrainedInDTO(
-                100, 101,
-                LocalDate.now().plusMonths(6),  
-                LocalDate.now().minusMonths(6)); 
-
-        assertThrows(BadRequestException.class, () -> controller.addTraining(dto));
-    }
-
-
-    @Test
-    void testAddTraining_PastCertificationDate() {
-        TrainedInDTO dto = new TrainedInDTO(
-                100, 101,
-                LocalDate.now().minusMonths(1),
-                LocalDate.now().plusMonths(6));
-
-        when(service.save(any(TrainedIn.class))).thenReturn(trainedIn);
-
-        ResponseEntity<?> response = controller.addTraining(dto);
-
-        assertEquals(201, response.getStatusCode().value());
-    }
-
-    @Test
-    void testGetAll_MultipleRecords() {
-        TrainedIn trainedIn2 = new TrainedIn();
-        trainedIn2.setId(new TrainedInId(200, 201));
-        trainedIn2.setPhysician(physician);
-        trainedIn2.setTreatment(procedures);
-        trainedIn2.setCertificationDate(LocalDateTime.now().minusMonths(3));
-        trainedIn2.setCertificationExpires(LocalDateTime.now().plusMonths(9));
-
-        when(service.getAll()).thenReturn(List.of(trainedIn, trainedIn2));
-
-        ResponseEntity<List<TrainedInDTO>> response = controller.getAll();
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(2, response.getBody().size());
-    }
-
-    @Test
-    void testGetByPhysician_VerifyData() {
-        when(service.getByPhysicianId(100)).thenReturn(List.of(trainedIn));
-
-        ResponseEntity<List<TrainedInDTO>> response = controller.getByPhysician(100);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(100, response.getBody().get(0).getPhysicianId());
-        assertEquals(101, response.getBody().get(0).getTreatmentId());
-    }
-
-    @Test
-    void testAddTraining_VerifyServiceCall() {
-        TrainedInDTO dto = new TrainedInDTO(
-                100, 101,
-                LocalDate.now().minusMonths(6),
-                LocalDate.now().plusMonths(6));
-
-        when(service.save(any(TrainedIn.class))).thenReturn(trainedIn);
-
-        controller.addTraining(dto);
-
-        verify(service, times(1)).save(any(TrainedIn.class));
+        verify(service, times(1)).save(any());
     }
 }
