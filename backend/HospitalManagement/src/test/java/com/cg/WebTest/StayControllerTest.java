@@ -1,245 +1,179 @@
 package com.cg.WebTest;
 
-import com.cg.controller.StayController;
-import com.cg.dto.StayDTO;
-import com.cg.exception.GlobalExceptionHandler;
-import com.cg.exception.ResourceNotFoundException;
-import com.cg.service.StayService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(StayController.class)
-@Import(GlobalExceptionHandler.class)
-public class StayControllerTest {
+import com.cg.dto.StayDTO;
+import com.cg.exception.ResourceNotFoundException;
+import com.cg.service.StayService;
 
-    @Autowired
-    private MockMvc mockMvc;
+import tools.jackson.databind.ObjectMapper;
 
-    @MockitoBean
-    private StayService stayService;
+@SpringBootTest
+@AutoConfigureMockMvc
+class StayControllerTest {
 
-    private final ObjectMapper objectMapper =
-            new ObjectMapper().findAndRegisterModules();
+	@Autowired
+	private MockMvc mockMvc;
 
-    // =========================
-    // GET ALL
-    // =========================
-    @Test
-    void testGetAll_success() throws Exception {
+	@MockitoBean
+	private StayService stayService;
 
-        Mockito.when(stayService.getAll())
-                .thenReturn(List.of(
-                        new StayDTO(1, 123L, "John", 101, "ICU",
-                                LocalDateTime.now(), null)
-                ));
+	@Autowired
+	private ObjectMapper objectMapper;
 
-        mockMvc.perform(get("/stays"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].patientName").value("John"));
+	private StayDTO createStayDTO() {
 
-        Mockito.verify(stayService).getAll();
-    }
+		return new StayDTO(1, 123L, "John", 101, "ICU", LocalDateTime.now(), null);
+	}
 
-    // =========================
-    // GET BY ID
-    // =========================
-    @Test
-    void testGetById_success() throws Exception {
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getAllStays_success() throws Exception {
 
-        StayDTO dto = new StayDTO(1, 123L, "John", 101, "ICU",
-                LocalDateTime.now(), null);
+		when(stayService.getAll()).thenReturn(List.of(createStayDTO()));
 
-        Mockito.when(stayService.getById(1)).thenReturn(dto);
+		mockMvc.perform(get("/stays")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.[0].patientName").value("John"));
 
-        mockMvc.perform(get("/stays/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.patientName").value("John"));
+		verify(stayService).getAll();
+	}
 
-        Mockito.verify(stayService).getById(1);
-    }
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getStayById_success() throws Exception {
 
-    @Test
-    void testGetById_notFound() throws Exception {
+		when(stayService.getById(1)).thenReturn(createStayDTO());
 
-        Mockito.when(stayService.getById(1))
-                .thenThrow(new ResourceNotFoundException("Stay not found"));
+		mockMvc.perform(get("/stays/1")).andExpect(status().isOk()).andExpect(jsonPath("$.patientName").value("John"));
+	}
 
-        mockMvc.perform(get("/stays/1"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errMsg").value("Stay not found"));
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getStayById_notFound() throws Exception {
 
-        Mockito.verify(stayService).getById(1);
-    }
+		when(stayService.getById(1)).thenThrow(new ResourceNotFoundException("Stay not found"));
 
-    // =========================
-    // GET BY PATIENT
-    // =========================
-    @Test
-    void testGetByPatient_success() throws Exception {
+		mockMvc.perform(get("/stays/1")).andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.errMsg").value("Stay not found"));
+	}
 
-        Mockito.when(stayService.getByPatientSsn(123L))
-                .thenReturn(List.of(
-                        new StayDTO(1, 123L, "John", 101, "ICU",
-                                LocalDateTime.now(), null)
-                ));
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getByPatient_success() throws Exception {
 
-        mockMvc.perform(get("/stays/patient/123"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].patientName").value("John"));
+		when(stayService.getByPatientSsn(123L)).thenReturn(List.of(createStayDTO()));
 
-        Mockito.verify(stayService).getByPatientSsn(123L);
-    }
+		mockMvc.perform(get("/stays/patient/123")).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].patientName").value("John"));
+	}
 
-    // =========================
-    // GET BY ROOM
-    // =========================
-    @Test
-    void testGetByRoom_success() throws Exception {
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getByRoom_success() throws Exception {
 
-        Mockito.when(stayService.getByRoomNumber(101))
-                .thenReturn(List.of(
-                        new StayDTO(1, 123L, "John", 101, "ICU",
-                                LocalDateTime.now(), null)
-                ));
+		when(stayService.getByRoomNumber(101)).thenReturn(List.of(createStayDTO()));
 
-        mockMvc.perform(get("/stays/room/101"))
-                .andExpect(status().isOk());
+		mockMvc.perform(get("/stays/room/101")).andExpect(status().isOk());
+	}
 
-        Mockito.verify(stayService).getByRoomNumber(101);
-    }
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getAfter_success() throws Exception {
 
-    // =========================
-    // GET AFTER DATE
-    // =========================
-    @Test
-    void testGetAfter_success() throws Exception {
+		when(stayService.getStaysAfter(any())).thenReturn(List.of(createStayDTO()));
 
-        Mockito.when(stayService.getStaysAfter(Mockito.any()))
-                .thenReturn(List.of(
-                        new StayDTO(1, 123L, "John", 101, "ICU",
-                                LocalDateTime.now(), null)
-                ));
+		mockMvc.perform(get("/stays/after").param("dateTime", "2025-01-01T10:00:00")).andExpect(status().isOk());
+	}
 
-        mockMvc.perform(get("/stays/after")
-                        .param("dateTime", "2025-01-01T10:00:00"))
-                .andExpect(status().isOk());
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getActiveStays_success() throws Exception {
 
-        Mockito.verify(stayService).getStaysAfter(Mockito.any());
-    }
+		when(stayService.getActiveStays()).thenReturn(List.of(createStayDTO()));
 
-    // =========================
-    // GET ACTIVE
-    // =========================
-    @Test
-    void testGetActive_success() throws Exception {
+		mockMvc.perform(get("/stays/active")).andExpect(status().isOk());
+	}
 
-        Mockito.when(stayService.getActiveStays())
-                .thenReturn(List.of(
-                        new StayDTO(1, 123L, "John", 101, "ICU",
-                                LocalDateTime.now(), null)
-                ));
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getHistory_success() throws Exception {
 
-        mockMvc.perform(get("/stays/active"))
-                .andExpect(status().isOk());
+		when(stayService.getPatientStayHistory(123L)).thenReturn(List.of(createStayDTO()));
 
-        Mockito.verify(stayService).getActiveStays();
-    }
+		mockMvc.perform(get("/stays/history/123")).andExpect(status().isOk());
+	}
 
-    // =========================
-    // GET HISTORY
-    // =========================
-    @Test
-    void testGetHistory_success() throws Exception {
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void createStay_success() throws Exception {
 
-        Mockito.when(stayService.getPatientStayHistory(123L))
-                .thenReturn(List.of(
-                        new StayDTO(1, 123L, "John", 101, "ICU",
-                                LocalDateTime.now(), null)
-                ));
+		StayDTO input = new StayDTO(null, 123L, null, 101, null, LocalDateTime.now(), null);
 
-        mockMvc.perform(get("/stays/history/123"))
-                .andExpect(status().isOk());
+		when(stayService.create(any())).thenReturn(createStayDTO());
 
-        Mockito.verify(stayService).getPatientStayHistory(123L);
-    }
+		mockMvc.perform(post("/admin/stays").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(input))).andExpect(status().isCreated())
+				.andExpect(jsonPath("$.stayId").value(1));
 
-    // =========================
-    // CREATE SUCCESS
-    // =========================
-    @Test
-    void testCreate_success() throws Exception {
+		verify(stayService).create(any());
+	}
 
-        StayDTO input = new StayDTO(null, 123L, null, 101, null,
-                LocalDateTime.now(), null);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void createStay_validationFailure() throws Exception {
 
-        StayDTO output = new StayDTO(1, 123L, "John", 101, "ICU",
-                LocalDateTime.now(), null);
+		StayDTO invalid = new StayDTO();
 
-        Mockito.when(stayService.create(Mockito.any())).thenReturn(output);
+		mockMvc.perform(post("/admin/stays").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(invalid))).andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.errMsg").value("Validation failed"));
 
-        mockMvc.perform(post("/stays")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(input)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.stayId").value(1));
+		verify(stayService, never()).create(any());
+	}
 
-        Mockito.verify(stayService).create(Mockito.any());
-    }
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void isPatientActive_true() throws Exception {
 
-    // =========================
-    // CREATE VALIDATION ERROR
-    // =========================
-    @Test
-    void testCreate_validationError() throws Exception {
+		when(stayService.isPatientActive(123L)).thenReturn(true);
 
-        StayDTO invalid = new StayDTO();
+		mockMvc.perform(get("/stays/active/patient/123")).andExpect(status().isOk())
+				.andExpect(content().string("true"));
+	}
 
-        mockMvc.perform(post("/stays")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(invalid)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errMsg").value("Validation failed"));
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void isPatientActive_false() throws Exception {
 
-        Mockito.verify(stayService, Mockito.never()).create(Mockito.any());
-    }
+		when(stayService.isPatientActive(123L)).thenReturn(false);
 
-    // =========================
-    // IS PATIENT ACTIVE
-    // =========================
-    @Test
-    void testIsPatientActive_true() throws Exception {
+		mockMvc.perform(get("/stays/active/patient/123")).andExpect(status().isOk())
+				.andExpect(content().string("false"));
+	}
 
-        Mockito.when(stayService.isPatientActive(123L)).thenReturn(true);
+	@Test
+	void unauthorizedAccess_shouldFail() throws Exception {
 
-        mockMvc.perform(get("/stays/active/patient/123"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("true"));
-
-        Mockito.verify(stayService).isPatientActive(123L);
-    }
-
-    @Test
-    void testIsPatientActive_false() throws Exception {
-
-        Mockito.when(stayService.isPatientActive(123L)).thenReturn(false);
-
-        mockMvc.perform(get("/stays/active/patient/123"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("false"));
-
-        Mockito.verify(stayService).isPatientActive(123L);
-    }
+		mockMvc.perform(get("/stays")).andExpect(status().isForbidden());
+	}
 }
