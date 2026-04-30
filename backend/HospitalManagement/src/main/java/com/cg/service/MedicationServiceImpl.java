@@ -2,6 +2,7 @@ package com.cg.service;
 
 import com.cg.dto.MedicationDTO;
 import com.cg.entity.Medication;
+import com.cg.exception.DuplicateResourceException;
 import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.MedicationRepository;
 
@@ -104,11 +105,23 @@ public class MedicationServiceImpl implements MedicationService {
     @Override
     public MedicationDTO create(MedicationDTO dto) {
 
+        // 🔴 DUPLICATE CHECK (ADD HERE)
+        if (medicationRepository
+                .findByNameAndBrand(dto.getName(), dto.getBrand())
+                .isPresent()) {
+
+            throw new DuplicateResourceException(
+                    "Medication already exists with name: " 
+                    + dto.getName() + " and brand: " + dto.getBrand());
+        }
+
+        // 🔹 Create entity
         Medication med = new Medication();
         med.setName(dto.getName());
         med.setBrand(dto.getBrand());
         med.setDescription(dto.getDescription());
 
+        // 🔹 Save
         Medication saved = medicationRepository.save(med);
 
         return mapToDTO(saved);

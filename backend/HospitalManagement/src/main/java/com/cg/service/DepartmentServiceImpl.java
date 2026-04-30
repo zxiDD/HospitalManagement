@@ -3,6 +3,7 @@ package com.cg.service;
 import com.cg.dto.DepartmentDTO;
 import com.cg.entity.Department;
 import com.cg.entity.Physician;
+import com.cg.exception.DuplicateResourceException;
 import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.DepartmentRepository;
 import com.cg.repo.PhysicianRepository;
@@ -98,14 +99,24 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public DepartmentDTO create(DepartmentDTO dto) {
 
+        // 🔴 DUPLICATE CHECK (by name)
+        if (departmentRepository.findByName(dto.getName()).isPresent()) {
+            throw new DuplicateResourceException(
+                    "Department already exists with name: " + dto.getName());
+        }
+
+        // 🔴 VALIDATE head exists
         Physician head = physicianRepository.findById(dto.getHeadId())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Physician not found with id: " + dto.getHeadId()));
+                        new ResourceNotFoundException(
+                                "Physician not found with id: " + dto.getHeadId()));
 
+        // 🔹 Create entity
         Department dept = new Department();
         dept.setName(dto.getName());
         dept.setHead(head);
 
+        // 🔹 Save
         Department saved = departmentRepository.save(dept);
 
         return mapToDTO(saved);
