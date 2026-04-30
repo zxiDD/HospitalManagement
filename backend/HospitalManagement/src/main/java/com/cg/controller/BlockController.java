@@ -18,8 +18,11 @@ import com.cg.entity.BlockId;
 import com.cg.exception.ResourceNotFoundException;
 import com.cg.service.BlockService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
 @RequestMapping("/blocks")
+@SecurityRequirement(name = "BearerAuth")
 public class BlockController {
 
 	@Autowired

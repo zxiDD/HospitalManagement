@@ -3,28 +3,33 @@ package com.cg.WebTest;
 import com.cg.controller.PhysicianController;
 import com.cg.dto.PhysicianDTO;
 import com.cg.entity.Physician;
+import com.cg.exception.ValidationException;
 import com.cg.service.PhysicianService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.Assertions;
 
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 
-import java.util.*;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PhysicianControllerTest {
 
     @Mock
     private PhysicianService service;
+
+    @Mock
+    private BindingResult bindingResult;
 
     @InjectMocks
     private PhysicianController controller;
@@ -43,79 +48,97 @@ class PhysicianControllerTest {
     // ✅ getAll
     @Test
     void testGetAll() {
-        Mockito.when(service.getAll()).thenReturn(List.of(physician));
+        when(service.getAll()).thenReturn(List.of(physician));
 
         ResponseEntity<List<PhysicianDTO>> response = controller.getAll();
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(1, response.getBody().size());
-        Mockito.verify(service).getAll();
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(1, response.getBody().size());
+        verify(service).getAll();
     }
 
     // ✅ getById
     @Test
     void testGetById() {
-        Mockito.when(service.getById(1)).thenReturn(physician);
+        when(service.getById(1)).thenReturn(physician);
 
         ResponseEntity<PhysicianDTO> response = controller.getById(1);
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals("Dr. Smith", response.getBody().getName());
-        Mockito.verify(service).getById(1);
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals("Dr. Smith", response.getBody().getName());
+        verify(service).getById(1);
     }
 
-    // ✅ create
+    // ✅ create SUCCESS
     @Test
-    void testCreate() {
-        PhysicianDTO dto = new PhysicianDTO(1, "Dr. Smith", "Cardiologist", 1111L);
+    void testCreate_Success() {
 
-        Mockito.when(service.save(Mockito.any(Physician.class)))
-                .thenReturn(physician);
+        PhysicianDTO dto = new PhysicianDTO(null, "Dr. Smith", "Cardiologist", 1111L);
 
-        ResponseEntity<PhysicianDTO> response = controller.create(dto);
+        when(bindingResult.hasErrors()).thenReturn(false);
+        when(service.save(any(Physician.class))).thenReturn(physician);
 
-        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        Assertions.assertEquals("Dr. Smith", response.getBody().getName());
+        ResponseEntity<PhysicianDTO> response = controller.create(dto, bindingResult);
 
-        Mockito.verify(service).save(Mockito.any(Physician.class));
+        assertEquals(201, response.getStatusCode().value());
+        assertEquals("Dr. Smith", response.getBody().getName());
+
+        verify(service).save(any(Physician.class));
+    }
+
+    // ❌ create VALIDATION ERROR
+    @Test
+    void testCreate_ValidationError() {
+
+        PhysicianDTO dto = new PhysicianDTO(null, "Dr. Smith", "Cardio", 1111L);
+
+        when(bindingResult.hasErrors()).thenReturn(true);
+
+        assertThrows(ValidationException.class,
+                () -> controller.create(dto, bindingResult));
+
+        verify(service, never()).save(any());
     }
 
     // ✅ update
     @Test
     void testUpdate() {
-        PhysicianDTO dto = new PhysicianDTO(1, "Updated", "Neurologist", 2222L);
 
-        Mockito.when(service.getById(1)).thenReturn(physician);
-        Mockito.when(service.save(Mockito.any(Physician.class)))
-                .thenReturn(physician);
+        PhysicianDTO dto = new PhysicianDTO(null, "Dr. John", "Neuro", 2222L);
 
-        ResponseEntity<PhysicianDTO> response = controller.update(1, dto);
+        when(service.getById(1)).thenReturn(physician);
+        when(service.save(any(Physician.class))).thenReturn(physician);
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Mockito.verify(service).getById(1);
-        Mockito.verify(service).save(Mockito.any(Physician.class));
+        ResponseEntity<PhysicianDTO> response =
+                controller.update(1, dto);
+
+        assertEquals(200, response.getStatusCode().value());
+        verify(service).save(any(Physician.class));
     }
 
     // ✅ getByPosition
     @Test
     void testGetByPosition() {
-        Mockito.when(service.getByPosition("Cardiologist"))
+
+        when(service.getByPosition("Cardiologist"))
                 .thenReturn(List.of(physician));
 
         ResponseEntity<List<PhysicianDTO>> response =
                 controller.getByPosition("Cardiologist");
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(1, response.getBody().size());
-        Mockito.verify(service).getByPosition("Cardiologist");
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(1, response.getBody().size());
     }
 
     // ✅ delete
     @Test
     void testDelete() {
+
+        doNothing().when(service).delete(1);
+
         ResponseEntity<Void> response = controller.delete(1);
 
-        Assertions.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        Mockito.verify(service).delete(1);
+        assertEquals(204, response.getStatusCode().value());
+        verify(service).delete(1);
     }
 }

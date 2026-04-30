@@ -18,6 +18,9 @@ public class AffiliatedWith {
 	    @MapsId("departmentId")
 	    @JoinColumn(name = "department")
 	    private Department department;
+	    
+		@Column(name = "primaryaffiliation", nullable = false)
+	    private Boolean primaryAffiliation;
 
 	    public AffiliatedWith() {
 			super();
@@ -32,8 +35,6 @@ public class AffiliatedWith {
 			this.primaryAffiliation = primaryAffiliation;
 		}
 
-		@Column(name = "primaryaffiliation", nullable = false)
-	    private Boolean primaryAffiliation;
 
 		public AffiliatedWithId getId() {
 			return id;
