@@ -25,10 +25,11 @@ import com.cg.exception.BadRequestException;
 import com.cg.exception.IllegalOperationException;
 import com.cg.service.AppointmentService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/appointments")
+@SecurityRequirement(name = "BearerAuth")
 public class AppointmentController {
 
 	@Autowired
@@ -50,7 +51,7 @@ public class AppointmentController {
 				p.getPhysician() != null ? p.getPhysician().getEmployeeId() : null);
 	}
 
-	@GetMapping
+	@GetMapping("/appointments")
 	public ResponseEntity<List<AppointmentDTO>> getAll() {
 		List<AppointmentDTO> list = service.getAllAppointments().stream().map(this::convertToDTO)
 				.collect(Collectors.toList());
@@ -58,7 +59,7 @@ public class AppointmentController {
 		return ResponseEntity.ok(list);
 	}
 
-	@GetMapping("/{id}")
+	@GetMapping("/appointments/{id}")
 	public ResponseEntity<AppointmentDTO> getById(@PathVariable Integer id) {
 		Appointment a = service.getAppointmentById(id);
 
@@ -69,14 +70,14 @@ public class AppointmentController {
 		return ResponseEntity.ok(convertToDTO(a));
 	}
 
-	@GetMapping("/physician/{physicianId}/patients")
+	@GetMapping("/appointments/physician/{physicianId}/patients")
 	public ResponseEntity<List<PatientDTO>> getPatientsByPhysician(@PathVariable Integer physicianId) {
 		List<Patient> patients = service.getPatientsByPhysician(physicianId);
 		List<PatientDTO> patientsDTO = patients.stream().map(this::convertToDTO).toList();
 		return ResponseEntity.ok(patientsDTO);
 	}
 
-	@GetMapping("/physician/{physicianId}/appointments")
+	@GetMapping("/appointments/physician/{physicianId}/appointments")
 	public ResponseEntity<List<AppointmentDTO>> getAppointmentsByPhysician(@PathVariable Integer physicianId) {
 
 		List<AppointmentDTO> list = service.getByPhysicianId(physicianId).stream().map(this::convertToDTO).toList();
@@ -84,7 +85,7 @@ public class AppointmentController {
 		return ResponseEntity.ok(list);
 	}
 
-	@PostMapping
+	@PostMapping("/appointments")
 	public ResponseEntity<?> addAppointment(@Valid @RequestBody AppointmentDTO dto) {
 
 		if (dto.getEndo().isBefore(dto.getStarto())) {
@@ -113,7 +114,7 @@ public class AppointmentController {
 		return ResponseEntity.status(201).body(service.save(a));
 	}
 
-	@PostMapping("/reschedule")
+	@PostMapping("/appointments/reschedule")
 	public ResponseEntity<?> reschedule(@Valid @RequestBody AppointmentDTO dto) {
 
 		Appointment a = service.getAppointmentById(dto.getAppointmentID());
@@ -132,7 +133,7 @@ public class AppointmentController {
 		return ResponseEntity.ok(service.save(a));
 	}
 
-	@GetMapping("/patients/{patientId}/appointments")
+	@GetMapping("/appointments/patients/{patientId}/appointments")
 	public ResponseEntity<List<AppointmentDTO>> getAppointmentsForPatient(@PathVariable Long patientId) {
 
 		List<Appointment> appointments = service.getByPatientId(patientId);

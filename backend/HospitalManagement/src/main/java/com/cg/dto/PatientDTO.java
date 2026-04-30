@@ -25,7 +25,6 @@ public class PatientDTO {
     @Min(value = 1, message = "Insurance ID must be greater than 0")
     private Integer insuranceId;
 
-    @NotNull(message = "Physician ID cannot be null")
     @Min(value = 1, message = "Physician ID must be greater than 0")
     private Integer physicianId;
 

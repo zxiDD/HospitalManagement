@@ -1,125 +1,100 @@
 package com.cg.controller;
 
-import com.cg.dto.RoomDTO;
-import com.cg.entity.Room;
-import com.cg.exception.ResourceNotFoundException;
-import com.cg.service.RoomService;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.cg.dto.RoomDTO;
+import com.cg.entity.Room;
+import com.cg.service.RoomService;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
-@RequestMapping("/rooms")
+@SecurityRequirement(name = "BearerAuth")
 public class RoomController {
 
-    private final RoomService roomService;
+	private final RoomService roomService;
 
-    public RoomController(RoomService roomService) {
-        this.roomService = roomService;
-    }
+	public RoomController(RoomService roomService) {
+		this.roomService = roomService;
+	}
 
-    private RoomDTO convertToDTO(Room room) {
-        return new RoomDTO(
-                room.getRoomNumber(),
-                room.getRoomType(),
-                room.getUnavailable(),
-                room.getBlock().getId().getBlockFloor(),
-                room.getBlock().getId().getBlockCode()
-        );
-    }
-    @PutMapping("/{roomNumber}/unavailable")
-    public ResponseEntity<RoomDTO> markRoomUnavailable(@PathVariable Integer roomNumber) {
+	private RoomDTO convertToDTO(Room room) {
+		return new RoomDTO(room.getRoomNumber(), room.getRoomType(), room.getUnavailable(),
+				room.getBlock().getId().getBlockFloor(), room.getBlock().getId().getBlockCode());
+	}
 
-        Room room = roomService.markRoomUnavailable(roomNumber);
+	@PutMapping("/admin/room/{roomNumber}/unavailable")
+	public ResponseEntity<RoomDTO> markRoomUnavailable(@PathVariable Integer roomNumber) {
 
-        return ResponseEntity.ok(convertToDTO(room));
-    }
-    @GetMapping
-    public ResponseEntity<List<RoomDTO>> getAllRooms() {
+		Room room = roomService.markRoomUnavailable(roomNumber);
 
-        List<RoomDTO> roomDTOs = roomService.getAllRooms()
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+		return ResponseEntity.ok(convertToDTO(room));
+	}
 
-        return ResponseEntity.ok(roomDTOs);
-    }
+	@GetMapping("/room")
+	public ResponseEntity<List<RoomDTO>> getAllRooms() {
 
-    @GetMapping("/{roomNumber}")
-    public ResponseEntity<RoomDTO> getRoomById(
-            @PathVariable Integer roomNumber
-    ) {
-        Optional<Room> room = roomService.getRoomById(roomNumber);
+		List<RoomDTO> roomDTOs = roomService.getAllRooms().stream().map(this::convertToDTO)
+				.collect(Collectors.toList());
 
-        return room.map(value ->
-                        ResponseEntity.ok(convertToDTO(value)))
-                .orElseGet(() ->
-                        ResponseEntity.notFound().build());
-    }
+		return ResponseEntity.ok(roomDTOs);
+	}
 
-    @GetMapping("/type/{roomType}")
-    public ResponseEntity<List<RoomDTO>> getRoomsByRoomType(
-            @PathVariable String roomType
-    ) {
-        List<RoomDTO> rooms = roomService.getRoomsByRoomType(roomType)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+	@GetMapping("/room/{roomNumber}")
+	public ResponseEntity<RoomDTO> getRoomById(@PathVariable Integer roomNumber) {
+		Optional<Room> room = roomService.getRoomById(roomNumber);
 
-        return ResponseEntity.ok(rooms);
-    }
+		return room.map(value -> ResponseEntity.ok(convertToDTO(value)))
+				.orElseGet(() -> ResponseEntity.notFound().build());
+	}
 
-    @GetMapping("/availability")
-    public ResponseEntity<List<RoomDTO>> getRoomsByAvailability(
-            @RequestParam Boolean unavailable
-    ) {
-        List<RoomDTO> rooms = roomService.getRoomsByAvailability(unavailable)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+	@GetMapping("/room/type/{roomType}")
+	public ResponseEntity<List<RoomDTO>> getRoomsByRoomType(@PathVariable String roomType) {
+		List<RoomDTO> rooms = roomService.getRoomsByRoomType(roomType).stream().map(this::convertToDTO)
+				.collect(Collectors.toList());
 
-        return ResponseEntity.ok(rooms);
-    }
+		return ResponseEntity.ok(rooms);
+	}
 
-    @GetMapping("/block/floor/{blockFloor}")
-    public ResponseEntity<List<RoomDTO>> getRoomsByBlockFloor(
-            @PathVariable Integer blockFloor
-    ) {
-        List<RoomDTO> rooms = roomService.getRoomsByBlockFloor(blockFloor)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+	@GetMapping("/room/availability")
+	public ResponseEntity<List<RoomDTO>> getRoomsByAvailability(@RequestParam Boolean unavailable) {
+		List<RoomDTO> rooms = roomService.getRoomsByAvailability(unavailable).stream().map(this::convertToDTO)
+				.collect(Collectors.toList());
 
-        return ResponseEntity.ok(rooms);
-    }
+		return ResponseEntity.ok(rooms);
+	}
 
-    @GetMapping("/block/code/{blockCode}")
-    public ResponseEntity<List<RoomDTO>> getRoomsByBlockCode(
-            @PathVariable Integer blockCode
-    ) {
-        List<RoomDTO> rooms = roomService.getRoomsByBlockCode(blockCode)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+	@GetMapping("/room/block/floor/{blockFloor}")
+	public ResponseEntity<List<RoomDTO>> getRoomsByBlockFloor(@PathVariable Integer blockFloor) {
+		List<RoomDTO> rooms = roomService.getRoomsByBlockFloor(blockFloor).stream().map(this::convertToDTO)
+				.collect(Collectors.toList());
 
-        return ResponseEntity.ok(rooms);
-    }
+		return ResponseEntity.ok(rooms);
+	}
 
-    @GetMapping("/block/{blockFloor}/{blockCode}")
-    public ResponseEntity<List<RoomDTO>> getRoomsByBlock(
-            @PathVariable Integer blockFloor,
-            @PathVariable Integer blockCode
-    ) {
-        List<RoomDTO> rooms = roomService
-                .getRoomsByBlock(blockFloor, blockCode)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+	@GetMapping("/room/block/code/{blockCode}")
+	public ResponseEntity<List<RoomDTO>> getRoomsByBlockCode(@PathVariable Integer blockCode) {
+		List<RoomDTO> rooms = roomService.getRoomsByBlockCode(blockCode).stream().map(this::convertToDTO)
+				.collect(Collectors.toList());
 
-        return ResponseEntity.ok(rooms);
-    }
+		return ResponseEntity.ok(rooms);
+	}
+
+	@GetMapping("/room/block/{blockFloor}/{blockCode}")
+	public ResponseEntity<List<RoomDTO>> getRoomsByBlock(@PathVariable Integer blockFloor,
+			@PathVariable Integer blockCode) {
+		List<RoomDTO> rooms = roomService.getRoomsByBlock(blockFloor, blockCode).stream().map(this::convertToDTO)
+				.collect(Collectors.toList());
+
+		return ResponseEntity.ok(rooms);
+	}
 }
