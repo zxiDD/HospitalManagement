@@ -32,20 +32,20 @@ public class NurseServiceImpl implements NurseService {
                 );
     }
 
-    @Override
-    public List<Nurse> getAllSorted() {
-        return repo.findAll(Sort.by("name"));
-    }
-
-    @Override
-    public boolean exists(Integer id) {
-        return repo.existsById(id);
-    }
-
-    @Override
-    public long count() {
-        return repo.count();
-    }
+//    @Override
+//    public List<Nurse> getAllSorted() {
+//        return repo.findAll(Sort.by("name"));
+//    }
+//
+//    @Override
+//    public boolean exists(Integer id) {
+//        return repo.existsById(id);
+//    }
+//
+//    @Override
+//    public long count() {
+//        return repo.count();
+//    }
 
     @Override
     public Nurse save(Nurse nurse) {

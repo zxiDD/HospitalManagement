@@ -37,20 +37,20 @@ public class PhysicianServiceImpl implements PhysicianService {
         return repo.findAll(PageRequest.of(page, size));
     }
 
-    @Override
-    public List<Physician> getAllSorted() {
-        return repo.findAll(Sort.by("name"));
-    }
-
-    @Override
-    public boolean exists(Integer id) {
-        return repo.existsById(id);
-    }
-
-    @Override
-    public long count() {
-        return repo.count();
-    }
+//    @Override
+//    public List<Physician> getAllSorted() {
+//        return repo.findAll(Sort.by("name"));
+//    }
+//
+//    @Override
+//    public boolean exists(Integer id) {
+//        return repo.existsById(id);
+//    }
+//
+//    @Override
+//    public long count() {
+//        return repo.count();
+//    }
     
     @Override
     public List<Physician> getByPosition(String position) {

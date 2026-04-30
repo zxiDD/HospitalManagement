@@ -23,6 +23,7 @@ public class TrainedInController {
     private TrainedInService service;
 
     private TrainedInDTO convertToDTO(TrainedIn t) {
+    	
         return new TrainedInDTO(
                 t.getId().getPhysician(),
                 t.getId().getTreatment(),
