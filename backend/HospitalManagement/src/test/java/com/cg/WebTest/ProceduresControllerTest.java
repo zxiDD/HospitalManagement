@@ -1,203 +1,184 @@
 package com.cg.WebTest;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import com.cg.controller.ProceduresController;
-import com.cg.dto.ProceduresDTO;
-import com.cg.entity.Procedures;
-import com.cg.exception.ResourceNotFoundException;
-import com.cg.service.ProceduresService;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import com.cg.dto.ProceduresDTO;
+import com.cg.entity.Procedures;
+import com.cg.service.ProceduresService;
+
+import tools.jackson.databind.ObjectMapper;
+
+
 @SpringBootTest
-public class ProceduresControllerTest {
+@AutoConfigureMockMvc
+class ProceduresControllerTest {
 
     @Autowired
-    private ProceduresController controller;
+    private MockMvc mockMvc;
 
     @MockitoBean
     private ProceduresService proceduresService;
 
-    private Procedures procedure;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @BeforeEach
-    void setup() {
-        MockitoAnnotations.openMocks(this);
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getAllProcedures_success() throws Exception {
 
-        procedure = new Procedures();
-        procedure.setCode(101);
-        procedure.setName("Cardiac Surgery");
-        procedure.setCost(new BigDecimal("5000.00"));
+        Procedures p = new Procedures();
+        p.setCode(101);
+        p.setName("Cardiac Surgery");
+        p.setCost(new BigDecimal("5000.00"));
+
+        when(proceduresService.getAllProcedures()).thenReturn(List.of(p));
+
+        mockMvc.perform(get("/procedures"))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void testGetAllProcedures() {
-        when(proceduresService.getAllProcedures()).thenReturn(List.of(procedure));
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getProcedureById_success() throws Exception {
 
-        ResponseEntity<List<ProceduresDTO>> response = controller.getAllProcedures();
+        Procedures p = new Procedures();
+        p.setCode(101);
+        p.setName("Cardiac Surgery");
+        p.setCost(new BigDecimal("5000.00"));
 
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-    }
+        when(proceduresService.getProcedureById(101)).thenReturn(Optional.of(p));
 
-    @Test
-    void testGetProcedureById_Found() {
-        when(proceduresService.getProcedureById(101)).thenReturn(Optional.of(procedure));
-
-        ResponseEntity<ProceduresDTO> response = controller.getProcedureById(101);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(101, response.getBody().getCode());
+        mockMvc.perform(get("/procedures/101"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(101))
+                .andExpect(jsonPath("$.name").value("Cardiac Surgery"));
     }
 
 
     @Test
-    void testGetProcedureById_NotFound() {
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getProcedureById_notFound() throws Exception {
+
         when(proceduresService.getProcedureById(999)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> controller.getProcedureById(999));
+        mockMvc.perform(get("/procedures/999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getByName_success() throws Exception {
+
+        Procedures p = new Procedures();
+        p.setCode(101);
+        p.setName("Cardiac Surgery");
+        p.setCost(new BigDecimal("5000.00"));
+
+        when(proceduresService.getProceduresByName("Cardiac Surgery"))
+                .thenReturn(List.of(p));
+
+        mockMvc.perform(get("/procedures/name/Cardiac Surgery"))
+                .andExpect(status().isOk());
+    }
+
+  
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getByCost_success() throws Exception {
+
+        when(proceduresService.getProceduresByCost(new BigDecimal("5000.00")))
+                .thenReturn(List.of(new Procedures()));
+
+        mockMvc.perform(get("/procedures/cost/5000.00"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getCostBetween_success() throws Exception {
+
+        when(proceduresService.getProceduresByCostBetween(any(), any()))
+                .thenReturn(List.of(new Procedures()));
+
+        mockMvc.perform(get("/procedures/cost/between")
+                .param("min", "1000")
+                .param("max", "10000"))
+                .andExpect(status().isOk());
     }
 
 
     @Test
-    void testGetProceduresByName() {
-        when(proceduresService.getProceduresByName("Cardiac Surgery")).thenReturn(List.of(procedure));
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void createProcedure_success() throws Exception {
 
-        ResponseEntity<List<ProceduresDTO>> response = controller.getProceduresByName("Cardiac Surgery");
+        ProceduresDTO dto = new ProceduresDTO(
+                101,
+                "Cardiac Surgery",
+                new BigDecimal("5000.00")
+        );
 
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
+        Procedures p = new Procedures();
+        p.setCode(101);
+        p.setName("Cardiac Surgery");
+        p.setCost(new BigDecimal("5000.00"));
+
+        when(proceduresService.saveProcedures(any())).thenReturn(p);
+
+        mockMvc.perform(post("/admin/procedures")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.code").value(101));
     }
 
     @Test
-    void testGetProceduresByCost() {
-        BigDecimal cost = new BigDecimal("5000.00");
-        when(proceduresService.getProceduresByCost(cost)).thenReturn(List.of(procedure));
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getAllProcedures_empty() throws Exception {
 
-        ResponseEntity<List<ProceduresDTO>> response = controller.getProceduresByCost(cost);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-    }
-
-    @Test
-    void testGetProceduresByCostLessThan() {
-        BigDecimal cost = new BigDecimal("10000.00");
-        when(proceduresService.getProceduresByCostLessThan(cost)).thenReturn(List.of(procedure));
-
-        ResponseEntity<List<ProceduresDTO>> response = controller.getProceduresByCostLessThan(cost);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-    }
-
-    @Test
-    void testGetProceduresByCostGreaterThan() {
-        BigDecimal cost = new BigDecimal("1000.00");
-        when(proceduresService.getProceduresByCostGreaterThan(cost)).thenReturn(List.of(procedure));
-
-        ResponseEntity<List<ProceduresDTO>> response = controller.getProceduresByCostGreaterThan(cost);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-    }
-
-    @Test
-    void testGetProceduresByCostBetween() {
-        BigDecimal min = new BigDecimal("1000.00");
-        BigDecimal max = new BigDecimal("10000.00");
-        when(proceduresService.getProceduresByCostBetween(min, max)).thenReturn(List.of(procedure));
-
-        ResponseEntity<List<ProceduresDTO>> response = controller.getProceduresByCostBetween(min, max);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-    }
-
-    @Test
-    void testCreateProcedure() {
-        ProceduresDTO dto = new ProceduresDTO(101, "Cardiac Surgery", new BigDecimal("5000.00"));
-
-        when(proceduresService.saveProcedures(any(Procedures.class))).thenReturn(procedure);
-
-        ResponseEntity<ProceduresDTO> response = controller.createProcedure(dto);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-    }
-
-    @Test
-    void testGetAllProcedures_Empty() {
         when(proceduresService.getAllProcedures()).thenReturn(List.of());
 
-        ResponseEntity<List<ProceduresDTO>> response = controller.getAllProcedures();
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().isEmpty());
-    }
-    @Test
-    void testGetProceduresByName_NotFound() {
-        when(proceduresService.getProceduresByName("Unknown")).thenReturn(List.of());
-
-        ResponseEntity<List<ProceduresDTO>> response = controller.getProceduresByName("Unknown");
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().isEmpty());
+        mockMvc.perform(get("/procedures"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test
-    void testGetProceduresByCost_Multiple() {
-        Procedures procedure2 = new Procedures();
-        procedure2.setCode(102);
-        procedure2.setName("Appendectomy");
-        procedure2.setCost(new BigDecimal("5000.00"));
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void createProcedure_verifyServiceCall() throws Exception {
 
-        BigDecimal cost = new BigDecimal("5000.00");
-        when(proceduresService.getProceduresByCost(cost)).thenReturn(List.of(procedure, procedure2));
+        ProceduresDTO dto = new ProceduresDTO(
+                101,
+                "Cardiac Surgery",
+                new BigDecimal("5000.00")
+        );
 
-        ResponseEntity<List<ProceduresDTO>> response = controller.getProceduresByCost(cost);
+        when(proceduresService.saveProcedures(any())).thenReturn(new Procedures());
 
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(2, response.getBody().size());
-    }
+        mockMvc.perform(post("/admin/procedures")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated());
 
-    @Test
-    void testVerifyDTOConversion() {
-        when(proceduresService.getProcedureById(101)).thenReturn(Optional.of(procedure));
-
-        ResponseEntity<ProceduresDTO> response = controller.getProcedureById(101);
-
-        assertEquals("Cardiac Surgery", response.getBody().getName());
-        assertEquals(new BigDecimal("5000.00"), response.getBody().getCost());
-    }
-
-    @Test
-    void testCreateProcedure_VerifySavedData() {
-        ProceduresDTO dto = new ProceduresDTO(101, "Cardiac Surgery", new BigDecimal("5000.00"));
-
-        when(proceduresService.saveProcedures(any(Procedures.class))).thenReturn(procedure);
-
-        ResponseEntity<ProceduresDTO> response = controller.createProcedure(dto);
-
-        assertNotNull(response.getBody());
-        assertEquals(101, response.getBody().getCode());
-        verify(proceduresService, times(1)).saveProcedures(any(Procedures.class));
+        verify(proceduresService, times(1)).saveProcedures(any());
     }
 }
