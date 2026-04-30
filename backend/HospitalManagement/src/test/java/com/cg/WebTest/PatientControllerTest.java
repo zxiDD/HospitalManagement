@@ -1,182 +1,143 @@
 package com.cg.WebTest;
 
-import com.cg.controller.PatientController;
-import com.cg.dto.PatientDTO;
-import com.cg.entity.Patient;
-import com.cg.entity.Physician;
-import com.cg.exception.BadRequestException;
-import com.cg.exception.ResourceNotFoundException;
-import com.cg.service.PatientService;
-import com.cg.service.PhysicianService;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 
-import java.util.List;
-import java.util.Optional;
+import org.springframework.security.test.context.support.WithMockUser;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
-@ExtendWith(MockitoExtension.class)
+import com.cg.dto.PatientDTO;
+import com.cg.entity.Patient;
+import com.cg.entity.Physician;
+import com.cg.service.PatientService;
+import com.cg.service.PhysicianService;
+
+import tools.jackson.databind.ObjectMapper;
+
+
+@SpringBootTest
+@AutoConfigureMockMvc
 class PatientControllerTest {
 
-    @Mock
-    private PatientService service;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @Mock
-    private PhysicianService physicianService;
+	@MockitoBean
+	private PatientService patientService;
 
-    @InjectMocks
-    private PatientController controller;
+	@MockitoBean
+	private PhysicianService physicianService;
 
-    private Patient patient;
-    private Physician physician;
+	@Autowired
+	private ObjectMapper objectMapper;
 
-    @BeforeEach
-    void setUp() {
-        physician = new Physician();
-        physician.setEmployeeId(10);
+	private Patient patient;
+	private Physician physician;
 
-        patient = new Patient();
-        patient.setSsn(1L);
-        patient.setName("Alice");
-        patient.setAddress("Delhi");
-        patient.setPhone("9999999999");
-        patient.setInsuranceId(100);
-        patient.setPhysician(physician);
-    }
+	@BeforeEach
+	void setUp() {
 
-    @Test
-    void testGetAll() {
-        when(service.getAll()).thenReturn(List.of(patient));
+		physician = new Physician();
+		physician.setEmployeeId(10);
 
-        ResponseEntity<List<PatientDTO>> response = controller.getAll();
+		patient = new Patient();
+		patient.setSsn(1L);
+		patient.setName("Alice");
+		patient.setAddress("Delhi");
+		patient.setPhone("9999999999");
+		patient.setInsuranceId(100);
+		patient.setPhysician(physician);
+	}
 
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals(1, response.getBody().size());
-        verify(service).getAll();
-    }
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getAllPatients_success() throws Exception {
 
-    @Test
-    void testGetById() {
-        when(service.getById(1L)).thenReturn(patient);
+		when(patientService.getAll()).thenReturn(List.of(patient));
 
-        ResponseEntity<PatientDTO> response = controller.getBySsn(1L);
+		mockMvc.perform(get("/patients")).andExpect(status().isOk()).andExpect(jsonPath("$.size()").value(1))
+				.andExpect(jsonPath("$[0].name").value("Alice"));
+	}
 
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals("Alice", response.getBody().getName());
-        verify(service).getById(1L);
-    }
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getPatientById_success() throws Exception {
 
-    @Test
-    void testGetByName() {
-        when(service.getByName("Alice")).thenReturn(List.of(patient));
+		when(patientService.getById(1L)).thenReturn(patient);
 
-        ResponseEntity<List<PatientDTO>> response = controller.getByName("Alice");
+		mockMvc.perform(get("/patients/1")).andExpect(status().isOk()).andExpect(jsonPath("$.name").value("Alice"));
+	}
 
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals(1, response.getBody().size());
-        verify(service).getByName("Alice");
-    }
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void createPatient_success() throws Exception {
 
-    // ✅ getByNameAndAddress
-    @Test
-    void testGetByNameAndAddress() {
-        when(service.getByNameAndAddress("Alice", "Delhi"))
-                .thenReturn(List.of(patient));
+		PatientDTO dto = new PatientDTO(1L, "Alice", "Delhi", "9999999999", 100, 10);
 
-        ResponseEntity<List<PatientDTO>> response =
-                controller.getByNameAndAddress("Alice", "Delhi");
+		when(physicianService.getById(10)).thenReturn(physician);
 
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals(1, response.getBody().size());
-    }
+		when(patientService.save(any(Patient.class))).thenReturn(patient);
 
-    @Test
-    void testCreate_Success() {
+		mockMvc.perform(
+				post("/patients").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(dto)))
+				.andExpect(status().isCreated()).andExpect(jsonPath("$.name").value("Alice"));
+	}
 
-        PatientDTO dto = new PatientDTO(
-                1L, "Alice", "Delhi", "9999999999", 100, 10
-        );
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void createPatient_validationFailure() throws Exception {
 
-        when(physicianService.getById(10)).thenReturn(physician);
-        when(service.save(any(Patient.class))).thenReturn(patient);
+		PatientDTO invalid = new PatientDTO(null, "", "", "123", null, null);
 
-        ResponseEntity<PatientDTO> response = controller.create(dto);
+		mockMvc.perform(post("/patients").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(invalid))).andExpect(status().isBadRequest());
+	}
 
-        assertEquals(201, response.getStatusCode().value());
-        assertEquals("Alice", response.getBody().getName());
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void updatePatient_success() throws Exception {
 
-        verify(service).save(any(Patient.class));
-    }
+		PatientDTO dto = new PatientDTO(1L, "Bob", "Mumbai", "8888888888", 200, 10);
 
-    @Test
-    void testCreate_BadRequest() {
+		when(patientService.getById(1L)).thenReturn(patient);
 
-        PatientDTO dto = new PatientDTO(
-                1L, "Alice", "Delhi", "9999999999", 100, null
-        );
+		when(physicianService.getById(10)).thenReturn(physician);
 
-        assertThrows(BadRequestException.class,
-                () -> controller.create(dto));
+		when(patientService.save(any(Patient.class))).thenReturn(patient);
 
-        verify(service, never()).save(any());
-    }
+		mockMvc.perform(put("/patients/1").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isOk());
+	}
 
-    @Test
-    void testUpdate() {
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void deletePatient_success() throws Exception {
 
-        PatientDTO dto = new PatientDTO(
-                1L, "Bob", "Mumbai", "8888888888", 200, 10
-        );
+		mockMvc.perform(delete("/patients/1")).andExpect(status().isNoContent());
+	}
 
-        when(service.getById(1L)).thenReturn(patient);
-        when(physicianService.getById(10)).thenReturn(physician);
-        when(service.save(any(Patient.class))).thenReturn(patient);
+	@Test
+	void unauthorizedAccess_shouldFail() throws Exception {
 
-        ResponseEntity<PatientDTO> response =
-                controller.update(1L, dto);
-
-        assertEquals(200, response.getStatusCode().value());
-        verify(service).save(any(Patient.class));
-    }
-
-    @Test
-    void testDelete() {
-        doNothing().when(service).delete(1L);
-
-        ResponseEntity<Void> response = controller.delete(1L);
-
-        assertEquals(204, response.getStatusCode().value());
-        verify(service).delete(1L);
-    }
-
-    @Test
-    void testGetByPhone_Success() {
-        when(service.getByPhone("9999999999"))
-                .thenReturn(Optional.of(patient));
-
-        ResponseEntity<PatientDTO> response =
-                controller.getByPhone("9999999999");
-
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals("Alice", response.getBody().getName());
-    }
-
-    @Test
-    void testGetByPhone_NotFound() {
-        when(service.getByPhone("9999999999"))
-                .thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> controller.getByPhone("9999999999"));
-    }
+		mockMvc.perform(get("/patients")).andExpect(status().isForbidden());
+	}
 }

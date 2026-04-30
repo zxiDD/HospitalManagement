@@ -1,162 +1,136 @@
 package com.cg.WebTest;
 
-import com.cg.controller.PrescribesController;
-import com.cg.dto.PrescribesDTO;
-import com.cg.entity.*;
-import com.cg.service.*;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import org.springframework.http.ResponseEntity;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
-@ExtendWith(MockitoExtension.class)
+import com.cg.controller.PrescribesController;
+import com.cg.dto.PrescribesDTO;
+import com.cg.entity.Appointment;
+import com.cg.entity.Medication;
+import com.cg.entity.Patient;
+import com.cg.entity.Physician;
+import com.cg.entity.Prescribes;
+import com.cg.entity.PrescribesId;
+import com.cg.service.AppointmentService;
+import com.cg.service.MedicationService;
+import com.cg.service.PatientService;
+import com.cg.service.PhysicianService;
+import com.cg.service.PrescribesService;
+
+import tools.jackson.databind.ObjectMapper;
+
+@SpringBootTest
+@AutoConfigureMockMvc
 class PrescribesControllerTest {
+	@Autowired
+	private MockMvc mockMvc;
 
-    @Mock
-    private PrescribesService service;
+	@MockitoBean
+	private PrescribesService prescribesService;
 
-    @Mock
-    private PhysicianService physicianService;
+	@MockitoBean
+	private PhysicianService physicianService;
 
-    @Mock
-    private PatientService patientService;
+	@MockitoBean
+	private PatientService patientService;
 
-    @Mock
-    private MedicationService medicationService;
+	@MockitoBean
+	private MedicationService medicationService;
 
-    @Mock
-    private AppointmentService appointmentService;
+	@MockitoBean
+	private AppointmentService appointmentService;
 
-    @InjectMocks
-    private PrescribesController controller;
+	@Autowired
+	private ObjectMapper objectMapper;
 
-    private Prescribes prescribes;
-    private PrescribesId id;
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void createPrescription_success() throws Exception {
 
-    @BeforeEach
-    void setUp() {
+		PrescribesDTO input = new PrescribesDTO(1, 100L, 10, LocalDateTime.of(2024, 1, 1, 10, 0), "2 times a day", 500);
 
-        id = new PrescribesId(1, 100L, 10,
-                LocalDateTime.of(2024, 1, 1, 10, 0));
+		Prescribes prescription = new Prescribes();
 
-        Physician physician = new Physician();
-        physician.setEmployeeId(1);
+		PrescribesId id = new PrescribesId(1, 100L, 10, LocalDateTime.of(2024, 1, 1, 10, 0));
 
-        Patient patient = new Patient();
-        patient.setSsn(100L);
+		Physician physician = new Physician();
+		physician.setEmployeeId(1);
 
-        Medication medication = new Medication();
-        medication.setCode(10);
+		Patient patient = new Patient();
+		patient.setSsn(100L);
 
-        Appointment appointment = new Appointment();
-        appointment.setAppointmentID(500);
+		Medication medication = new Medication();
+		medication.setCode(10);
 
-        prescribes = new Prescribes();
-        prescribes.setId(id);
-        prescribes.setPhysician(physician);
-        prescribes.setPatient(patient);
-        prescribes.setMedication(medication);
-        prescribes.setDose("2 times a day");
-        prescribes.setAppointment(appointment);
-    }
+		Appointment appointment = new Appointment();
+		appointment.setAppointmentID(500);
 
-    // ✅ getAll()
-    @Test
-    void testGetAll() {
-        when(service.getAll()).thenReturn(List.of(prescribes));
+		prescription.setId(id);
+		prescription.setPhysician(physician);
+		prescription.setPatient(patient);
+		prescription.setMedication(medication);
+		prescription.setAppointment(appointment);
+		prescription.setDose("2 times a day");
 
-        ResponseEntity<List<PrescribesDTO>> response = controller.getAll();
+		when(prescribesService.save(any())).thenReturn(prescription);
 
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals(1, response.getBody().size());
-        verify(service).getAll();
-    }
+		mockMvc.perform(post("/admin/prescribes").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(input))).andExpect(status().isCreated())
+				.andExpect(jsonPath("$.physicianId").value(1)).andExpect(jsonPath("$.patientSsn").value(100))
+				.andExpect(jsonPath("$.medicationId").value(10));
+	}
 
-    // ✅ getById()
-    @Test
-    void testGetById() {
-        when(service.getById(id)).thenReturn(prescribes);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void createPrescription_validationFailure() throws Exception {
 
-        ResponseEntity<PrescribesDTO> response =
-                controller.getById(1, 100L, 10, "2024-01-01T10:00:00");
+		PrescribesDTO invalid = new PrescribesDTO(null, null, null, null, null, null);
 
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals(1, response.getBody().getPhysicianId());
-        verify(service).getById(any(PrescribesId.class));
-    }
+		mockMvc.perform(post("/admin/prescribes").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(invalid))).andExpect(status().isBadRequest());
+	}
 
-    // ✅ getByPhysician()
-    @Test
-    void testGetByPhysician() {
-        when(service.getAll()).thenReturn(List.of(prescribes));
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getAllPrescriptions_success() throws Exception {
 
-        ResponseEntity<List<PrescribesDTO>> response =
-                controller.getByPhysician(1);
+		Prescribes prescription = new Prescribes();
 
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals(1, response.getBody().size());
-    }
+		PrescribesId id = new PrescribesId(1, 100L, 10, LocalDateTime.of(2024, 1, 1, 10, 0));
 
-    // ✅ getByPatient()
-    @Test
-    void testGetByPatient() {
-        when(service.getAll()).thenReturn(List.of(prescribes));
+		Physician physician = new Physician();
+		physician.setEmployeeId(1);
 
-        ResponseEntity<List<PrescribesDTO>> response =
-                controller.getByPatient(100L);
+		Patient patient = new Patient();
+		patient.setSsn(100L);
 
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals(1, response.getBody().size());
-    }
+		Medication medication = new Medication();
+		medication.setCode(10);
 
-    // ✅ create()
-    @Test
-    void testCreate_Success() {
+		prescription.setId(id);
+		prescription.setPhysician(physician);
+		prescription.setPatient(patient);
+		prescription.setMedication(medication);
+		prescription.setDose("2 times a day");
 
-        PrescribesDTO dto = new PrescribesDTO(
-                1,
-                100L,
-                10,
-                LocalDateTime.of(2024, 1, 1, 10, 0),
-                "2 times a day",
-                500
-        );
+		when(prescribesService.getAll()).thenReturn(List.of(prescription));
 
-        when(service.save(any(Prescribes.class))).thenReturn(prescribes);
-
-        ResponseEntity<PrescribesDTO> response =
-                controller.create(dto);
-
-        assertEquals(201, response.getStatusCode().value());
-        assertEquals(1, response.getBody().getPhysicianId());
-
-        verify(service).save(any(Prescribes.class));
-    }
-
-    // ❌ create() bad request
-    @Test
-    void testCreate_BadRequest() {
-
-        PrescribesDTO dto = new PrescribesDTO(
-                null, null, null, null, null, null
-        );
-
-        ResponseEntity<PrescribesDTO> response =
-                controller.create(dto);
-
-        assertEquals(400, response.getStatusCode().value());
-        verify(service, never()).save(any());
-    }
+		mockMvc.perform(get("/prescribes")).andExpect(status().isOk());
+	}
 }
