@@ -51,7 +51,7 @@ public class AuthController {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
 	private RoleRepository roleRepository;
 
@@ -96,7 +96,7 @@ public class AuthController {
 		if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
 		}
-		
+
 		if (patientRepository.findById(dto.getSsn()).isPresent()) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body("Patient already exists");
 		}
@@ -114,15 +114,13 @@ public class AuthController {
 		user.setIsActive(true);
 
 		user.setRole(com.cg.enums.Role.PATIENT);
-		
+
 		RolePk rolePk = new RolePk();
 		rolePk.setUserName(dto.getUsername());
 		rolePk.setRoleName("ROLE_USER");
 
 		Role role = new Role();
 		role.setKey(rolePk);
-
-		roleRepository.save(role);
 
 		Patient patient = new Patient();
 
@@ -141,6 +139,7 @@ public class AuthController {
 		user.setLinkedEntityId(savedPatient.getSsn());
 
 		userRepository.save(user);
+		roleRepository.save(role);
 
 		return ResponseEntity.status(HttpStatus.CREATED).body("Patient registered successfully");
 	}

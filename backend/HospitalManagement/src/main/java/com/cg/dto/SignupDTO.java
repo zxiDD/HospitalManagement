@@ -1,5 +1,6 @@
 package com.cg.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -16,6 +17,7 @@ public class SignupDTO {
 	private String password;
 
 	@NotBlank(message = "Patient name is required")
+	@Pattern(regexp = "^[A-Za-z ]+$", message = "Name must contain only letters")
 	private String patientName;
 
 	@NotBlank(message = "Phone number is required")
@@ -28,6 +30,7 @@ public class SignupDTO {
 	@NotNull(message = "SSN is required")
 	private Long ssn;
 
+	@Min(value = 1, message = "Insurance Id must be a number")
 	private Integer insuranceId;
 
 	public SignupDTO() {
