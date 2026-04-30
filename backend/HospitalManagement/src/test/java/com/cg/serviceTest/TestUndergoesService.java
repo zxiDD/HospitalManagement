@@ -5,22 +5,23 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.cg.entity.Undergoes;
 import com.cg.entity.UndergoesId;
 import com.cg.repo.UndergoesRepository;
 import com.cg.service.UndergoesServiceImpl;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 class TestUndergoesService {
 
-    @Mock
+    @MockitoBean
     private UndergoesRepository repo;
 
-    @InjectMocks
+    @Autowired
     private UndergoesServiceImpl service;
 
     private Undergoes u;
