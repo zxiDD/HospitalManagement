@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -23,7 +25,12 @@ import com.cg.entity.Patient;
 import com.cg.entity.Physician;
 import com.cg.exception.BadRequestException;
 import com.cg.exception.IllegalOperationException;
+import com.cg.exception.ValidationException;
+import com.cg.repo.PatientRepository;
+import com.cg.repo.PhysicianRepository;
 import com.cg.service.AppointmentService;
+import com.cg.service.PatientService;
+import com.cg.service.PhysicianService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -34,6 +41,12 @@ public class AppointmentController {
 
 	@Autowired
 	private AppointmentService service;
+
+	@Autowired
+	private PatientService patientService;
+
+	@Autowired
+	private PhysicianService physicianService;
 
 	private AppointmentDTO convertToDTO(Appointment a) {
 		if (a == null)
@@ -86,36 +99,41 @@ public class AppointmentController {
 	}
 
 	@PostMapping("/appointments")
-	public ResponseEntity<?> addAppointment(@Valid @RequestBody AppointmentDTO dto) {
-
+	public ResponseEntity<?> addAppointment(@Valid @RequestBody AppointmentDTO dto, BindingResult br) {
+		if (br.hasErrors()) {
+			throw new ValidationException(br.getFieldErrors());
+		}
+		if (dto.getPatientId() == null) {
+			throw new BadRequestException("Patient ID is required");
+		}
+		if (dto.getPhysicianId() == null) {
+			throw new BadRequestException("Physician ID is required");
+		}
 		if (dto.getEndo().isBefore(dto.getStarto())) {
 			throw new BadRequestException("End time must be after start time");
 		}
+		Patient patient = patientService.getById(dto.getPatientId().longValue());
+		Physician physician = physicianService.getById(dto.getPhysicianId());
+		Appointment appointment = new Appointment();
+		appointment.setStarto(dto.getStarto());
+		appointment.setEndo(dto.getEndo());
+		appointment.setExaminationRoom(dto.getExaminationRoom());
+		appointment.setPatient(patient);
+		appointment.setPhysician(physician);
+		Appointment saved = service.save(appointment);
+		if (dto.getNurseId() != null) {
+			saved = service.assignPrepNurse(saved.getAppointmentID(), dto.getNurseId());
+		}
 
-		Appointment a = new Appointment();
-
-		a.setAppointmentID(dto.getAppointmentID());
-		a.setStarto(dto.getStarto());
-		a.setEndo(dto.getEndo());
-		a.setExaminationRoom(dto.getExaminationRoom());
-
-		Patient p = new Patient();
-		p.setSsn(dto.getPatientId().longValue());
-		a.setPatient(p);
-
-		Physician ph = new Physician();
-		ph.setEmployeeId(dto.getPhysicianId());
-		a.setPhysician(ph);
-
-		Nurse n = new Nurse();
-		n.setEmployeeId(dto.getNurseId());
-		a.setPrepNurse(n);
-
-		return ResponseEntity.status(201).body(service.save(a));
+		return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(saved));
 	}
 
 	@PostMapping("/appointments/reschedule")
-	public ResponseEntity<?> reschedule(@Valid @RequestBody AppointmentDTO dto) {
+	public ResponseEntity<?> reschedule(@Valid @RequestBody AppointmentDTO dto, BindingResult br) {
+
+		if (br.hasErrors()) {
+			throw new ValidationException(br.getFieldErrors());
+		}
 
 		Appointment a = service.getAppointmentById(dto.getAppointmentID());
 
@@ -141,12 +159,12 @@ public class AppointmentController {
 		return ResponseEntity.ok(appointmentsDTO);
 	}
 
-	@PatchMapping("/appointments/{appointmentId}/nurse")
+	@PatchMapping("/appointments/{appointmentId}/{nurseId}")
 	public ResponseEntity<AppointmentDTO> assignPrepNurse(@PathVariable Integer appointmentId,
-			@Valid @RequestBody NurseDTO request) {
+			@PathVariable Integer nurseId) {
 
-		Appointment updated = service.assignPrepNurse(appointmentId, request.getEmployeeId());
+		Appointment updated = service.assignPrepNurse(appointmentId, nurseId);
 		return ResponseEntity.ok(convertToDTO(updated));
 	}
-	
+
 }

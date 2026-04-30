@@ -2,6 +2,7 @@ package com.cg.WebTest;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -11,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,12 +27,17 @@ import com.cg.dto.AppointmentDTO;
 import com.cg.dto.NurseDTO;
 import com.cg.entity.Appointment;
 import com.cg.entity.Nurse;
+import com.cg.entity.OnCall;
 import com.cg.entity.Patient;
 import com.cg.entity.Physician;
+import com.cg.exception.BadRequestException;
+import com.cg.repo.AppointmentRepository;
+import com.cg.repo.NurseRepository;
 import com.cg.service.AppointmentService;
+import com.cg.service.NurseService;
+import com.cg.service.OnCallService;
 
 import tools.jackson.databind.ObjectMapper;
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -41,6 +48,12 @@ public class AppointmentControllerTest {
 
 	@MockitoBean
 	private AppointmentService appointmentService;
+
+	@MockitoBean
+	private NurseService nurseService;
+
+	@MockitoBean
+	private OnCallService onCallService;
 
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -141,7 +154,8 @@ public class AppointmentControllerTest {
 		when(appointmentService.getAppointmentById(1)).thenReturn(appointment);
 
 		mockMvc.perform(post("/appointments/reschedule").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isBadRequest());
+				.content(objectMapper.writeValueAsString(dto)))
+				.andExpect(jsonPath("$.errMsg").value("Invalid time range"));
 	}
 
 	@Test
@@ -170,14 +184,56 @@ public class AppointmentControllerTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "ADMIN" })
 	void testAssignPrepNurse() throws Exception {
-		NurseDTO nurseDTO = new NurseDTO();
-		nurseDTO.setEmployeeId(75);
-
 		Appointment appointment = createTestAppointment();
 		when(appointmentService.assignPrepNurse(1, 75)).thenReturn(appointment);
+		when(nurseService.getById(75)).thenReturn(createTestNurse());
 
-		mockMvc.perform(patch("/appointments/appointments/1/nurse").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(nurseDTO))).andExpect(status().isOk());
+		mockMvc.perform(patch("/appointments/1/75")).andExpect(status().isOk());
+	}
+
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void assignPrepNurse_onCall_shouldSucceed() {
+
+		Nurse nurse = createTestNurse();
+
+		nurse.setEmployeeId(75);
+
+		Appointment appointment = createTestAppointment();
+
+		appointment.setAppointmentID(1);
+
+		OnCall onCall = new OnCall();
+
+		onCall.setNurse(nurse);
+		onCall.setOnCallStart(appointment.getStarto().minusMinutes(1));
+		onCall.setOnCallEnd(appointment.getEndo().plusMinutes(1));
+
+		Appointment updatedAppointment = createTestAppointment();
+
+		updatedAppointment.setAppointmentID(1);
+		updatedAppointment.setPrepNurse(nurse);
+
+		when(nurseService.save(any(Nurse.class))).thenReturn(nurse);
+
+		when(appointmentService.save(any(Appointment.class))).thenReturn(appointment);
+
+		when(onCallService.save(any(OnCall.class))).thenReturn(onCall);
+
+		when(appointmentService.assignPrepNurse(1, 75)).thenReturn(updatedAppointment);
+
+		Nurse savedNurse = nurseService.save(nurse);
+
+		Appointment savedAppointment = appointmentService.save(appointment);
+
+		onCallService.save(onCall);
+
+		Appointment updated = appointmentService.assignPrepNurse(savedAppointment.getAppointmentID(),
+				savedNurse.getEmployeeId());
+
+		Assertions.assertNotNull(updated);
+
+		Assertions.assertEquals(75, updated.getPrepNurse().getEmployeeId());
 	}
 
 	@Test
@@ -211,7 +267,7 @@ public class AppointmentControllerTest {
 		Patient patient = createTestPatient();
 		Physician physician = new Physician();
 		physician.setEmployeeId(100);
-		physician.setName("Dr. Smith");
+		physician.setName("Smith");
 
 		Nurse nurse = new Nurse();
 		nurse.setEmployeeId(50);
@@ -234,8 +290,17 @@ public class AppointmentControllerTest {
 		patient.setSsn(12345L);
 		patient.setName("John Doe");
 		patient.setAddress("123 Main St");
-		patient.setPhone("555-1234");
+		patient.setPhone("9898989898");
 		patient.setInsuranceId(100);
 		return patient;
+	}
+
+	private Nurse createTestNurse() {
+		Nurse nurse = new Nurse();
+		nurse.setEmployeeId(75);
+		nurse.setName("Nurse Mary");
+		nurse.setPosition("Nurse");
+		nurse.setSsn(12345L);
+		return nurse;
 	}
 }
