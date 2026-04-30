@@ -1,113 +1,102 @@
 package com.cg.WebTest;
 
-import com.cg.controller.BlockController;
-import com.cg.dto.BlockDTO;
-import com.cg.entity.Block;
-import com.cg.entity.BlockId;
-import com.cg.exception.ResourceNotFoundException;
-import com.cg.service.BlockService;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.Assertions;
 
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.test.context.support.WithMockUser;
 
-import java.util.*;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
-@ExtendWith(MockitoExtension.class)
+import com.cg.entity.Block;
+import com.cg.entity.BlockId;
+import com.cg.service.BlockService;
+
+@SpringBootTest
+@AutoConfigureMockMvc
 class BlockControllerTest {
 
-    @Mock
-    private BlockService blockService;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @InjectMocks
-    private BlockController controller;
+	@MockitoBean
+	private BlockService blockService;
 
-    private Block block;
-    private BlockId blockId;
+	private Block block;
+	private BlockId blockId;
 
-    @BeforeEach
-    void setUp() {
-        blockId = new BlockId(1, 101);
+	@BeforeEach
+	void setUp() {
 
-        block = new Block();
-        block.setId(blockId);
-    }
+		blockId = new BlockId(1, 101);
 
-    // ✅ getAllBlocks
-    @Test
-    void testGetAllBlocks() {
-        Mockito.when(blockService.getAllBlocks())
-                .thenReturn(List.of(block));
+		block = new Block();
+		block.setId(blockId);
+	}
 
-        ResponseEntity<List<BlockDTO>> response = controller.getAllBlocks();
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getAllBlocks_success() throws Exception {
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(1, response.getBody().size());
+		when(blockService.getAllBlocks()).thenReturn(List.of(block));
 
-        Mockito.verify(blockService).getAllBlocks();
-    }
+		mockMvc.perform(get("/blocks")).andExpect(status().isOk()).andExpect(jsonPath("$.size()").value(1))
+				.andExpect(jsonPath("$[0].blockFloor").value(1)).andExpect(jsonPath("$[0].blockCode").value(101));
+	}
 
-    // ✅ getBlockById SUCCESS
-    @Test
-    void testGetBlockById_Success() {
-        Mockito.when(blockService.getBlockById(blockId))
-                .thenReturn(Optional.of(block));
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getBlockById_success() throws Exception {
 
-        ResponseEntity<BlockDTO> response =
-                controller.getBlockById(1, 101);
+		when(blockService.getBlockById(blockId)).thenReturn(Optional.of(block));
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(1, response.getBody().getBlockFloor());
-        Assertions.assertEquals(101, response.getBody().getBlockCode());
+		mockMvc.perform(get("/blocks/id").param("floor", "1").param("code", "101")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.blockFloor").value(1)).andExpect(jsonPath("$.blockCode").value(101));
+	}
 
-        Mockito.verify(blockService).getBlockById(blockId);
-    }
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getBlockById_notFound() throws Exception {
 
-    // ❌ getBlockById NOT FOUND
-    @Test
-    void testGetBlockById_NotFound() {
-        Mockito.when(blockService.getBlockById(blockId))
-                .thenReturn(Optional.empty());
+		when(blockService.getBlockById(blockId)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(ResourceNotFoundException.class,
-                () -> controller.getBlockById(1, 101));
+		mockMvc.perform(get("/blocks/id").param("floor", "1").param("code", "101")).andExpect(status().isNotFound());
+	}
 
-        Mockito.verify(blockService).getBlockById(blockId);
-    }
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getBlockByFloorAndCode_success() throws Exception {
 
-    // ✅ getBlockByFloorAndCode SUCCESS
-    @Test
-    void testGetBlockByFloorAndCode_Success() {
-        Mockito.when(blockService.getBlockByFloorAndCode(1, 101))
-                .thenReturn(Optional.of(block));
+		when(blockService.getBlockByFloorAndCode(1, 101)).thenReturn(Optional.of(block));
 
-        ResponseEntity<BlockDTO> response =
-                controller.getBlockByFloorAndCode(1, 101);
+		mockMvc.perform(get("/blocks/1/101")).andExpect(status().isOk()).andExpect(jsonPath("$.blockFloor").value(1))
+				.andExpect(jsonPath("$.blockCode").value(101));
+	}
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(1, response.getBody().getBlockFloor());
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getBlockByFloorAndCode_notFound() throws Exception {
 
-        Mockito.verify(blockService).getBlockByFloorAndCode(1, 101);
-    }
+		when(blockService.getBlockByFloorAndCode(1, 101)).thenReturn(Optional.empty());
 
-    // ❌ getBlockByFloorAndCode NOT FOUND
-    @Test
-    void testGetBlockByFloorAndCode_NotFound() {
-        Mockito.when(blockService.getBlockByFloorAndCode(1, 101))
-                .thenReturn(Optional.empty());
+		mockMvc.perform(get("/blocks/1/101")).andExpect(status().isNotFound());
+	}
 
-        Assertions.assertThrows(ResourceNotFoundException.class,
-                () -> controller.getBlockByFloorAndCode(1, 101));
+	@Test
+	void unauthorizedAccess_shouldFail() throws Exception {
 
-        Mockito.verify(blockService).getBlockByFloorAndCode(1, 101);
-    }
+		mockMvc.perform(get("/blocks")).andExpect(status().isForbidden());
+	}
 }

@@ -1,270 +1,241 @@
 package com.cg.WebTest;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
-import com.cg.controller.AppointmentController;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import org.springframework.test.web.servlet.MockMvc;
+
 import com.cg.dto.AppointmentDTO;
 import com.cg.dto.NurseDTO;
-import com.cg.dto.PatientDTO;
 import com.cg.entity.Appointment;
 import com.cg.entity.Nurse;
 import com.cg.entity.Patient;
 import com.cg.entity.Physician;
-import com.cg.exception.BadRequestException;
-import com.cg.exception.IllegalOperationException;
 import com.cg.service.AppointmentService;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.ResponseEntity;
+import tools.jackson.databind.ObjectMapper;
 
+
+@SpringBootTest
+@AutoConfigureMockMvc
 public class AppointmentControllerTest {
 
-    @InjectMocks
-    private AppointmentController controller;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @Mock
-    private AppointmentService service;
+	@MockitoBean
+	private AppointmentService appointmentService;
 
-    private Appointment appointment;
-    private Patient patient;
-    private Physician physician;
-    private Nurse nurse;
+	@Autowired
+	private ObjectMapper objectMapper;
 
-    @BeforeEach
-    void setup() {
-        MockitoAnnotations.openMocks(this);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testGetAll() throws Exception {
+		Appointment appointment = createTestAppointment();
+		when(appointmentService.getAllAppointments()).thenReturn(List.of(appointment));
 
-        // Create test data
-        patient = new Patient();
-        patient.setSsn(12345L);
-        patient.setName("John Doe");
-        patient.setAddress("123 Main St");
-        patient.setPhone("555-1234");
-        patient.setInsuranceId(100);
+		mockMvc.perform(get("/appointments")).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].appointmentID").value(1));
+	}
 
-        physician = new Physician();
-        physician.setEmployeeId(100);
-        physician.setName("Dr. Smith");
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testGetById_Found() throws Exception {
+		Appointment appointment = createTestAppointment();
+		when(appointmentService.getAppointmentById(1)).thenReturn(appointment);
 
-        nurse = new Nurse();
-        nurse.setEmployeeId(50);
-        nurse.setName("Nurse Joy");
+		mockMvc.perform(get("/appointments/1")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.appointmentID").value(1));
+	}
 
-        appointment = new Appointment();
-        appointment.setAppointmentID(1);
-        appointment.setPatient(patient);
-        appointment.setPhysician(physician);
-        appointment.setPrepNurse(nurse);
-        appointment.setStarto(LocalDateTime.now().plusHours(1));
-        appointment.setEndo(LocalDateTime.now().plusHours(2));
-        appointment.setExaminationRoom("Room101");
-    }
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testGetById_NotFound() throws Exception {
+		when(appointmentService.getAppointmentById(999)).thenReturn(null);
 
-    @Test
-    void testGetAll() {
-        when(service.getAllAppointments()).thenReturn(List.of(appointment));
+		mockMvc.perform(get("/appointments/999")).andExpect(status().isNotFound());
+	}
 
-        ResponseEntity<List<AppointmentDTO>> response = controller.getAll();
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testGetPatientsByPhysician() throws Exception {
+		Patient patient = createTestPatient();
+		when(appointmentService.getPatientsByPhysician(100)).thenReturn(List.of(patient));
 
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-    }
+		mockMvc.perform(get("/appointments/physician/100/patients")).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].ssn").value(12345));
+	}
 
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testGetAppointmentsByPhysician() throws Exception {
+		Appointment appointment = createTestAppointment();
+		when(appointmentService.getByPhysicianId(100)).thenReturn(List.of(appointment));
 
-    @Test
-    void testGetById_Found() {
-        when(service.getAppointmentById(1)).thenReturn(appointment);
+		mockMvc.perform(get("/appointments/physician/100/appointments")).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].appointmentID").value(1));
+	}
 
-        ResponseEntity<AppointmentDTO> response = controller.getById(1);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testAddAppointment_Success() throws Exception {
+		AppointmentDTO dto = new AppointmentDTO(1, 12345, 100, 50, LocalDateTime.now().plusHours(1),
+				LocalDateTime.now().plusHours(2), "Room101");
 
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().getAppointmentID());
-    }
+		Appointment appointment = createTestAppointment();
+		when(appointmentService.save(any(Appointment.class))).thenReturn(appointment);
 
+		mockMvc.perform(post("/appointments").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isCreated())
+				.andExpect(jsonPath("$.appointmentID").value(1));
+	}
 
-    @Test
-    void testGetById_NotFound() {
-        when(service.getAppointmentById(999)).thenReturn(null);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testAddAppointment_InvalidTime() throws Exception {
+		AppointmentDTO dto = new AppointmentDTO(1, 12345, 100, 50, LocalDateTime.now().plusHours(3),
+				LocalDateTime.now().plusHours(1), "Room101");
 
-        ResponseEntity<AppointmentDTO> response = controller.getById(999);
+		mockMvc.perform(post("/appointments").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isBadRequest());
+	}
 
-        assertEquals(404, response.getStatusCode().value());
-    }
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testReschedule_Success() throws Exception {
+		AppointmentDTO dto = new AppointmentDTO(1, 12345, 100, 50, LocalDateTime.now().plusDays(1),
+				LocalDateTime.now().plusDays(1).plusHours(1), "Room101");
 
-    @Test
-    void testGetPatientsByPhysician() {
-        when(service.getPatientsByPhysician(100)).thenReturn(List.of(patient));
+		Appointment appointment = createTestAppointment();
+		when(appointmentService.getAppointmentById(1)).thenReturn(appointment);
+		when(appointmentService.save(any(Appointment.class))).thenReturn(appointment);
 
-        ResponseEntity<List<PatientDTO>> response = controller.getPatientsByPhysician(100);
+		mockMvc.perform(post("/appointments/reschedule").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isOk());
+	}
 
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-    }
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testReschedule_InvalidTimeRange() throws Exception {
+		AppointmentDTO dto = new AppointmentDTO(1, 12345, 100, 50, LocalDateTime.now().plusDays(1).plusHours(2),
+				LocalDateTime.now().plusDays(1), "Room101");
 
-    @Test
-    void testGetAppointmentsByPhysician() {
-        when(service.getByPhysicianId(100)).thenReturn(List.of(appointment));
+		Appointment appointment = createTestAppointment();
+		when(appointmentService.getAppointmentById(1)).thenReturn(appointment);
 
-        ResponseEntity<List<AppointmentDTO>> response = controller.getAppointmentsByPhysician(100);
+		mockMvc.perform(post("/appointments/reschedule").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isBadRequest());
+	}
 
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-    }
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testReschedule_PastTime() throws Exception {
+		AppointmentDTO dto = new AppointmentDTO(1, 12345, 100, 50, LocalDateTime.now().minusHours(1),
+				LocalDateTime.now(), "Room101");
 
-    @Test
-    void testAddAppointment_Success() {
-        AppointmentDTO dto = new AppointmentDTO(
-                1, 12345, 100, 50,
-                LocalDateTime.now().plusHours(1),
-                LocalDateTime.now().plusHours(2),
-                "Room101");
+		Appointment appointment = createTestAppointment();
+		when(appointmentService.getAppointmentById(1)).thenReturn(appointment);
 
-        when(service.save(any(Appointment.class))).thenReturn(appointment);
+		mockMvc.perform(post("/appointments/reschedule").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isBadRequest());
+	}
 
-        ResponseEntity<?> response = controller.addAppointment(dto);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testGetAppointmentsForPatient() throws Exception {
+		Appointment appointment = createTestAppointment();
+		when(appointmentService.getByPatientId(12345L)).thenReturn(List.of(appointment));
 
-        assertEquals(201, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-    }
+		mockMvc.perform(get("/appointments/patients/12345/appointments")).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].appointmentID").value(1));
+	}
 
-    @Test
-    void testAddAppointment_InvalidTime() {
-        AppointmentDTO dto = new AppointmentDTO(
-                1, 12345, 100, 50,
-                LocalDateTime.now().plusHours(3),
-                LocalDateTime.now().plusHours(1),
-                "Room101");
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testAssignPrepNurse() throws Exception {
+		NurseDTO nurseDTO = new NurseDTO();
+		nurseDTO.setEmployeeId(75);
 
-        assertThrows(BadRequestException.class, () -> controller.addAppointment(dto));
-    }
+		Appointment appointment = createTestAppointment();
+		when(appointmentService.assignPrepNurse(1, 75)).thenReturn(appointment);
 
+		mockMvc.perform(patch("/appointments/appointments/1/nurse").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(nurseDTO))).andExpect(status().isOk());
+	}
 
-    @Test
-    void testReschedule_Success() {
-        AppointmentDTO dto = new AppointmentDTO(
-                1, 12345, 100, 50,
-                LocalDateTime.now().plusDays(1),
-                LocalDateTime.now().plusDays(1).plusHours(1),
-                "Room101");
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testGetAll_Empty() throws Exception {
+		when(appointmentService.getAllAppointments()).thenReturn(List.of());
 
-        when(service.getAppointmentById(1)).thenReturn(appointment);
-        when(service.save(any(Appointment.class))).thenReturn(appointment);
+		mockMvc.perform(get("/appointments")).andExpect(status().isOk()).andExpect(jsonPath("$").isArray())
+				.andExpect(jsonPath("$").isEmpty());
+	}
 
-        ResponseEntity<?> response = controller.reschedule(dto);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testGetAppointmentsForPatient_Empty() throws Exception {
+		when(appointmentService.getByPatientId(999L)).thenReturn(List.of());
 
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-    }
+		mockMvc.perform(get("/appointments/patients/999/appointments")).andExpect(status().isOk())
+				.andExpect(jsonPath("$").isArray()).andExpect(jsonPath("$").isEmpty());
+	}
 
-    @Test
-    void testReschedule_InvalidTimeRange() {
-        AppointmentDTO dto = new AppointmentDTO(
-                1, 12345, 100, 50,
-                LocalDateTime.now().plusDays(1).plusHours(2),
-                LocalDateTime.now().plusDays(1),
-                "Room101");
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void testGetPatientsByPhysician_Empty() throws Exception {
+		when(appointmentService.getPatientsByPhysician(999)).thenReturn(List.of());
 
-        when(service.getAppointmentById(1)).thenReturn(appointment);
+		mockMvc.perform(get("/appointments/physician/999/patients")).andExpect(status().isOk())
+				.andExpect(jsonPath("$").isArray()).andExpect(jsonPath("$").isEmpty());
+	}
 
-        assertThrows(IllegalOperationException.class, () -> controller.reschedule(dto));
-    }
+	private Appointment createTestAppointment() {
+		Patient patient = createTestPatient();
+		Physician physician = new Physician();
+		physician.setEmployeeId(100);
+		physician.setName("Dr. Smith");
 
-    @Test
-    void testReschedule_PastTime() {
-        AppointmentDTO dto = new AppointmentDTO(
-                1, 12345, 100, 50,
-                LocalDateTime.now().minusHours(1),
-                LocalDateTime.now(),
-                "Room101");
+		Nurse nurse = new Nurse();
+		nurse.setEmployeeId(50);
+		nurse.setName("Nurse Joy");
 
-        when(service.getAppointmentById(1)).thenReturn(appointment);
+		Appointment appointment = new Appointment();
+		appointment.setAppointmentID(1);
+		appointment.setPatient(patient);
+		appointment.setPhysician(physician);
+		appointment.setPrepNurse(nurse);
+		appointment.setStarto(LocalDateTime.now().plusHours(1));
+		appointment.setEndo(LocalDateTime.now().plusHours(2));
+		appointment.setExaminationRoom("Room101");
 
-        assertThrows(IllegalOperationException.class, () -> controller.reschedule(dto));
-    }
+		return appointment;
+	}
 
-
-    @Test
-    void testGetAppointmentsForPatient() {
-        when(service.getByPatientId(12345L)).thenReturn(List.of(appointment));
-
-        ResponseEntity<List<AppointmentDTO>> response = controller.getAppointmentsForPatient(12345L);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-    }
-
-    @Test
-    void testAssignPrepNurse() {
-        NurseDTO nurseDTO = new NurseDTO();
-        nurseDTO.setEmployeeId(75);
-
-        when(service.assignPrepNurse(1, 75)).thenReturn(appointment);
-
-        ResponseEntity<AppointmentDTO> response = controller.assignPrepNurse(1, nurseDTO);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-    }
-
-
-    @Test
-    void testGetAll_Empty() {
-        when(service.getAllAppointments()).thenReturn(List.of());
-
-        ResponseEntity<List<AppointmentDTO>> response = controller.getAll();
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().isEmpty());
-    }
-
-    @Test
-    void testGetAppointmentsForPatient_Empty() {
-        when(service.getByPatientId(999L)).thenReturn(List.of());
-
-        ResponseEntity<List<AppointmentDTO>> response = controller.getAppointmentsForPatient(999L);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().isEmpty());
-    }
-
-
-    @Test
-    void testGetPatientsByPhysician_Empty() {
-        when(service.getPatientsByPhysician(999)).thenReturn(List.of());
-
-        ResponseEntity<List<PatientDTO>> response = controller.getPatientsByPhysician(999);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().isEmpty());
-    }
-
-    @Test
-    void testReschedule_AppointmentNotFound() {
-        AppointmentDTO dto = new AppointmentDTO(
-                999, 12345, 100, 50,
-                LocalDateTime.now().plusDays(1),
-                LocalDateTime.now().plusDays(1).plusHours(1),
-                "Room101");
-
-        when(service.getAppointmentById(999)).thenReturn(null);
-
-        assertThrows(NullPointerException.class, () -> controller.reschedule(dto));
-    }
+	private Patient createTestPatient() {
+		Patient patient = new Patient();
+		patient.setSsn(12345L);
+		patient.setName("John Doe");
+		patient.setAddress("123 Main St");
+		patient.setPhone("555-1234");
+		patient.setInsuranceId(100);
+		return patient;
+	}
 }
