@@ -23,21 +23,21 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.*;
 
-//@SpringBootTest
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+//@ExtendWith(MockitoExtension.class)
 class AffiliatedWithServiceTest {
 
-    @Mock
+    @MockitoBean
     private AffiliatedWithRepository affiliatedRepo;
 
-    @Mock
+    @MockitoBean
     private PhysicianRepository physicianRepo;
 
-    @Mock
+    @MockitoBean
     private DepartmentRepository departmentRepo;
 
-//    @Autowired
-    @InjectMocks
+    @Autowired
+//    @InjectMocks
     private AffiliatedWithServiceImpl service;
 
     private AffiliatedWith aff;
