@@ -9,14 +9,15 @@ import com.cg.service.PatientServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.Assertions;
 
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PatientServiceTest {
@@ -28,7 +29,6 @@ class PatientServiceTest {
     private PatientServiceImpl service;
 
     private Patient patient;
-    private Optional<Patient> optPatient1, optPatient2;
 
     @BeforeEach
     void setUp() {
@@ -36,105 +36,118 @@ class PatientServiceTest {
         patient.setSsn(1L);
         patient.setName("Alice");
         patient.setAddress("Delhi");
-        patient.setPhone("9876543210");
+        patient.setPhone("9999999999");
         patient.setInsuranceId(100);
         patient.setIsActive(true);
-
-        optPatient1 = Optional.of(patient);
-        optPatient2 = Optional.empty();
     }
 
     @Test
     void testGetAll() {
-        Mockito.when(repo.findAll()).thenReturn(List.of(patient));
+        when(repo.findAll()).thenReturn(List.of(patient));
 
         List<Patient> result = service.getAll();
 
-        Assertions.assertEquals(1, result.size());
-        Mockito.verify(repo).findAll();
+        assertEquals(1, result.size());
+        verify(repo).findAll();
     }
 
     @Test
     void testGetById_Success() {
-        Mockito.when(repo.findById(1L)).thenReturn(optPatient1);
+        when(repo.findById(1L)).thenReturn(Optional.of(patient));
 
         Patient result = service.getById(1L);
 
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals("Alice", result.getName());
+        assertNotNull(result);
+        assertEquals("Alice", result.getName());
     }
 
     @Test
     void testGetById_NotFound() {
-        Mockito.when(repo.findById(1L)).thenReturn(optPatient2);
+        when(repo.findById(1L)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(ResourceNotFoundException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> service.getById(1L));
     }
 
     @Test
     void testGetByName() {
-        Mockito.when(repo.findByName("Alice")).thenReturn(List.of(patient));
+        when(repo.findByName("Alice")).thenReturn(List.of(patient));
 
         List<Patient> result = service.getByName("Alice");
 
-        Assertions.assertEquals(1, result.size());
+        assertEquals(1, result.size());
+        verify(repo).findByName("Alice");
     }
 
     @Test
     void testGetByNameAndAddress() {
-        Mockito.when(repo.findByNameAndAddress("Alice", "Delhi"))
+        when(repo.findByNameAndAddress("Alice", "Delhi"))
                 .thenReturn(List.of(patient));
 
         List<Patient> result = service.getByNameAndAddress("Alice", "Delhi");
 
-        Assertions.assertEquals(1, result.size());
+        assertEquals(1, result.size());
+        verify(repo).findByNameAndAddress("Alice", "Delhi");
     }
 
     @Test
     void testSave_Success() {
-        Mockito.when(repo.existsById(1L)).thenReturn(false);
-        Mockito.when(repo.save(patient)).thenReturn(patient);
+        when(repo.existsById(1L)).thenReturn(false);
+        when(repo.save(patient)).thenReturn(patient);
 
-        Patient saved = service.save(patient);
+        Patient result = service.save(patient);
 
-        Assertions.assertNotNull(saved);
-        Mockito.verify(repo).save(patient);
+        assertNotNull(result);
+        verify(repo).save(patient);
     }
 
     @Test
     void testSave_AlreadyExists() {
-        Mockito.when(repo.existsById(1L)).thenReturn(true);
+        when(repo.existsById(1L)).thenReturn(true);
 
-        Assertions.assertThrows(BadRequestException.class,
+        assertThrows(BadRequestException.class,
                 () -> service.save(patient));
+
+        verify(repo).existsById(1L);
+        verify(repo, never()).save(any());
     }
 
     @Test
     void testDelete_Success() {
-        Mockito.when(repo.findById(1L)).thenReturn(optPatient1);
+        when(repo.findById(1L)).thenReturn(Optional.of(patient));
 
         service.delete(1L);
 
-        Assertions.assertFalse(patient.getIsActive());
-        Mockito.verify(repo).save(patient);
+        assertFalse(patient.getIsActive());
+        verify(repo).save(patient);
     }
 
     @Test
     void testDelete_NotFound() {
-        Mockito.when(repo.findById(1L)).thenReturn(optPatient2);
+        when(repo.findById(1L)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(RuntimeException.class,
+        assertThrows(RuntimeException.class,
                 () -> service.delete(1L));
     }
 
     @Test
-    void testGetByPhone() {
-        Mockito.when(repo.findByPhone("9876543210"))
-                .thenReturn(List.of(patient));
+    void testGetByPhone_Success() {
+        when(repo.findByPhone("9999999999"))
+                .thenReturn(Optional.of(patient));
 
-        List<Patient> result = service.getByPhone("9876543210");
+        Optional<Patient> result = service.getByPhone("9999999999");
 
-        Assertions.assertEquals(1, result.size());
+        assertTrue(result.isPresent());
+        assertEquals("Alice", result.get().getName());
+    }
+
+    @Test
+    void testGetByPhone_NotFound() {
+        when(repo.findByPhone("9999999999"))
+                .thenReturn(Optional.empty());
+
+        Optional<Patient> result = service.getByPhone("9999999999");
+
+        assertFalse(result.isPresent());
     }
 }
