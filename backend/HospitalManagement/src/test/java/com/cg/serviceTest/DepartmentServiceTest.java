@@ -24,17 +24,17 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.*;
 
-//@SpringBootTest
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+//@ExtendWith(MockitoExtension.class)
 public class DepartmentServiceTest {
 
-    @Mock
+    @MockitoBean
     private DepartmentRepository departmentRepository;
 
-    @Mock
+    @MockitoBean
     private PhysicianRepository physicianRepository;
 
-   @InjectMocks
+   @Autowired
    private DepartmentServiceImpl departmentService;   
 
     private Department dept;

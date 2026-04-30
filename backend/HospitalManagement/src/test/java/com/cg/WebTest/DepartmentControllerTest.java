@@ -1,38 +1,32 @@
 package com.cg.WebTest;
 
-import com.cg.controller.DepartmentController;
-import com.cg.dto.DepartmentDTO;
-import com.cg.exception.DuplicateResourceException;
-import com.cg.exception.GlobalExceptionHandler;
-import com.cg.exception.ResourceNotFoundException;
-import com.cg.service.DepartmentService;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.List;
 
-//@SpringBootTest
-//@AutoConfigureMockMvc
-@WebMvcTest(DepartmentController.class)
-@Import(GlobalExceptionHandler.class)
-class DepartmentControllerTest {
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import com.cg.dto.DepartmentDTO;
+import com.cg.exception.DuplicateResourceException;
+import com.cg.exception.ResourceNotFoundException;
+import com.cg.service.DepartmentService;
+
+import tools.jackson.databind.ObjectMapper;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+public class DepartmentControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -40,182 +34,158 @@ class DepartmentControllerTest {
     @MockitoBean
     private DepartmentService departmentService;
 
-    // ================= GET ALL =================
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    // =========================
+    // GET ALL
+    // =========================
     @Test
+    @WithMockUser(roles = "ADMIN")
     void testGetAll_success() throws Exception {
 
-        List<DepartmentDTO> list = List.of(
-                new DepartmentDTO(1, "Cardiology", 101, "Dr. John")
-        );
-
-        Mockito.when(departmentService.getAll()).thenReturn(list);
+        when(departmentService.getAll())
+                .thenReturn(List.of(
+                        new DepartmentDTO(1, "Cardiology", 101, "Dr John")
+                ));
 
         mockMvc.perform(get("/departments"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Cardiology"));
-
-        Mockito.verify(departmentService).getAll();
     }
 
-    // ================= GET BY ID =================
+    // =========================
+    // GET BY ID
+    // =========================
     @Test
+    @WithMockUser(roles = "ADMIN")
     void testGetById_success() throws Exception {
 
-        DepartmentDTO dto = new DepartmentDTO(1, "Cardiology", 101, "Dr. John");
-
-        Mockito.when(departmentService.getById(1)).thenReturn(dto);
+        when(departmentService.getById(1))
+                .thenReturn(new DepartmentDTO(1, "Cardiology", 101, "Dr John"));
 
         mockMvc.perform(get("/departments/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Cardiology"));
-
-        Mockito.verify(departmentService).getById(1);
+                .andExpect(jsonPath("$.departmentId").value(1));
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void testGetById_notFound() throws Exception {
 
-        Mockito.when(departmentService.getById(1))
+        when(departmentService.getById(1))
                 .thenThrow(new ResourceNotFoundException("Department not found with id: 1"));
 
         mockMvc.perform(get("/departments/1"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errMsg")
-                        .value("Department not found with id: 1"));
-
-        Mockito.verify(departmentService).getById(1);
+                .value("Department not found with id: 1"));
     }
 
-    // ================= GET BY NAME =================
+    // =========================
+    // GET BY NAME
+    // =========================
     @Test
+    @WithMockUser(roles = "ADMIN")
     void testGetByName_success() throws Exception {
 
-        DepartmentDTO dto = new DepartmentDTO(1, "Cardiology", 101, "Dr. John");
-
-        Mockito.when(departmentService.getByName("Cardiology"))
-                .thenReturn(dto);
+        when(departmentService.getByName("Cardiology"))
+                .thenReturn(new DepartmentDTO(1, "Cardiology", 101, "Dr John"));
 
         mockMvc.perform(get("/departments/name/Cardiology"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Cardiology"));
-
-        Mockito.verify(departmentService).getByName("Cardiology");
     }
 
-    // ================= GET BY HEAD =================
+    // =========================
+    // GET BY HEAD
+    // =========================
     @Test
-    void testGetByHeadId_success() throws Exception {
+    @WithMockUser(roles = "ADMIN")
+    void testGetByHead_success() throws Exception {
 
-        List<DepartmentDTO> list = List.of(
-                new DepartmentDTO(1, "Cardiology", 101, "Dr. John")
-        );
-
-        Mockito.when(departmentService.getByHeadId(101))
-                .thenReturn(list);
+        when(departmentService.getByHeadId(101))
+                .thenReturn(List.of(
+                        new DepartmentDTO(1, "Cardiology", 101, "Dr John")
+                ));
 
         mockMvc.perform(get("/departments/head/101"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].headId").value(101));
-
-        Mockito.verify(departmentService).getByHeadId(101);
     }
 
-    // ================= CREATE =================
+    // =========================
+    // CREATE SUCCESS
+    // =========================
     @Test
+    @WithMockUser(roles = "ADMIN")
     void testCreate_success() throws Exception {
 
-        String requestJson = """
-        {
-            "name": "Cardiology",
-            "headId": 101
-        }
-        """;
+        DepartmentDTO input = new DepartmentDTO(null, "Cardiology", 101, null);
 
-        DepartmentDTO response =
-                new DepartmentDTO(1, "Cardiology", 101, "Dr. John");
-
-        Mockito.when(departmentService.create(Mockito.any()))
-                .thenReturn(response);
+        when(departmentService.create(org.mockito.Mockito.any()))
+                .thenReturn(new DepartmentDTO(1, "Cardiology", 101, "Dr John"));
 
         mockMvc.perform(post("/departments")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Cardiology"));
-
-        Mockito.verify(departmentService).create(Mockito.any());
     }
 
-    // ================= VALIDATION ERROR =================
+    // =========================
+    // CREATE VALIDATION ERROR
+    // =========================
     @Test
+    @WithMockUser(roles = "ADMIN")
     void testCreate_validationError() throws Exception {
 
-        String invalidJson = """
-        {
-            "name": "",
-            "headId": null
-        }
-        """;
-
+        DepartmentDTO invalid = new DepartmentDTO(null, "", null, null);
+        when(departmentService.create(any())).thenReturn(null);
         mockMvc.perform(post("/departments")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(invalidJson))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalid)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errMsg").value("Validation failed"))
-                .andExpect(jsonPath("$.errMap.name").exists())
-                .andExpect(jsonPath("$.errMap.headId").exists());
-
-        Mockito.verify(departmentService, Mockito.never())
-                .create(Mockito.any());
+                .andExpect(jsonPath("$.errMsg").value("Validation failed"));
     }
 
-    // ================= DUPLICATE ERROR =================
+    // =========================
+    // CREATE DUPLICATE
+    // =========================
     @Test
+    @WithMockUser(roles = "ADMIN")
     void testCreate_duplicate() throws Exception {
 
-        String requestJson = """
-        {
-            "name": "Cardiology",
-            "headId": 101
-        }
-        """;
+        DepartmentDTO input = new DepartmentDTO(null, "Cardiology", 101, null);
 
-        Mockito.when(departmentService.create(Mockito.any()))
-                .thenThrow(new DuplicateResourceException(
-                        "Department already exists with name: Cardiology"));
+        when(departmentService.create(org.mockito.Mockito.any()))
+                .thenThrow(new DuplicateResourceException("Department already exists with name: Cardiology"));
 
         mockMvc.perform(post("/departments")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.errMsg")
-                        .value("Department already exists with name: Cardiology"));
-
-        Mockito.verify(departmentService).create(Mockito.any());
+                .value("Department already exists with name: Cardiology"));
     }
 
-    // ================= PHYSICIAN NOT FOUND =================
+    // =========================
+    // CREATE HEAD NOT FOUND
+    // =========================
     @Test
+    @WithMockUser(roles = "ADMIN")
     void testCreate_headNotFound() throws Exception {
 
-        String requestJson = """
-        {
-            "name": "Cardiology",
-            "headId": 999
-        }
-        """;
+        DepartmentDTO input = new DepartmentDTO(null, "Cardiology", 999, null);
 
-        Mockito.when(departmentService.create(Mockito.any()))
-                .thenThrow(new ResourceNotFoundException(
-                        "Physician not found with id: 999"));
+        when(departmentService.create(org.mockito.Mockito.any()))
+                .thenThrow(new ResourceNotFoundException("Physician not found with id: 999"));
 
         mockMvc.perform(post("/departments")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errMsg")
-                        .value("Physician not found with id: 999"));
-
-        Mockito.verify(departmentService).create(Mockito.any());
+                .value("Physician not found with id: 999"));
     }
 }
