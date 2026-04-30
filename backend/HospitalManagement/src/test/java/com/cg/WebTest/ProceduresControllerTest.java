@@ -15,17 +15,18 @@ import com.cg.service.ProceduresService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+@SpringBootTest
 public class ProceduresControllerTest {
 
-    @InjectMocks
+    @Autowired
     private ProceduresController controller;
 
-    @Mock
+    @MockitoBean
     private ProceduresService proceduresService;
 
     private Procedures procedure;

@@ -21,35 +21,36 @@ import com.cg.service.UndergoesService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+@SpringBootTest
 public class UndergoesControllerTest {
 
-    @InjectMocks
+    @Autowired
     private UndergoesController controller;
 
-    @Mock
+    @MockitoBean
     private UndergoesService undergoesService;
 
-    @Mock
+    @MockitoBean
     private PatientService patientService;
 
-    @Mock
+    @MockitoBean
     private ProceduresService proceduresService;
 
-    @Mock
+    @MockitoBean
     private StayService stayService;
 
-    @Mock
+    @MockitoBean
     private NurseService nurseService;
 
-    @Mock
+    @MockitoBean
     private RoomService roomService;
 
-    @Mock
+    @MockitoBean
     private PhysicianService physicianService;
 
     private Undergoes undergoes;
