@@ -1,181 +1,143 @@
 package com.cg.WebTest;
 
-import com.cg.controller.RoomController;
-import com.cg.entity.Block;
-import com.cg.entity.BlockId;
-import com.cg.entity.Room;
-import com.cg.exception.BadRequestException;
-import com.cg.exception.GlobalExceptionHandler;
-import com.cg.exception.ResourceNotFoundException;
-import com.cg.service.RoomService;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.web.servlet.MockMvc;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.junit.jupiter.api.Test;
 
-@WebMvcTest(RoomController.class)
-@Import(GlobalExceptionHandler.class)
-public class RoomControllerTest {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 
-    @Autowired
-    private MockMvc mockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
 
-    @MockitoBean
-    private RoomService roomService;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
-    private Room createRoom(Integer id, boolean unavailable) {
+import com.cg.entity.Block;
+import com.cg.entity.BlockId;
+import com.cg.entity.Room;
 
-        Block block = new Block();
+import com.cg.exception.BadRequestException;
+import com.cg.exception.ResourceNotFoundException;
 
-        BlockId blockId = new BlockId();   // ✅ FIXED
-        blockId.setBlockFloor(1);
-        blockId.setBlockCode(101);
+import com.cg.service.RoomService;
 
-        block.setId(blockId);
+@SpringBootTest
+@AutoConfigureMockMvc
+class RoomControllerTest {
 
-        Room room = new Room();
-        room.setRoomNumber(id);
-        room.setRoomType("ICU");
-        room.setUnavailable(unavailable);
-        room.setBlock(block);
+	@Autowired
+	private MockMvc mockMvc;
 
-        return room;
-    }
+	@MockitoBean
+	private RoomService roomService;
 
-    // =========================
-    // GET ALL
-    // =========================
-    @Test
-    public void testGetAllRooms() throws Exception {
+	private Room createRoom(Integer id, boolean unavailable) {
 
-        Mockito.when(roomService.getAllRooms())
-                .thenReturn(List.of(createRoom(1, false)));
+		Block block = new Block();
 
-        mockMvc.perform(get("/rooms"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].roomNumber").value(1));
+		BlockId blockId = new BlockId();
+		blockId.setBlockFloor(1);
+		blockId.setBlockCode(101);
 
-        Mockito.verify(roomService).getAllRooms();
-    }
+		block.setId(blockId);
 
-    // =========================
-    // GET BY ID SUCCESS
-    // =========================
-    @Test
-    public void testGetRoomById_success() throws Exception {
+		Room room = new Room();
+		room.setRoomNumber(id);
+		room.setRoomType("ICU");
+		room.setUnavailable(unavailable);
+		room.setBlock(block);
 
-        Mockito.when(roomService.getRoomById(1))
-                .thenReturn(Optional.of(createRoom(1, false)));
+		return room;
+	}
 
-        mockMvc.perform(get("/rooms/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.roomNumber").value(1));
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getAllRooms_success() throws Exception {
 
-        Mockito.verify(roomService).getRoomById(1);
-    }
+		when(roomService.getAllRooms()).thenReturn(List.of(createRoom(1, false)));
 
-    // =========================
-    // GET BY ID NOT FOUND
-    // =========================
-    @Test
-    public void testGetRoomById_notFound() throws Exception {
+		mockMvc.perform(get("/room")).andExpect(status().isOk()).andExpect(jsonPath("$[0].roomNumber").value(1));
+	}
 
-        Mockito.when(roomService.getRoomById(1))
-                .thenReturn(Optional.empty());
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getRoomById_success() throws Exception {
 
-        mockMvc.perform(get("/rooms/1"))
-                .andExpect(status().isNotFound());
+		when(roomService.getRoomById(1)).thenReturn(Optional.of(createRoom(1, false)));
 
-        Mockito.verify(roomService).getRoomById(1);
-    }
+		mockMvc.perform(get("/room/1")).andExpect(status().isOk()).andExpect(jsonPath("$.roomNumber").value(1));
+	}
 
-    // =========================
-    // MARK UNAVAILABLE SUCCESS
-    // =========================
-    @Test
-    public void testMarkRoomUnavailable_success() throws Exception {
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getRoomById_notFound() throws Exception {
 
-        Mockito.when(roomService.markRoomUnavailable(1))
-                .thenReturn(createRoom(1, true));
+		when(roomService.getRoomById(1)).thenReturn(Optional.empty());
 
-        mockMvc.perform(put("/rooms/1/unavailable"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.unavailable").value(true));
+		mockMvc.perform(get("/room/1")).andExpect(status().isNotFound());
+	}
 
-        Mockito.verify(roomService).markRoomUnavailable(1);
-    }
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void markRoomUnavailable_success() throws Exception {
 
-    // =========================
-    // ROOM NOT FOUND
-    // =========================
-    @Test
-    public void testMarkRoomUnavailable_notFound() throws Exception {
+		when(roomService.markRoomUnavailable(1)).thenReturn(createRoom(1, true));
 
-        Mockito.when(roomService.markRoomUnavailable(1))
-                .thenThrow(new ResourceNotFoundException("Room not found"));
+		mockMvc.perform(put("/admin/room/1/unavailable")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.unavailable").value(true));
+	}
 
-        mockMvc.perform(put("/rooms/1/unavailable"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errMsg").value("Room not found"));
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void markRoomUnavailable_notFound() throws Exception {
 
-        Mockito.verify(roomService).markRoomUnavailable(1);
-    }
+		when(roomService.markRoomUnavailable(1)).thenThrow(new ResourceNotFoundException("Room not found"));
 
-    // =========================
-    // ALREADY UNAVAILABLE
-    // =========================
-    @Test
-    public void testMarkRoomUnavailable_alreadyUnavailable() throws Exception {
+		mockMvc.perform(put("/admin/room/1/unavailable")).andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.errMsg").value("Room not found"));
+	}
 
-        Mockito.when(roomService.markRoomUnavailable(1))
-                .thenThrow(new BadRequestException("Room is already unavailable"));
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void markRoomUnavailable_alreadyUnavailable() throws Exception {
 
-        mockMvc.perform(put("/rooms/1/unavailable"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errMsg")
-                        .value("Room is already unavailable"));
+		when(roomService.markRoomUnavailable(1)).thenThrow(new BadRequestException("Room is already unavailable"));
 
-        Mockito.verify(roomService).markRoomUnavailable(1);
-    }
+		mockMvc.perform(put("/admin/room/1/unavailable")).andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.errMsg").value("Room is already unavailable"));
+	}
 
-    // =========================
-    // FILTER BY TYPE
-    // =========================
-    @Test
-    public void testGetRoomsByType() throws Exception {
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getRoomsByType_success() throws Exception {
 
-        Mockito.when(roomService.getRoomsByRoomType("ICU"))
-                .thenReturn(List.of(createRoom(1, false)));
+		when(roomService.getRoomsByRoomType("ICU")).thenReturn(List.of(createRoom(1, false)));
 
-        mockMvc.perform(get("/rooms/type/ICU"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].roomType").value("ICU"));
+		mockMvc.perform(get("/room/type/ICU")).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].roomType").value("ICU"));
+	}
 
-        Mockito.verify(roomService).getRoomsByRoomType("ICU");
-    }
+	@Test
+	@WithMockUser(username = "patient1", roles = { "PATIENT" })
+	void getRoomsByAvailability_success() throws Exception {
 
-    // =========================
-    // FILTER BY AVAILABILITY
-    // =========================
-    @Test
-    public void testGetRoomsByAvailability() throws Exception {
+		when(roomService.getRoomsByAvailability(false)).thenReturn(List.of(createRoom(1, false)));
 
-        Mockito.when(roomService.getRoomsByAvailability(false))
-                .thenReturn(List.of(createRoom(1, false)));
+		mockMvc.perform(get("/room/availability").param("unavailable", "false")).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].unavailable").value(false));
+	}
 
-        mockMvc.perform(get("/rooms/availability?unavailable=false"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].unavailable").value(false));
+	@Test
+	void unauthorizedAccess_shouldFail() throws Exception {
 
-        Mockito.verify(roomService).getRoomsByAvailability(false);
-    }
+		mockMvc.perform(get("/room")).andExpect(status().isForbidden());
+	}
 }

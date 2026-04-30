@@ -1,144 +1,142 @@
 package com.cg.WebTest;
 
-import com.cg.controller.PhysicianController;
-import com.cg.dto.PhysicianDTO;
-import com.cg.entity.Physician;
-import com.cg.exception.ValidationException;
-import com.cg.service.PhysicianService;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-@ExtendWith(MockitoExtension.class)
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+
+import org.springframework.http.MediaType;
+
+import org.springframework.security.test.context.support.WithMockUser;
+
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import com.cg.dto.PhysicianDTO;
+import com.cg.entity.Physician;
+import com.cg.service.PhysicianService;
+
+import tools.jackson.databind.ObjectMapper;
+
+
+@SpringBootTest
+@AutoConfigureMockMvc
 class PhysicianControllerTest {
 
-    @Mock
-    private PhysicianService service;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @Mock
-    private BindingResult bindingResult;
+	@MockitoBean
+	private PhysicianService physicianService;
 
-    @InjectMocks
-    private PhysicianController controller;
+	@Autowired
+	private ObjectMapper objectMapper;
 
-    private Physician physician;
+	private Physician physician;
 
-    @BeforeEach
-    void setUp() {
-        physician = new Physician();
-        physician.setEmployeeId(1);
-        physician.setName("Dr. Smith");
-        physician.setPosition("Cardiologist");
-        physician.setSsn(1111L);
-    }
+	@BeforeEach
+	void setUp() {
 
-    // ✅ getAll
-    @Test
-    void testGetAll() {
-        when(service.getAll()).thenReturn(List.of(physician));
+		physician = new Physician();
+		physician.setEmployeeId(1);
+		physician.setName("Smith");
+		physician.setPosition("Cardiologist");
+		physician.setSsn(1111L);
+	}
 
-        ResponseEntity<List<PhysicianDTO>> response = controller.getAll();
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getAllPhysicians_success() throws Exception {
 
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals(1, response.getBody().size());
-        verify(service).getAll();
-    }
+		when(physicianService.getAll()).thenReturn(List.of(physician));
 
-    // ✅ getById
-    @Test
-    void testGetById() {
-        when(service.getById(1)).thenReturn(physician);
+		mockMvc.perform(get("/physicians")).andExpect(status().isOk()).andExpect(jsonPath("$.size()").value(1))
+				.andExpect(jsonPath("$[0].name").value("Smith"));
+	}
 
-        ResponseEntity<PhysicianDTO> response = controller.getById(1);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getPhysicianById_success() throws Exception {
 
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals("Dr. Smith", response.getBody().getName());
-        verify(service).getById(1);
-    }
+		when(physicianService.getById(1)).thenReturn(physician);
 
-    // ✅ create SUCCESS
-    @Test
-    void testCreate_Success() {
+		mockMvc.perform(get("/physicians/id/1")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("Smith"));
+	}
 
-        PhysicianDTO dto = new PhysicianDTO(null, "Dr. Smith", "Cardiologist", 1111L);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void createPhysician_success() throws Exception {
 
-        when(bindingResult.hasErrors()).thenReturn(false);
-        when(service.save(any(Physician.class))).thenReturn(physician);
+		PhysicianDTO dto = new PhysicianDTO(null, "Smith", "Cardiologist", 1111L);
 
-        ResponseEntity<PhysicianDTO> response = controller.create(dto, bindingResult);
+		when(physicianService.save(any(Physician.class))).thenReturn(physician);
 
-        assertEquals(201, response.getStatusCode().value());
-        assertEquals("Dr. Smith", response.getBody().getName());
+		mockMvc.perform(post("/admin/physicians").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isCreated())
+				.andExpect(jsonPath("$.name").value("Smith"));
+	}
 
-        verify(service).save(any(Physician.class));
-    }
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void createPhysician_validationFailure() throws Exception {
 
-    // ❌ create VALIDATION ERROR
-    @Test
-    void testCreate_ValidationError() {
+		PhysicianDTO invalid = new PhysicianDTO(null, "", "", null);
 
-        PhysicianDTO dto = new PhysicianDTO(null, "Dr. Smith", "Cardio", 1111L);
+		mockMvc.perform(post("/admin/physicians").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(invalid))).andExpect(status().isBadRequest());
+	}
 
-        when(bindingResult.hasErrors()).thenReturn(true);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void updatePhysician_success() throws Exception {
 
-        assertThrows(ValidationException.class,
-                () -> controller.create(dto, bindingResult));
+		PhysicianDTO dto = new PhysicianDTO(null, "John", "Neurologist", 2222L);
 
-        verify(service, never()).save(any());
-    }
+		when(physicianService.getById(1)).thenReturn(physician);
 
-    // ✅ update
-    @Test
-    void testUpdate() {
+		when(physicianService.save(any(Physician.class))).thenReturn(physician);
 
-        PhysicianDTO dto = new PhysicianDTO(null, "Dr. John", "Neuro", 2222L);
+		mockMvc.perform(put("/admin/physicians/1").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isOk());
+	}
 
-        when(service.getById(1)).thenReturn(physician);
-        when(service.save(any(Physician.class))).thenReturn(physician);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getPhysicianByPosition_success() throws Exception {
 
-        ResponseEntity<PhysicianDTO> response =
-                controller.update(1, dto);
+		when(physicianService.getByPosition("Cardiologist")).thenReturn(List.of(physician));
 
-        assertEquals(200, response.getStatusCode().value());
-        verify(service).save(any(Physician.class));
-    }
+		mockMvc.perform(get("/physicians/position/Cardiologist")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.size()").value(1));
+	}
 
-    // ✅ getByPosition
-    @Test
-    void testGetByPosition() {
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void deletePhysician_success() throws Exception {
 
-        when(service.getByPosition("Cardiologist"))
-                .thenReturn(List.of(physician));
+		doNothing().when(physicianService).delete(1);
 
-        ResponseEntity<List<PhysicianDTO>> response =
-                controller.getByPosition("Cardiologist");
+		mockMvc.perform(delete("/admin/physicians/1")).andExpect(status().isNoContent());
+	}
 
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals(1, response.getBody().size());
-    }
+	@Test
+	void unauthorizedAccess_shouldFail() throws Exception {
 
-    // ✅ delete
-    @Test
-    void testDelete() {
-
-        doNothing().when(service).delete(1);
-
-        ResponseEntity<Void> response = controller.delete(1);
-
-        assertEquals(204, response.getStatusCode().value());
-        verify(service).delete(1);
-    }
+		mockMvc.perform(get("/physicians")).andExpect(status().isForbidden());
+	}
 }
