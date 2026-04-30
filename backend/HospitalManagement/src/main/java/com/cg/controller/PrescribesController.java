@@ -70,10 +70,10 @@ public class PrescribesController {
 		return ResponseEntity.ok(mapToDTO(p));
 	}
 
-	@GetMapping("/prescribes/count")
-	public ResponseEntity<Long> count() {
-		return ResponseEntity.ok(service.count());
-	}
+//	@GetMapping("/prescribes/count")
+//	public ResponseEntity<Long> count() {
+//		return ResponseEntity.ok(service.count());
+//	}
 
 	@GetMapping("/prescribes/sorted")
 	public ResponseEntity<List<PrescribesDTO>> getAllSorted() {
