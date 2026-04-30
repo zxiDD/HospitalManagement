@@ -33,7 +33,7 @@ public class OnCallController {
         );
     }
 
-    @GetMapping
+    @GetMapping("/oncall")
     public ResponseEntity<List<OnCallDTO>> getAll() {
         List<OnCallDTO> list = service.getAll()
                 .stream()
@@ -43,7 +43,7 @@ public class OnCallController {
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/nurse/{nurseId}")
+    @GetMapping("/oncall/nurse/{nurseId}")
     public ResponseEntity<List<OnCallDTO>> getByNurse(@PathVariable Integer nurseId) {
         List<OnCallDTO> list = service.getByNurseId(nurseId)
                 .stream()
@@ -53,7 +53,7 @@ public class OnCallController {
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping
+    @PostMapping("/admin/oncall")
     public ResponseEntity<?> addOnCall(@Valid @RequestBody OnCallDTO dto) {
 
         if (dto.getOnCallEnd().isBefore(dto.getOnCallStart())) {
@@ -81,7 +81,7 @@ public class OnCallController {
         return ResponseEntity.status(201).body(convertToDTO(saved));
     }
     
-    @GetMapping("/at")
+    @GetMapping("/oncall/at")
     public ResponseEntity<List<OnCallDTO>> getOnCallAt(
             @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME)
             java.time.LocalDateTime time) {
@@ -96,7 +96,7 @@ public class OnCallController {
         return ResponseEntity.ok(list);
     }
     
-    @DeleteMapping
+    @DeleteMapping("/admin/oncall")
     public ResponseEntity<Void> deleteOnCall(
             @RequestParam Integer nurseId,
             @RequestParam Integer blockFloor,
