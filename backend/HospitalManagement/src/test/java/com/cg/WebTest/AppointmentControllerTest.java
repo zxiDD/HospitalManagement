@@ -21,17 +21,19 @@ import com.cg.service.AppointmentService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.ResponseEntity;
 
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+@SpringBootTest
 public class AppointmentControllerTest {
 
-    @InjectMocks
+    @Autowired
     private AppointmentController controller;
 
-    @Mock
+    @MockitoBean
     private AppointmentService service;
 
     private Appointment appointment;
@@ -43,7 +45,6 @@ public class AppointmentControllerTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
 
-        // Create test data
         patient = new Patient();
         patient.setSsn(12345L);
         patient.setName("John Doe");
