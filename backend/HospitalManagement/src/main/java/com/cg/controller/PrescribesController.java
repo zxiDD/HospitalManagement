@@ -3,6 +3,8 @@ package com.cg.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -145,7 +147,7 @@ public class PrescribesController {
 				saved.getMedication().getCode(), saved.getId().getDate(), saved.getDose(),
 				saved.getAppointment() != null ? saved.getAppointment().getAppointmentID() : null);
 
-		return ResponseEntity.status(201).body(response);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 }

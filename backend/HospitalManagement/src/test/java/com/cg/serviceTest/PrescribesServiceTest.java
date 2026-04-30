@@ -13,19 +13,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
+@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class PrescribesServiceTest {
 
-    @Mock
+    @MockitoBean
     private PrescribesRepository repo;
 
-    @InjectMocks
+    @Autowired
     private PrescribesServiceImpl service;
 
     private Prescribes prescribes;
