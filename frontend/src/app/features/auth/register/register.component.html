@@ -1,0 +1,88 @@
+<div class="container-fluid vh-100 d-flex justify-content-center align-items-center"
+     style="background: url('assets/images/LoginImage.jpg') no-repeat center center/cover; position: relative;">
+
+  <!-- Blur Overlay -->
+  <div style="
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backdrop-filter: blur(12px);
+        background: rgba(0,0,0,0.4);
+      ">
+  </div>
+
+  <!-- Glass Card -->
+  <div class="p-4 text-white position-relative"
+       style="
+         width: 380px;
+         border-radius: 16px;
+         background: rgba(255,255,255,0.1);
+         backdrop-filter: blur(20px);
+         box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+         z-index: 2;
+       ">
+
+    <h3 class="text-center mb-4 fw-bold">Create Account</h3>
+
+    <!-- Username -->
+    <div class="mb-3 position-relative">
+      <i class="bi bi-person-fill position-absolute" style="top:10px; left:10px;"></i>
+      <input 
+        type="text"
+        [(ngModel)]="username"
+        class="form-control ps-5"
+        placeholder="Username"
+        style="background: rgba(255,255,255,0.2); border: none; color: white;">
+    </div>
+
+    <!-- Password -->
+    <div class="mb-3 position-relative">
+      <i class="bi bi-lock-fill position-absolute" style="top:10px; left:10px;"></i>
+
+      <input 
+        [type]="showPassword ? 'text' : 'password'"
+        [(ngModel)]="password"
+        class="form-control ps-5 pe-5"
+        placeholder="Password"
+        style="background: rgba(255,255,255,0.2); border: none; color: white;">
+
+      <i class="bi"
+         [ngClass]="showPassword ? 'bi-eye-slash-fill' : 'bi-eye-fill'"
+         (click)="showPassword = !showPassword"
+         style="position:absolute; right:10px; top:10px; cursor:pointer;">
+      </i>
+    </div>
+
+    <!-- Role -->
+    <div class="mb-3 position-relative">
+      <i class="bi bi-person-badge-fill position-absolute" style="top:10px; left:10px;"></i>
+      <select [(ngModel)]="role"
+        class="form-control ps-5"
+        style="background: rgba(255,255,255,0.2); border:none; color:white;">
+
+  <option value="" disabled selected style="color:black;">Select Role</option>
+  <option value="USER" style="color:black;">USER</option>
+  <option value="ADMIN" style="color:black;">ADMIN</option>
+
+</select>
+    </div>
+
+    <!-- Button -->
+    <button class="btn w-100 fw-bold"
+            style="background: linear-gradient(45deg, #4facfe, #00f2fe); border:none;"
+            (click)="onRegister()">
+      Signup
+    </button>
+
+    <!-- Message -->
+    <p class="text-center mt-3 text-info">{{ message }}</p>
+
+    <!-- Login Redirect -->
+    <div class="text-center mt-2">
+      <a routerLink="/login" class="text-white text-decoration-underline">
+        Already have an account? Login
+      </a>
+    </div>
+
+  </div>
+</div>
