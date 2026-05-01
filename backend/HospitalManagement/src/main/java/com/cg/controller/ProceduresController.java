@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ import com.cg.exception.ResourceNotFoundException;
 import com.cg.service.ProceduresService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 
 @RestController
 @SecurityRequirement(name = "BearerAuth")
@@ -92,7 +94,8 @@ public class ProceduresController {
 	}
 
 	@PostMapping("/admin/procedures")
-	public ResponseEntity<ProceduresDTO> createProcedure(@RequestBody ProceduresDTO proceduresDTO) {
+	public ResponseEntity<ProceduresDTO> createProcedure(@Valid @RequestBody ProceduresDTO proceduresDTO,
+			BindingResult br) {
 
 		Procedures procedure = new Procedures();
 		procedure.setCode(proceduresDTO.getCode());
@@ -104,6 +107,6 @@ public class ProceduresController {
 		ProceduresDTO responseDTO = new ProceduresDTO(savedProcedure.getCode(), savedProcedure.getName(),
 				savedProcedure.getCost());
 
-		return ResponseEntity.ok(responseDTO);
+		return ResponseEntity.status(201).body(responseDTO);
 	}
 }

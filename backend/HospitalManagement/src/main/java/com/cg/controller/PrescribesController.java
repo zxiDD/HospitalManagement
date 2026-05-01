@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,7 @@ import com.cg.entity.Patient;
 import com.cg.entity.Physician;
 import com.cg.entity.Prescribes;
 import com.cg.entity.PrescribesId;
+import com.cg.exception.ValidationException;
 import com.cg.service.AppointmentService;
 import com.cg.service.MedicationService;
 import com.cg.service.PatientService;
@@ -27,6 +29,7 @@ import com.cg.service.PhysicianService;
 import com.cg.service.PrescribesService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 
 @RestController
 @SecurityRequirement(name = "BearerAuth")
@@ -104,7 +107,11 @@ public class PrescribesController {
 	}
 
 	@PostMapping("/admin/prescribes")
-	public ResponseEntity<PrescribesDTO> create(@RequestBody PrescribesDTO dto) {
+	public ResponseEntity<PrescribesDTO> create(@Valid @RequestBody PrescribesDTO dto, BindingResult br) {
+		
+		if (br.hasErrors()) {
+			throw new ValidationException(br.getFieldErrors());
+		}
 
 		if (dto.getPhysicianId() == null || dto.getPatientSsn() == null || dto.getMedicationId() == null
 				|| dto.getDate() == null) {
