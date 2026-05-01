@@ -1,118 +1,124 @@
 package com.cg.WebTest;
 
-import com.cg.controller.NurseController;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+
+import org.springframework.http.MediaType;
+
+import org.springframework.security.test.context.support.WithMockUser;
+
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
 import com.cg.dto.NurseDTO;
 import com.cg.entity.Nurse;
 import com.cg.service.NurseService;
 import com.cg.service.OnCallService;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.Assertions;
-
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.http.HttpStatus;
-
-import java.util.*;
+import tools.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 class NurseControllerTest {
+	@Autowired
+	private MockMvc mockMvc;
 
-    @MockitoBean
-    private NurseService service;
+	@MockitoBean
+	private NurseService nurseService;
 
     @MockitoBean
     private OnCallService onCallService; 
 
-    @Autowired
-    private NurseController controller;
+	@Autowired
+	private ObjectMapper objectMapper;
 
-    private Nurse nurse;
+	private Nurse nurse;
 
-    @BeforeEach
-    void setUp() {
-        nurse = new Nurse();
-        nurse.setEmployeeId(1);
-        nurse.setName("John");
-        nurse.setPosition("Staff");
-        nurse.setRegistered(true);
-        nurse.setSsn(12345L);
-    }
+	@BeforeEach
+	void setUp() {
 
-    // ✅ getAll
-    @Test
-    void testGetAll() {
-        Mockito.when(service.getAll()).thenReturn(List.of(nurse));
+		nurse = new Nurse();
+		nurse.setEmployeeId(1);
+		nurse.setName("John");
+		nurse.setPosition("Staff");
+		nurse.setRegistered(true);
+		nurse.setSsn(12345L);
+	}
 
-        ResponseEntity<List<NurseDTO>> response = controller.getAll();
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getAllNurses_success() throws Exception {
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(1, response.getBody().size());
-        Mockito.verify(service).getAll();
-    }
+		when(nurseService.getAll()).thenReturn(List.of(nurse));
 
-    // ✅ getById
-    @Test
-    void testGetById() {
-        Mockito.when(service.getById(1)).thenReturn(nurse);
+		mockMvc.perform(get("/nurses")).andExpect(status().isOk()).andExpect(jsonPath("$.size()").value(1))
+				.andExpect(jsonPath("$[0].name").value("John"));
+	}
 
-        ResponseEntity<NurseDTO> response = controller.getById(1);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getNurseById_success() throws Exception {
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals("John", response.getBody().getName());
-        Mockito.verify(service).getById(1);
-    }
+		when(nurseService.getById(1)).thenReturn(nurse);
 
-    // ✅ create
-    @Test
-    void testCreate() {
-        NurseDTO dto = new NurseDTO(1, "John", "Staff", true, 12345L);
+		mockMvc.perform(get("/nurses/id/1")).andExpect(status().isOk()).andExpect(jsonPath("$.name").value("John"));
+	}
 
-        Mockito.when(service.save(Mockito.any(Nurse.class)))
-                .thenReturn(nurse);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void createNurse_success() throws Exception {
 
-        ResponseEntity<NurseDTO> response = controller.create(dto);
+		NurseDTO dto = new NurseDTO(1, "John", "Staff", true, 12345L);
 
-        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        Assertions.assertEquals("John", response.getBody().getName());
+		when(nurseService.save(any(Nurse.class))).thenReturn(nurse);
 
-        Mockito.verify(service).save(Mockito.any(Nurse.class));
-    }
+		mockMvc.perform(post("/admin/nurses").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isCreated())
+				.andExpect(jsonPath("$.name").value("John"));
+	}
 
-    // ✅ update
-    @Test
-    void testUpdate() {
-        NurseDTO dto = new NurseDTO(1, "Updated", "Senior", true, 99999L);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void updateNurse_success() throws Exception {
 
-        Mockito.when(service.getById(1)).thenReturn(nurse);
-        Mockito.when(service.save(Mockito.any(Nurse.class)))
-                .thenReturn(nurse);
+		NurseDTO dto = new NurseDTO(1, "Updated", "Senior", true, 99999L);
 
-        ResponseEntity<NurseDTO> response = controller.update(1, dto);
+		when(nurseService.getById(1)).thenReturn(nurse);
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+		when(nurseService.save(any(Nurse.class))).thenReturn(nurse);
 
-        Mockito.verify(service).getById(1);
-        Mockito.verify(service).save(Mockito.any(Nurse.class));
-    }
+		mockMvc.perform(put("/admin/nurses/1").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isOk());
+	}
 
-    // ✅ delete (soft delete)
-    @Test
-    void testDelete() {
-        ResponseEntity<Void> response = controller.delete(1);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void deleteNurse_success() throws Exception {
 
-        Assertions.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        Mockito.verify(service).delete(1);
-    }
+		doNothing().when(nurseService).delete(1);
+
+		mockMvc.perform(delete("/admin/nurses/1")).andExpect(status().isNoContent());
+	}
+
+	@Test
+	void unauthorizedAccess_shouldFail() throws Exception {
+
+		mockMvc.perform(get("/nurses")).andExpect(status().isForbidden());
+	}
 }

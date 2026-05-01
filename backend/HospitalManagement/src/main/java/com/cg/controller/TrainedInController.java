@@ -3,6 +3,7 @@ package com.cg.controller;
 import com.cg.dto.TrainedInDTO;
 import com.cg.entity.*;
 import com.cg.exception.BadRequestException;
+import com.cg.exception.ValidationException;
 import com.cg.service.TrainedInService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,7 +56,11 @@ public class TrainedInController {
 
 
     @PostMapping("/admin/trainedin/trainings")
-    public ResponseEntity<?> addTraining(@Valid @RequestBody TrainedInDTO dto) {
+    public ResponseEntity<?> addTraining(@Valid @RequestBody TrainedInDTO dto, BindingResult br) {
+    	
+    	if (br.hasErrors()) {
+			throw new ValidationException(br.getFieldErrors());
+		}
 
         if (dto.getCertificationExpires().isBefore(dto.getCertificationDate())) {
             throw new BadRequestException("Expiry must be after certification date");
