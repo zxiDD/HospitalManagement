@@ -49,8 +49,8 @@ class OnCallControllerTest {
 
         OnCallDTO input = new OnCallDTO(
                 1, 2, 3,
-                LocalDateTime.of(2024, 1, 1, 10, 0),
-                LocalDateTime.of(2024, 1, 1, 18, 0)
+                LocalDateTime.of(2026, 6, 1, 10, 0),
+                LocalDateTime.of(2026, 6, 1, 18, 0)
         );
 
         OnCallId id = new OnCallId(1, 2, 3);
@@ -151,7 +151,7 @@ class OnCallControllerTest {
 
         doNothing().when(service).delete(any());
 
-        mockMvc.perform(delete("/admin/oncall/1/2/3"))
+        mockMvc.perform(delete("/admin/oncall?nurseId=1&blockFloor=2&blockCode=3"))
                 .andExpect(status().isNoContent());
     }
 }

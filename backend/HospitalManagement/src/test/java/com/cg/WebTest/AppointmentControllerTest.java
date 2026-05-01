@@ -36,6 +36,8 @@ import com.cg.repo.NurseRepository;
 import com.cg.service.AppointmentService;
 import com.cg.service.NurseService;
 import com.cg.service.OnCallService;
+import com.cg.service.PatientService;
+import com.cg.service.PhysicianService;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -54,6 +56,12 @@ public class AppointmentControllerTest {
 
 	@MockitoBean
 	private OnCallService onCallService;
+	
+	@MockitoBean
+	private PatientService patientService;
+	
+	@MockitoBean
+	private PhysicianService physicianService;
 
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -109,8 +117,11 @@ public class AppointmentControllerTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "ADMIN" })
 	void testAddAppointment_Success() throws Exception {
-		AppointmentDTO dto = new AppointmentDTO(1, 12345, 100, 50, LocalDateTime.now().plusHours(1),
+		AppointmentDTO dto = new AppointmentDTO(1, 12345, 100, null, LocalDateTime.now().plusHours(1),
 				LocalDateTime.now().plusHours(2), "Room101");
+		Patient patient = createTestPatient();
+		
+		when(patientService.getById(12345L)).thenReturn(patient);
 
 		Appointment appointment = createTestAppointment();
 		when(appointmentService.save(any(Appointment.class))).thenReturn(appointment);

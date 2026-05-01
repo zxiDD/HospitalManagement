@@ -2,191 +2,277 @@ package com.cg.WebTest;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+
 import org.springframework.http.MediaType;
+
 import org.springframework.security.test.context.support.WithMockUser;
+
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.cg.dto.StayDTO;
 import com.cg.dto.UndergoesDTO;
-import com.cg.entity.*;
-import com.cg.service.*;
+
+import com.cg.entity.Nurse;
+import com.cg.entity.Patient;
+import com.cg.entity.Physician;
+import com.cg.entity.Procedures;
+import com.cg.entity.Room;
+import com.cg.entity.Stay;
+import com.cg.entity.Undergoes;
+import com.cg.entity.UndergoesId;
+import com.cg.exception.ResourceNotFoundException;
+
+import com.cg.service.NurseService;
+import com.cg.service.PatientService;
+import com.cg.service.PhysicianService;
+import com.cg.service.ProceduresService;
+import com.cg.service.RoomService;
+import com.cg.service.StayService;
+import com.cg.service.UndergoesService;
 
 import tools.jackson.databind.ObjectMapper;
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
 class UndergoesControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @MockitoBean
-    private UndergoesService undergoesService;
+	@MockitoBean
+	private UndergoesService undergoesService;
 
-    @MockitoBean
-    private PatientService patientService;
+	@MockitoBean
+	private PatientService patientService;
 
-    @MockitoBean
-    private ProceduresService proceduresService;
+	@MockitoBean
+	private ProceduresService proceduresService;
 
-    @MockitoBean
-    private StayService stayService;
+	@MockitoBean
+	private StayService stayService;
 
-    @MockitoBean
-    private NurseService nurseService;
+	@MockitoBean
+	private NurseService nurseService;
 
-    @MockitoBean
-    private RoomService roomService;
+	@MockitoBean
+	private RoomService roomService;
 
-    @MockitoBean
-    private PhysicianService physicianService;
+	@MockitoBean
+	private PhysicianService physicianService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+	@Autowired
+	private ObjectMapper objectMapper;
 
+	private Undergoes createTestUndergoes() {
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getAllUndergoes_success() throws Exception {
+		Patient patient = new Patient();
 
-        Undergoes u = new Undergoes();
-        when(undergoesService.getAllUndergoes()).thenReturn(List.of(u));
+		patient.setSsn(12345L);
 
-        mockMvc.perform(get("/undergoes"))
-                .andExpect(status().isOk());
-    }
+		Procedures procedure = new Procedures();
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getByPatient_success() throws Exception {
+		procedure.setCode(101);
 
-        Undergoes u = new Undergoes();
-        when(undergoesService.getUndergoesByPatient(12345L)).thenReturn(List.of(u));
+		Room room = new Room();
 
-        mockMvc.perform(get("/undergoes/patient/12345"))
-                .andExpect(status().isOk());
-    }
+		room.setRoomNumber(201);
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getByProcedure_success() throws Exception {
+		Stay stay = new Stay();
 
-        when(undergoesService.getUndergoesByProcedure(101)).thenReturn(List.of(new Undergoes()));
+		stay.setStayId(1);
+		stay.setPatient(patient);
+		stay.setRoom(room);
 
-        mockMvc.perform(get("/undergoes/procedure/101"))
-                .andExpect(status().isOk());
-    }
+		Physician physician = new Physician();
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getByPhysician_success() throws Exception {
+		physician.setEmployeeId(100);
 
-        when(undergoesService.getUndergoesByPhysician(100)).thenReturn(List.of(new Undergoes()));
+		Nurse nurse = new Nurse();
 
-        mockMvc.perform(get("/undergoes/physician/100"))
-                .andExpect(status().isOk());
-    }
+		nurse.setEmployeeId(50);
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getByNurse_success() throws Exception {
+		UndergoesId id = new UndergoesId(12345L, 101, 1, LocalDateTime.now());
 
-        when(undergoesService.getUndergoesByAssistingNurse(50)).thenReturn(List.of(new Undergoes()));
+		Undergoes undergoes = new Undergoes();
 
-        mockMvc.perform(get("/undergoes/nurse/50"))
-                .andExpect(status().isOk());
-    }
+		undergoes.setId(id);
+		undergoes.setPatient(patient);
+		undergoes.setProcedures(procedure);
+		undergoes.setStay(stay);
+		undergoes.setPhysician(physician);
+		undergoes.setAssistingNurse(nurse);
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getBetweenDates_success() throws Exception {
+		return undergoes;
+	}
 
-        when(undergoesService.getUndergoesBetweenDates(any(), any()))
-                .thenReturn(List.of(new Undergoes()));
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getAllUndergoes_success() throws Exception {
 
-        mockMvc.perform(get("/undergoes/between")
-                .param("start", "2024-01-01T10:00:00")
-                .param("end", "2024-01-10T10:00:00"))
-                .andExpect(status().isOk());
-    }
+		Undergoes undergoes = createTestUndergoes();
 
+		when(undergoesService.getAllUndergoes()).thenReturn(List.of(undergoes));
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void createUndergoes_success() throws Exception {
+		mockMvc.perform(get("/undergoes")).andExpect(status().isOk());
+	}
 
-        UndergoesDTO dto = new UndergoesDTO(
-                12345L, 101, 1,
-                LocalDateTime.now(),
-                100, 50
-        );
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getByPatient_success() throws Exception {
 
-        Patient patient = new Patient();
-        patient.setSsn(12345L);
+		Undergoes undergoes = createTestUndergoes();
 
-        Procedures procedures = new Procedures();
-        procedures.setCode(101);
+		when(undergoesService.getUndergoesByPatient(12345L)).thenReturn(List.of(undergoes));
 
-        StayDTO stayDTO = new StayDTO();
-        stayDTO.setStayId(1);
-        stayDTO.setRoomNumber(201);
+		mockMvc.perform(get("/undergoes/patient/12345")).andExpect(status().isOk());
+	}
 
-        Room room = new Room();
-        room.setRoomNumber(201);
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getByProcedure_success() throws Exception {
 
-        Physician physician = new Physician();
-        physician.setEmployeeId(100);
+		when(undergoesService.getUndergoesByProcedure(101)).thenReturn(List.of(createTestUndergoes()));
 
-        Nurse nurse = new Nurse();
-        nurse.setEmployeeId(50);
+		mockMvc.perform(get("/undergoes/procedure/101")).andExpect(status().isOk());
+	}
 
-        when(patientService.getById(12345L)).thenReturn(patient);
-        when(proceduresService.getProcedureById(101)).thenReturn(Optional.of(procedures));
-        when(stayService.getById(1)).thenReturn(stayDTO);
-        when(roomService.getRoomById(201)).thenReturn(Optional.of(room));
-        when(physicianService.getById(100)).thenReturn(physician);
-        when(nurseService.getById(50)).thenReturn(nurse);
-        when(undergoesService.saveUndergoes(any())).thenReturn(new Undergoes());
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getByStay_success() throws Exception {
 
-        mockMvc.perform(post("/admin/undergoes")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk());
-    }
+		when(undergoesService.getUndergoesByStay(1)).thenReturn(List.of(createTestUndergoes()));
 
+		mockMvc.perform(get("/undergoes/stay/1")).andExpect(status().isOk());
+	}
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void createUndergoes_procedureNotFound() throws Exception {
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getByPhysician_success() throws Exception {
 
-        UndergoesDTO dto = new UndergoesDTO(
-                12345L, 999, 1,
-                LocalDateTime.now(),
-                100, 50
-        );
+		when(undergoesService.getUndergoesByPhysician(100)).thenReturn(List.of(createTestUndergoes()));
 
-        when(patientService.getById(12345L)).thenReturn(new Patient());
-        when(proceduresService.getProcedureById(999)).thenReturn(Optional.empty());
+		mockMvc.perform(get("/undergoes/physician/100")).andExpect(status().isOk());
+	}
 
-        mockMvc.perform(post("/admin/undergoes")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest());
-    }
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getByNurse_success() throws Exception {
+
+		when(undergoesService.getUndergoesByAssistingNurse(50)).thenReturn(List.of(createTestUndergoes()));
+
+		mockMvc.perform(get("/undergoes/nurse/50")).andExpect(status().isOk());
+	}
+
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getByDate_success() throws Exception {
+
+		when(undergoesService.getUndergoesByDate(any())).thenReturn(List.of(createTestUndergoes()));
+
+		mockMvc.perform(get("/undergoes/date").param("date", "2024-01-01T10:00:00")).andExpect(status().isOk());
+	}
+
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getBetweenDates_success() throws Exception {
+
+		when(undergoesService.getUndergoesBetweenDates(any(), any())).thenReturn(List.of(createTestUndergoes()));
+
+		mockMvc.perform(get("/undergoes/date-range").param("startDate", "2024-01-01T10:00:00").param("endDate",
+				"2024-01-10T10:00:00")).andExpect(status().isOk());
+	}
+
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void createUndergoes_success() throws Exception {
+
+		UndergoesDTO dto = new UndergoesDTO(12345L, 101, 1, LocalDateTime.now(), 100, 50);
+
+		Patient patient = new Patient();
+
+		patient.setSsn(12345L);
+
+		Procedures procedure = new Procedures();
+
+		procedure.setCode(101);
+
+		StayDTO stayDTO = new StayDTO();
+
+		stayDTO.setStayId(1);
+		stayDTO.setRoomNumber(201);
+
+		Room room = new Room();
+
+		room.setRoomNumber(201);
+
+		Physician physician = new Physician();
+
+		physician.setEmployeeId(100);
+
+		Nurse nurse = new Nurse();
+
+		nurse.setEmployeeId(50);
+
+		Undergoes saved = createTestUndergoes();
+
+		saved.setPatient(patient);
+		saved.setProcedures(procedure);
+
+		when(patientService.getById(12345L)).thenReturn(patient);
+
+		when(proceduresService.getProcedureById(101)).thenReturn(Optional.of(procedure));
+
+		when(stayService.getById(1)).thenReturn(stayDTO);
+
+		when(roomService.getRoomById(201)).thenReturn(Optional.of(room));
+
+		when(physicianService.getById(100)).thenReturn(physician);
+
+		when(nurseService.getById(50)).thenReturn(nurse);
+
+		when(undergoesService.saveUndergoes(any())).thenReturn(saved);
+
+		mockMvc.perform(post("/admin/undergoes").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isOk());
+	}
+
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void createUndergoes_procedureNotFound_shouldFail() throws Exception {
+
+		UndergoesDTO dto = new UndergoesDTO(12345L, 999, 1, LocalDateTime.now(), 100, 50);
+
+		Patient patient = new Patient();
+
+		patient.setSsn(12345L);
+
+		when(patientService.getById(12345L)).thenReturn(patient);
+
+		when(proceduresService.getProcedureById(999)).thenThrow(new ResourceNotFoundException("Procedure not found"));
+
+		mockMvc.perform(post("/admin/undergoes").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.errMsg").value("Procedure not found"));
+	}
+
+	@Test
+	void unauthorizedAccess_shouldFail() throws Exception {
+
+		mockMvc.perform(get("/undergoes")).andExpect(status().isForbidden());
+	}
 }
