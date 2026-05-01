@@ -28,157 +28,143 @@ import com.cg.service.ProceduresService;
 
 import tools.jackson.databind.ObjectMapper;
 
-
 @SpringBootTest
 @AutoConfigureMockMvc
 class ProceduresControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @MockitoBean
-    private ProceduresService proceduresService;
+	@MockitoBean
+	private ProceduresService proceduresService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+	@Autowired
+	private ObjectMapper objectMapper;
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getAllProcedures_success() throws Exception {
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getAllProcedures_success() throws Exception {
 
-        Procedures p = new Procedures();
-        p.setCode(101);
-        p.setName("Cardiac Surgery");
-        p.setCost(new BigDecimal("5000.00"));
+		Procedures p = new Procedures();
+		p.setCode(101);
+		p.setName("Cardiac Surgery");
+		p.setCost(new BigDecimal("5000.00"));
 
-        when(proceduresService.getAllProcedures()).thenReturn(List.of(p));
+		when(proceduresService.getAllProcedures()).thenReturn(List.of(p));
 
-        mockMvc.perform(get("/procedures"))
-                .andExpect(status().isOk());
-    }
+		mockMvc.perform(get("/procedures")).andExpect(status().isOk());
+	}
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getProcedureById_success() throws Exception {
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getProcedureById_success() throws Exception {
 
-        Procedures p = new Procedures();
-        p.setCode(101);
-        p.setName("Cardiac Surgery");
-        p.setCost(new BigDecimal("5000.00"));
+		Procedures p = new Procedures();
+		p.setCode(101);
+		p.setName("Cardiac Surgery");
+		p.setCost(new BigDecimal("5000.00"));
 
-        when(proceduresService.getProcedureById(101)).thenReturn(Optional.of(p));
+		when(proceduresService.getProcedureById(101)).thenReturn(Optional.of(p));
 
-        mockMvc.perform(get("/procedures/101"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(101))
-                .andExpect(jsonPath("$.name").value("Cardiac Surgery"));
-    }
+		mockMvc.perform(get("/procedures/101")).andExpect(status().isOk()).andExpect(jsonPath("$.code").value(101))
+				.andExpect(jsonPath("$.name").value("Cardiac Surgery"));
+	}
 
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getProcedureById_notFound() throws Exception {
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getProcedureById_notFound() throws Exception {
+		when(proceduresService.getProcedureById(999)).thenReturn(Optional.empty());
 
-        when(proceduresService.getProcedureById(999)).thenReturn(Optional.empty());
+		mockMvc.perform(get("/procedures/999")).andExpect(status().isNotFound());
+	}
 
-        mockMvc.perform(get("/procedures/999"))
-                .andExpect(status().isNotFound());
-    }
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getByName_success() throws Exception {
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getByName_success() throws Exception {
+		Procedures p = new Procedures();
+		p.setCode(101);
+		p.setName("Cardiac Surgery");
+		p.setCost(new BigDecimal("5000.00"));
 
-        Procedures p = new Procedures();
-        p.setCode(101);
-        p.setName("Cardiac Surgery");
-        p.setCost(new BigDecimal("5000.00"));
+		when(proceduresService.getProceduresByName("Cardiac Surgery")).thenReturn(List.of(p));
 
-        when(proceduresService.getProceduresByName("Cardiac Surgery"))
-                .thenReturn(List.of(p));
+		mockMvc.perform(get("/procedures/name/Cardiac Surgery")).andExpect(status().isOk());
+	}
 
-        mockMvc.perform(get("/procedures/name/Cardiac Surgery"))
-                .andExpect(status().isOk());
-    }
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getByCost_success() throws Exception {
 
-  
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getByCost_success() throws Exception {
+		Procedures procedure = new Procedures();
 
-        when(proceduresService.getProceduresByCost(new BigDecimal("5000.00")))
-                .thenReturn(List.of(new Procedures()));
+		procedure.setCode(101);
+		procedure.setName("MRI Scan");
+		procedure.setCost(new BigDecimal("5000.00"));
 
-        mockMvc.perform(get("/procedures/cost/5000.00"))
-                .andExpect(status().isOk());
-    }
+		when(proceduresService.getProceduresByCost(new BigDecimal("5000.00"))).thenReturn(List.of(procedure));
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getCostBetween_success() throws Exception {
+		mockMvc.perform(get("/procedures/cost").param("value", "5000.00")).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].code").value(101)).andExpect(jsonPath("$[0].name").value("MRI Scan"))
+				.andExpect(jsonPath("$[0].cost").value(5000.00));
+	}
 
-        when(proceduresService.getProceduresByCostBetween(any(), any()))
-                .thenReturn(List.of(new Procedures()));
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getCostBetween_success() throws Exception {
 
-        mockMvc.perform(get("/procedures/cost/between")
-                .param("min", "1000")
-                .param("max", "10000"))
-                .andExpect(status().isOk());
-    }
+		Procedures procedure = new Procedures();
 
+		procedure.setCode(101);
+		procedure.setName("MRI Scan");
+		procedure.setCost(new BigDecimal("5000.00"));
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void createProcedure_success() throws Exception {
+		when(proceduresService.getProceduresByCostBetween(any(), any())).thenReturn(List.of(procedure));
 
-        ProceduresDTO dto = new ProceduresDTO(
-                101,
-                "Cardiac Surgery",
-                new BigDecimal("5000.00")
-        );
+		mockMvc.perform(get("/procedures/cost/range").param("min", "1000").param("max", "10000"))
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].code").value(101))
+				.andExpect(jsonPath("$[0].name").value("MRI Scan")).andExpect(jsonPath("$[0].cost").value(5000.00));
+	}
 
-        Procedures p = new Procedures();
-        p.setCode(101);
-        p.setName("Cardiac Surgery");
-        p.setCost(new BigDecimal("5000.00"));
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void createProcedure_success() throws Exception {
 
-        when(proceduresService.saveProcedures(any())).thenReturn(p);
+		ProceduresDTO dto = new ProceduresDTO(101, "Cardiac Surgery", new BigDecimal("5000.00"));
 
-        mockMvc.perform(post("/admin/procedures")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.code").value(101));
-    }
+		Procedures p = new Procedures();
+		p.setCode(101);
+		p.setName("Cardiac Surgery");
+		p.setCost(new BigDecimal("5000.00"));
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getAllProcedures_empty() throws Exception {
+		when(proceduresService.saveProcedures(any())).thenReturn(p);
 
-        when(proceduresService.getAllProcedures()).thenReturn(List.of());
+		mockMvc.perform(post("/admin/procedures").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isCreated())
+				.andExpect(jsonPath("$.code").value(101));
+	}
 
-        mockMvc.perform(get("/procedures"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isEmpty());
-    }
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void getAllProcedures_empty() throws Exception {
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void createProcedure_verifyServiceCall() throws Exception {
+		when(proceduresService.getAllProcedures()).thenReturn(List.of());
 
-        ProceduresDTO dto = new ProceduresDTO(
-                101,
-                "Cardiac Surgery",
-                new BigDecimal("5000.00")
-        );
+		mockMvc.perform(get("/procedures")).andExpect(status().isOk()).andExpect(jsonPath("$").isEmpty());
+	}
 
-        when(proceduresService.saveProcedures(any())).thenReturn(new Procedures());
+	@Test
+	@WithMockUser(username = "admin", roles = { "ADMIN" })
+	void createProcedure_verifyServiceCall() throws Exception {
 
-        mockMvc.perform(post("/admin/procedures")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isCreated());
+		ProceduresDTO dto = new ProceduresDTO(101, "Cardiac Surgery", new BigDecimal("5000.00"));
 
-        verify(proceduresService, times(1)).saveProcedures(any());
-    }
+		when(proceduresService.saveProcedures(any())).thenReturn(new Procedures());
+
+		mockMvc.perform(post("/admin/procedures").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(status().isCreated());
+
+		verify(proceduresService, times(1)).saveProcedures(any());
+	}
 }

@@ -1,16 +1,21 @@
 package com.cg.exception;
 
-import com.cg.dto.ErrorMessageDto;
-
-import tools.jackson.databind.exc.InvalidFormatException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import com.cg.dto.ErrorMessageDto;
+
+import tools.jackson.databind.exc.InvalidFormatException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -92,10 +97,9 @@ public class GlobalExceptionHandler {
 			msg = "Enter date in proper format (yyyy-MM-dd'T'HH:mm:ss)";
 		}
 		if (ex.getCause() instanceof InvalidFormatException ife) {
-		    String field =
-		            ife.getPath().get(0).getPropertyName();
+			String field = ife.getPath().get(0).getPropertyName();
 
-		    msg = field + " has invalid datatype";
+			msg = field + " has invalid datatype";
 		}
 
 		ErrorMessageDto dto = new ErrorMessageDto();

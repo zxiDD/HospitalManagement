@@ -10,6 +10,9 @@ import com.cg.entity.Room;
 import com.cg.entity.Stay;
 import com.cg.entity.Undergoes;
 import com.cg.entity.UndergoesId;
+import com.cg.exception.BadRequestException;
+import com.cg.exception.ResourceNotFoundException;
+import com.cg.exception.ValidationException;
 import com.cg.service.NurseService;
 import com.cg.service.PatientService;
 import com.cg.service.PhysicianService;
@@ -19,10 +22,12 @@ import com.cg.service.StayService;
 import com.cg.service.UndergoesService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -51,10 +56,9 @@ public class UndergoesController {
 
 	@Autowired
 	private RoomService roomService;
-	
+
 	@Autowired
 	private PhysicianService physicianService;
-	
 
 	private UndergoesDTO convertToDTO(Undergoes undergoes) {
 		return new UndergoesDTO(undergoes.getPatient().getSsn(), undergoes.getProcedures().getCode(),
@@ -145,18 +149,24 @@ public class UndergoesController {
 	}
 
 	@PostMapping("/admin/undergoes")
-	public ResponseEntity<UndergoesDTO> createUndergoes(@RequestBody UndergoesDTO dto) {
+	public ResponseEntity<UndergoesDTO> createUndergoes(@Valid @RequestBody UndergoesDTO dto, BindingResult br) {
+
+		if (br.hasErrors()) {
+			throw new ValidationException(br.getFieldErrors());
+		}
+
 		UndergoesId id = new UndergoesId(dto.getPatientId(), dto.getProcedureCode(), dto.getStayId(),
 				dto.getDateUndergoes());
 
 		Patient patient = patientService.getById(dto.getPatientId());
 
 		Procedures procedure = proceduresService.getProcedureById(dto.getProcedureCode())
-				.orElseThrow(() -> new RuntimeException("Procedure not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("Procedure not found"));
 
 		StayDTO stayDTO = stayService.getById(dto.getStayId());
-		
-		Room room = roomService.getRoomById(stayDTO.getRoomNumber()).orElseThrow(() -> new RuntimeException("Room not found"));
+
+		Room room = roomService.getRoomById(stayDTO.getRoomNumber())
+				.orElseThrow(() -> new ResourceNotFoundException("Room not found"));
 
 		Stay stay = new Stay(stayDTO.getStayId(), patient, room, stayDTO.getStayStart(), stayDTO.getStayEnd());
 

@@ -3,13 +3,16 @@ package com.cg.controller;
 import com.cg.dto.OnCallDTO;
 import com.cg.entity.*;
 import com.cg.exception.BadRequestException;
+import com.cg.exception.ValidationException;
 import com.cg.service.OnCallService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,92 +22,76 @@ import java.util.stream.Collectors;
 @SecurityRequirement(name = "BearerAuth")
 public class OnCallController {
 
-    @Autowired
-    private OnCallService service;
+	@Autowired
+	private OnCallService service;
 
-    private OnCallDTO convertToDTO(OnCall o) {
-        return new OnCallDTO(
-                o.getId().getNurse(),
-                o.getId().getBlockFloor(),
-                o.getId().getBlockCode(),
-                o.getOnCallStart(),
-                o.getOnCallEnd()
-        );
-    }
+	private OnCallDTO convertToDTO(OnCall o) {
+		return new OnCallDTO(o.getId().getNurse(), o.getId().getBlockFloor(), o.getId().getBlockCode(),
+				o.getOnCallStart(), o.getOnCallEnd());
+	}
 
-    @GetMapping("/oncall")
-    public ResponseEntity<List<OnCallDTO>> getAll() {
-        List<OnCallDTO> list = service.getAll()
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+	@GetMapping("/oncall")
+	public ResponseEntity<List<OnCallDTO>> getAll() {
+		List<OnCallDTO> list = service.getAll().stream().map(this::convertToDTO).collect(Collectors.toList());
 
-        return ResponseEntity.ok(list);
-    }
+		return ResponseEntity.ok(list);
+	}
 
-    @GetMapping("/oncall/nurse/{nurseId}")
-    public ResponseEntity<List<OnCallDTO>> getByNurse(@PathVariable Integer nurseId) {
-        List<OnCallDTO> list = service.getByNurseId(nurseId)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+	@GetMapping("/oncall/nurse/{nurseId}")
+	public ResponseEntity<List<OnCallDTO>> getByNurse(@PathVariable Integer nurseId) {
+		List<OnCallDTO> list = service.getByNurseId(nurseId).stream().map(this::convertToDTO)
+				.collect(Collectors.toList());
 
-        return ResponseEntity.ok(list);
-    }
+		return ResponseEntity.ok(list);
+	}
 
-    @PostMapping("/admin/oncall")
-    public ResponseEntity<?> addOnCall(@Valid @RequestBody OnCallDTO dto) {
+	@PostMapping("/admin/oncall")
+	public ResponseEntity<?> addOnCall(@Valid @RequestBody OnCallDTO dto, BindingResult br) {
 
-        if (dto.getOnCallEnd().isBefore(dto.getOnCallStart())) {
-            throw new BadRequestException("End time must be after start time");
-        }
+		if (br.hasErrors()) {
+			throw new ValidationException(br.getFieldErrors());
+		}
 
-        OnCall o = new OnCall();
+		if (dto.getOnCallEnd().isBefore(dto.getOnCallStart())) {
+			throw new BadRequestException("End time must be after start time");
+		}
 
-        OnCallId id = new OnCallId(
-                dto.getNurseId(),
-                dto.getBlockFloor(),
-                dto.getBlockCode()
-        );
+		OnCall o = new OnCall();
 
-        o.setId(id);
+		OnCallId id = new OnCallId(dto.getNurseId(), dto.getBlockFloor(), dto.getBlockCode());
 
-        Nurse n = new Nurse();
-        n.setEmployeeId(dto.getNurseId());
-        o.setNurse(n);
+		o.setId(id);
 
-        o.setOnCallStart(dto.getOnCallStart());
-        o.setOnCallEnd(dto.getOnCallEnd());
+		Nurse n = new Nurse();
+		n.setEmployeeId(dto.getNurseId());
+		o.setNurse(n);
 
-        OnCall saved = service.save(o);
-        return ResponseEntity.status(201).body(convertToDTO(saved));
-    }
-    
-    @GetMapping("/oncall/at")
-    public ResponseEntity<List<OnCallDTO>> getOnCallAt(
-            @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME)
-            java.time.LocalDateTime time) {
+		o.setOnCallStart(dto.getOnCallStart());
+		o.setOnCallEnd(dto.getOnCallEnd());
 
-        List<OnCallDTO> list = service.getAll()
-                .stream()
-                .filter(o -> !time.isBefore(o.getOnCallStart()) &&
-                             !time.isAfter(o.getOnCallEnd()))
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+		OnCall saved = service.save(o);
+		return ResponseEntity.status(201).body(convertToDTO(saved));
+	}
 
-        return ResponseEntity.ok(list);
-    }
-    
-    @DeleteMapping("/admin/oncall")
-    public ResponseEntity<Void> deleteOnCall(
-            @RequestParam Integer nurseId,
-            @RequestParam Integer blockFloor,
-            @RequestParam Integer blockCode) {
+	@GetMapping("/oncall/at")
+	public ResponseEntity<List<OnCallDTO>> getOnCallAt(
+			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime time) {
 
-        OnCallId id = new OnCallId(nurseId, blockFloor, blockCode);
+		List<OnCallDTO> list = service.getAll().stream()
+				.filter(o -> !time.isBefore(o.getOnCallStart()) && !time.isAfter(o.getOnCallEnd()))
+				.map(this::convertToDTO).collect(Collectors.toList());
 
-        service.delete(id);
+		return ResponseEntity.ok(list);
+	}
 
-        return ResponseEntity.noContent().build();
-    }
+	@DeleteMapping("/admin/oncall")
+	public ResponseEntity<Void> deleteOnCall(@RequestParam Integer nurseId, @RequestParam Integer blockFloor,
+			@RequestParam Integer blockCode) {
+
+		OnCallId id = new OnCallId(nurseId, blockFloor, blockCode);
+
+		service.delete(id);
+
+		return ResponseEntity.noContent().build();
+	}
 }
