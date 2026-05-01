@@ -16,29 +16,29 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/departments")
+//@RequestMapping("")
 @SecurityRequirement(name = "BearerAuth")
 public class DepartmentController {
 
     @Autowired
     private DepartmentService departmentService;
 
-    @GetMapping
+    @GetMapping("/departments")
     public ResponseEntity<List<DepartmentDTO>> getAll() {
         return ResponseEntity.ok(departmentService.getAll());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/departments/{id}")
     public ResponseEntity<DepartmentDTO> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(departmentService.getById(id));
     }
 
-    @GetMapping("/name/{name}")
+    @GetMapping("/departments/name/{name}")
     public ResponseEntity<DepartmentDTO> getByName(@PathVariable String name) {
         return ResponseEntity.ok(departmentService.getByName(name));
     }
 
-    @GetMapping("/head/{headId}")
+    @GetMapping("/departments/head/{headId}")
     public ResponseEntity<List<DepartmentDTO>> getByHeadId(@PathVariable Integer headId) {
         return ResponseEntity.ok(departmentService.getByHeadId(headId));
     }
