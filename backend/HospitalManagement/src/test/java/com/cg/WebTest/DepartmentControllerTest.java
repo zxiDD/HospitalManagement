@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -126,7 +127,7 @@ public class DepartmentControllerTest {
         when(departmentService.create(org.mockito.Mockito.any()))
                 .thenReturn(new DepartmentDTO(1, "Cardiology", 101, "Dr John"));
 
-        mockMvc.perform(post("/departments")
+        mockMvc.perform(post("/admin/departments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isCreated())
@@ -142,7 +143,7 @@ public class DepartmentControllerTest {
 
         DepartmentDTO invalid = new DepartmentDTO(null, "", null, null);
         when(departmentService.create(any())).thenReturn(null);
-        mockMvc.perform(post("/departments")
+        mockMvc.perform(post("/admin/departments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalid)))
                 .andExpect(status().isBadRequest())
@@ -161,7 +162,7 @@ public class DepartmentControllerTest {
         when(departmentService.create(org.mockito.Mockito.any()))
                 .thenThrow(new DuplicateResourceException("Department already exists with name: Cardiology"));
 
-        mockMvc.perform(post("/departments")
+        mockMvc.perform(post("/admin/departments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isConflict())
@@ -178,10 +179,10 @@ public class DepartmentControllerTest {
 
         DepartmentDTO input = new DepartmentDTO(null, "Cardiology", 999, null);
 
-        when(departmentService.create(org.mockito.Mockito.any()))
+        Mockito.when(departmentService.create(org.mockito.Mockito.any()))
                 .thenThrow(new ResourceNotFoundException("Physician not found with id: 999"));
 
-        mockMvc.perform(post("/departments")
+        mockMvc.perform(post("/admin/departments")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isNotFound())
