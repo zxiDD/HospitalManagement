@@ -44,7 +44,7 @@ public class AffiliatedWithControllerTest {
     // CREATE SUCCESS
     // =========================
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
     void testCreate_success() throws Exception {
 
         AffiliatedWithDTO dto =
@@ -65,7 +65,7 @@ public class AffiliatedWithControllerTest {
     // CREATE VALIDATION ERROR
     // =========================
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
     void testCreate_validationError() throws Exception {
 
         AffiliatedWithDTO dto =
@@ -83,7 +83,7 @@ public class AffiliatedWithControllerTest {
     // GET ALL
     // =========================
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
     void testGetAll_success() throws Exception {
 
         when(service.getAll()).thenReturn(List.of(
@@ -99,7 +99,7 @@ public class AffiliatedWithControllerTest {
     // GET BY ID
     // =========================
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
     void testGetById_success() throws Exception {
 
         when(service.getById(org.mockito.Mockito.any(AffiliatedWithId.class)))
@@ -111,7 +111,7 @@ public class AffiliatedWithControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
     void testGetById_notFound() throws Exception {
 
         when(service.getById(org.mockito.Mockito.any(AffiliatedWithId.class)))
@@ -126,7 +126,7 @@ public class AffiliatedWithControllerTest {
     // GET PRIMARY DEPARTMENT
     // =========================
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
     void testGetPrimaryDepartment_success() throws Exception {
 
         DepartmentDTO dept = new DepartmentDTO(10, "Cardiology", 100, "Dr. Smith");
@@ -139,7 +139,7 @@ public class AffiliatedWithControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
     void testGetPrimaryDepartment_notFound() throws Exception {
 
         when(service.getPrimaryDepartment(100))

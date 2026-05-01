@@ -22,21 +22,21 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.time.LocalDateTime;
 import java.util.*;
 
-//@SpringBootTest
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+//@ExtendWith(MockitoExtension.class)
 class StayServiceTest {
 
-//    @MockitoBean
-	@Mock
+    @MockitoBean
+//	@Mock
     private StayRepository stayRepo;
 
-	@Mock
+	@MockitoBean
     private PatientRepository patientRepo;
 
-	@Mock
+	@MockitoBean
     private RoomRepository roomRepo;
 
-	@InjectMocks
+	@Autowired
     private StayServiceImpl service;
 
     private Stay stay;
