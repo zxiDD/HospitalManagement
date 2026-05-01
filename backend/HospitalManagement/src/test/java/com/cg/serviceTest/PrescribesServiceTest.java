@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @SpringBootTest
-@ExtendWith(MockitoExtension.class)
+//@ExtendWith(MockitoExtension.class)
 class PrescribesServiceTest {
 
     @MockitoBean

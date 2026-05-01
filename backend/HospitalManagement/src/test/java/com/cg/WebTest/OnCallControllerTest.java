@@ -41,7 +41,7 @@ class OnCallControllerTest {
     private OnCallService service;
 
     @Autowired
-    private ObjectMapper objectMapper;
+   private ObjectMapper objectMapper;
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})

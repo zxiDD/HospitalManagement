@@ -36,15 +36,14 @@ import tools.jackson.databind.ObjectMapper;
 @SpringBootTest
 @AutoConfigureMockMvc
 class NurseControllerTest {
-
 	@Autowired
 	private MockMvc mockMvc;
 
 	@MockitoBean
 	private NurseService nurseService;
 
-	@MockitoBean
-	private OnCallService onCallService;
+    @MockitoBean
+    private OnCallService onCallService; 
 
 	@Autowired
 	private ObjectMapper objectMapper;
