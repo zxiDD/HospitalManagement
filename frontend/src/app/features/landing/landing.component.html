@@ -1,0 +1,105 @@
+<!-- FULL PAGE BACKGROUND -->
+<div style="background: linear-gradient(135deg, #6dd5ed, #2193b0); min-height: 100vh;">
+
+  <!-- NAVBAR -->
+  <nav class="d-flex justify-content-between align-items-center px-5 py-3">
+    <h4 class="text-white fw-bold">GOMEDIC</h4>
+
+    <div>
+      <a routerLink="/login" class="btn btn-outline-light me-2">Login</a>
+      <a routerLink="/register" class="btn btn-outline-light me-2">Signup</a>
+      <a routerLink="/contact" class="btn btn-outline-light me-2">Contact</a>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <div class="container d-flex align-items-center" style="min-height: 90vh;">
+    <div class="row w-100 align-items-center">
+
+      <!-- LEFT CONTENT -->
+      <div class="col-md-6 text-white">
+        <h1 class="fw-bold display-4 mb-3">
+          Best Medical System For Your Healthcare
+        </h1>
+
+        <p class="mb-4">
+          Manage patients, doctors, and appointments with a powerful and modern system.
+        </p>
+
+        <!-- BUTTONS -->
+        <button class="btn btn-light me-3 px-4"
+                (click)="scrollToFeatures()">
+          Get Started
+        </button>
+
+        <!-- <button routerLink="/login"
+                class="btn btn-outline-light px-4">
+          Login
+        </button> -->
+      </div>
+
+      <!-- RIGHT IMAGE -->
+      <div class="col-md-6 text-center">
+        <div style="
+              background: white;
+              border-radius: 30px;
+              padding: 15px;
+              display: inline-block;
+            ">
+
+          <img src="assets/images/DoctorsImage.avif"
+               class="img-fluid"
+               style="border-radius: 20px; max-height: 350px;">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- FEATURES SECTION -->
+<div id="features" class="container py-5 text-center">
+
+  <h3 class="mb-5 fw-bold">Why Choose Our HMS?</h3>
+
+  <div class="row g-4">
+
+    <!-- CARD 1 -->
+    <div class="col-md-3">
+      <div class="p-4 shadow rounded"
+           style="border: 2px solid #2193b0;">
+        <h5>Appointments</h5>
+        <p>Book and manage appointments easily</p>
+      </div>
+    </div>
+
+    <!-- CARD 2 -->
+    <div class="col-md-3">
+      <div class="p-4 shadow rounded"
+           style="border: 2px solid #2193b0;">
+        <h5>Doctors</h5>
+        <p>Manage doctor profiles efficiently</p>
+      </div>
+    </div>
+
+    <!-- CARD 3 -->
+    <div class="col-md-3">
+      <div class="p-4 shadow rounded"
+           style="border: 2px solid #2193b0;">
+        <h5>Patients</h5>
+        <p>Maintain patient records securely</p>
+      </div>
+    </div>
+
+    <!-- CARD 4 -->
+    <div class="col-md-3">
+      <div class="p-4 shadow rounded"
+           style="border: 2px solid #2193b0;">
+        <h5>Reports</h5>
+        <p>Generate medical reports instantly</p>
+      </div>
+    </div>
+
+  </div>
+</div>
