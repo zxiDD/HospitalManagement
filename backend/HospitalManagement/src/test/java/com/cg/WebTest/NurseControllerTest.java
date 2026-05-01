@@ -17,20 +17,25 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 
 import java.util.*;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class NurseControllerTest {
 
-    @Mock
+    @MockitoBean
     private NurseService service;
 
-    @Mock
+    @MockitoBean
     private OnCallService onCallService; 
 
-    @InjectMocks
+    @Autowired
     private NurseController controller;
 
     private Nurse nurse;

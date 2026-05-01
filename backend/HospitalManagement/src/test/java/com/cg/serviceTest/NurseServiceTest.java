@@ -14,18 +14,21 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.*;
 
-@ExtendWith(MockitoExtension.class)
+//@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 class NurseServiceTest {
 
-    @Mock
+    @MockitoBean
     private NurseRepository repo;
 
-    @InjectMocks
+    @Autowired
     private NurseServiceImpl service;
 
     private Nurse nurse;
