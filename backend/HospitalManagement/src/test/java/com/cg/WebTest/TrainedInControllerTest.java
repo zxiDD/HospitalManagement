@@ -52,8 +52,8 @@ class TrainedInControllerTest {
 
         TrainedInDTO dto = new TrainedInDTO(
                 100, 101,
-                LocalDate.of(2023, 1, 1),
-                LocalDate.of(2025, 1, 1)
+                LocalDate.of(2025, 1, 1),
+                LocalDate.of(2027, 1, 1)
         );
 
         Physician physician = new Physician();
@@ -73,12 +73,12 @@ class TrainedInControllerTest {
 
         when(service.save(any())).thenReturn(trainedIn);
 
-        mockMvc.perform(post("/admin/trainedin")
+        mockMvc.perform(post("/admin/trainedin/trainings")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.physicianId").value(100))
-                .andExpect(jsonPath("$.treatmentId").value(101));
+                .andExpect(jsonPath("$.id.physician").value(100))
+                .andExpect(jsonPath("$.id.treatment").value(101));
     }
 
 
@@ -92,7 +92,7 @@ class TrainedInControllerTest {
                 LocalDate.of(2023, 1, 1)
         );
 
-        mockMvc.perform(post("/admin/trainedin")
+        mockMvc.perform(post("/admin/trainedin/trainings")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest());
@@ -137,6 +137,8 @@ class TrainedInControllerTest {
         trainedIn.setId(new TrainedInId(100, 101));
         trainedIn.setPhysician(physician);
         trainedIn.setTreatment(procedures);
+        trainedIn.setCertificationDate(LocalDateTime.now());
+        trainedIn.setCertificationExpires(LocalDateTime.now().plusMonths(6));
 
         when(service.getByPhysicianId(100)).thenReturn(List.of(trainedIn));
 
@@ -165,13 +167,13 @@ class TrainedInControllerTest {
 
         TrainedInDTO dto = new TrainedInDTO(
                 100, 101,
-                LocalDate.of(2023, 1, 1),
-                LocalDate.of(2025, 1, 1)
+                LocalDate.of(2025, 1, 1),
+                LocalDate.of(2027, 1, 1)
         );
 
         when(service.save(any())).thenReturn(new TrainedIn());
 
-        mockMvc.perform(post("/admin/trainedin")
+        mockMvc.perform(post("/admin/trainedin/trainings")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated());
