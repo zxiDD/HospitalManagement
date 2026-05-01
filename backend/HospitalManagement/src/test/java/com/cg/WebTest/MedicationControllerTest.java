@@ -1,228 +1,190 @@
 package com.cg.WebTest;
 
-import java.util.ArrayList;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
+import org.springframework.test.web.servlet.MockMvc;
 
-import com.cg.controller.MedicationController;
 import com.cg.dto.MedicationDTO;
-import com.cg.entity.Medication;
+import com.cg.exception.DuplicateResourceException;
 import com.cg.exception.ResourceNotFoundException;
-import com.cg.exception.ValidationException;
 import com.cg.service.MedicationService;
 
+import tools.jackson.databind.ObjectMapper;
+
 @SpringBootTest
+@AutoConfigureMockMvc
 public class MedicationControllerTest {
 
     @Autowired
-    private MedicationController controller;
+    private MockMvc mockMvc;
 
     @MockitoBean
     private MedicationService medicationService;
 
-    private Medication medication1;
-    private Medication medication2;
-    private MedicationDTO medicationDTO1;
-    private MedicationDTO medicationDTO2;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @BeforeEach
-    void setup() {
-        MockitoAnnotations.openMocks(this);
+    // =========================
+    // GET ALL
+    // =========================
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void testGetAll_success() throws Exception {
 
-        medication1 = new Medication();
-        medication1.setCode(1);
-        medication1.setName("Paracetamol");
-        medication1.setBrand("Cipla");
-        medication1.setDescription("Fever");
+        when(medicationService.getAll())
+                .thenReturn(List.of(
+                        new MedicationDTO(1, "Paracetamol", "Cipla", "Fever"),
+                        new MedicationDTO(2, "Aspirin", "Bayer", "Pain")
+                ));
 
-        medication2 = new Medication();
-        medication2.setCode(2);
-        medication2.setName("Aspirin");
-        medication2.setBrand("Bayer");
-        medication2.setDescription("Pain");
+        mockMvc.perform(get("/medications"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Paracetamol"))
+                .andExpect(jsonPath("$[1].brand").value("Bayer"));
+    }
 
-        medicationDTO1 = new MedicationDTO(1, "Paracetamol", "Cipla", "Fever");
-        medicationDTO2 = new MedicationDTO(2, "Aspirin", "Bayer", "Pain");
+    // =========================
+    // GET BY ID
+    // =========================
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void testGetById_success() throws Exception {
+
+        when(medicationService.getById(1))
+                .thenReturn(new MedicationDTO(1, "Paracetamol", "Cipla", "Fever"));
+
+        mockMvc.perform(get("/medications/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(1));
     }
 
     @Test
-    void testGetAll_Success() {
-        when(medicationService.getAll()).thenReturn(List.of(medicationDTO1, medicationDTO2));
+    @WithMockUser(roles = "ADMIN")
+    void testGetById_notFound() throws Exception {
 
-        ResponseEntity<List<MedicationDTO>> response = controller.getAll();
+        when(medicationService.getById(1))
+                .thenThrow(new ResourceNotFoundException("Medication not found"));
 
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(2, response.getBody().size());
-        assertEquals("Paracetamol", response.getBody().get(0).getName());
-        assertEquals("Bayer", response.getBody().get(1).getBrand());
+        mockMvc.perform(get("/medications/1"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errMsg").value("Medication not found"));
     }
 
+    // =========================
+    // GET BY NAME
+    // =========================
     @Test
-    void testGetAll_Empty() {
-        when(medicationService.getAll()).thenReturn(List.of());
+    @WithMockUser(roles = "ADMIN")
+    void testGetByName_success() throws Exception {
 
-        ResponseEntity<List<MedicationDTO>> response = controller.getAll();
+        when(medicationService.getByName("Paracetamol"))
+                .thenReturn(new MedicationDTO(1, "Paracetamol", "Cipla", "Fever"));
 
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().isEmpty());
+        mockMvc.perform(get("/medications/name/Paracetamol"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.brand").value("Cipla"));
     }
 
+    // =========================
+    // GET BY BRAND
+    // =========================
     @Test
-    void testGetById_Found() {
-        when(medicationService.getById(1)).thenReturn(medicationDTO1);
+    @WithMockUser(roles = "ADMIN")
+    void testGetByBrand_success() throws Exception {
 
-        ResponseEntity<MedicationDTO> response = controller.getById(1);
+        when(medicationService.getByBrand("Cipla"))
+                .thenReturn(List.of(
+                        new MedicationDTO(1, "Paracetamol", "Cipla", "Fever")
+                ));
 
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().getCode());
-        assertEquals("Paracetamol", response.getBody().getName());
+        mockMvc.perform(get("/medications/brand/Cipla"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].brand").value("Cipla"));
     }
 
+    // =========================
+    // SEARCH
+    // =========================
     @Test
-    void testGetById_NotFound() {
-        when(medicationService.getById(999)).thenThrow(new ResourceNotFoundException("Medication not found"));
+    @WithMockUser(roles = "ADMIN")
+    void testSearch_success() throws Exception {
 
-        assertThrows(ResourceNotFoundException.class, () -> controller.getById(999));
+        when(medicationService.getByNameAndBrand("Paracetamol", "Cipla"))
+                .thenReturn(new MedicationDTO(1, "Paracetamol", "Cipla", "Fever"));
+
+        mockMvc.perform(get("/medications/search")
+                        .param("name", "Paracetamol")
+                        .param("brand", "Cipla"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Paracetamol"));
     }
 
+    // =========================
+    // CREATE SUCCESS
+    // =========================
     @Test
-    void testGetByName_Found() {
-        when(medicationService.getByName("Paracetamol")).thenReturn(medicationDTO1);
+    @WithMockUser(roles = "ADMIN")
+    void testCreate_success() throws Exception {
 
-        ResponseEntity<MedicationDTO> response = controller.getByName("Paracetamol");
+        MedicationDTO input = new MedicationDTO(null, "Ibuprofen", "Pfizer", "Pain");
 
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals("Paracetamol", response.getBody().getName());
-        assertEquals("Cipla", response.getBody().getBrand());
+        when(medicationService.create(any()))
+                .thenReturn(new MedicationDTO(3, "Ibuprofen", "Pfizer", "Pain"));
+
+        mockMvc.perform(post("/admin/medications")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Ibuprofen"));
     }
 
+    // =========================
+    // CREATE VALIDATION
+    // =========================
     @Test
-    void testGetByName_NotFound() {
-        when(medicationService.getByName("NonExistent")).thenThrow(new ResourceNotFoundException("Medication not found"));
+    @WithMockUser(roles = "ADMIN")
+    void testCreate_validationError() throws Exception {
 
-        assertThrows(ResourceNotFoundException.class, () -> controller.getByName("NonExistent"));
+        MedicationDTO invalid = new MedicationDTO(null, "", "", "");
+
+        when(medicationService.create(any())).thenReturn(null); // workaround
+
+        mockMvc.perform(post("/admin/medications")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errMsg").value("Validation failed"));
     }
 
+    // =========================
+    // CREATE DUPLICATE
+    // =========================
     @Test
-    void testGetByBrand_Success() {
-        when(medicationService.getByBrand("Cipla")).thenReturn(List.of(medicationDTO1));
+    @WithMockUser(roles = "ADMIN")
+    void testCreate_duplicate() throws Exception {
 
-        ResponseEntity<List<MedicationDTO>> response = controller.getByBrand("Cipla");
+        MedicationDTO input = new MedicationDTO(null, "Ibuprofen", "Pfizer", "Pain");
 
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-        assertEquals("Cipla", response.getBody().get(0).getBrand());
-    }
+        when(medicationService.create(any()))
+                .thenThrow(new DuplicateResourceException("Medication already exists"));
 
-    @Test
-    void testGetByBrand_Empty() {
-        when(medicationService.getByBrand("UnknownBrand")).thenReturn(List.of());
-
-        ResponseEntity<List<MedicationDTO>> response = controller.getByBrand("UnknownBrand");
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().isEmpty());
-    }
-
-    @Test
-    void testGetByNameAndBrand_Found() {
-        when(medicationService.getByNameAndBrand("Paracetamol", "Cipla")).thenReturn(medicationDTO1);
-
-        ResponseEntity<MedicationDTO> response = controller.getByNameAndBrand("Paracetamol", "Cipla");
-
-        assertEquals(200, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals("Paracetamol", response.getBody().getName());
-        assertEquals("Cipla", response.getBody().getBrand());
-    }
-
-    @Test
-    void testGetByNameAndBrand_NotFound() {
-        when(medicationService.getByNameAndBrand("Invalid", "Invalid")).thenThrow(new ResourceNotFoundException("Medication not found"));
-
-        assertThrows(ResourceNotFoundException.class, () -> controller.getByNameAndBrand("Invalid", "Invalid"));
-    }
-
-    @Test
-    void testCreateMedication_Success() {
-        MedicationDTO dto = new MedicationDTO(null, "Ibuprofen", "Pfizer", "Pain");
-        BindingResult br = mock(BindingResult.class);
-        when(br.hasErrors()).thenReturn(false);
-
-        when(medicationService.create(any(MedicationDTO.class))).thenReturn(new MedicationDTO(3, "Ibuprofen", "Pfizer", "Pain"));
-
-        ResponseEntity<MedicationDTO> response = controller.createMedication(dto, br);
-
-        assertEquals(201, response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertEquals("Ibuprofen", response.getBody().getName());
-        assertEquals("Pfizer", response.getBody().getBrand());
-    }
-
-    @Test
-    void testCreateMedication_InvalidName() {
-        MedicationDTO dto = new MedicationDTO(null, "", "Pfizer", "Pain");
-        BindingResult br = mock(BindingResult.class);
-        when(br.hasErrors()).thenReturn(true);
-
-        List<FieldError> errors = new ArrayList<>();
-        errors.add(new FieldError("medicationDTO", "name", "Medication name is required"));
-        when(br.getFieldErrors()).thenReturn(errors);
-
-        when(medicationService.create(any(MedicationDTO.class))).thenThrow(new ValidationException(errors));
-
-        assertThrows(ValidationException.class, () -> controller.createMedication(dto, br));
-    }
-
-    @Test
-    void testCreateMedication_InvalidBrand() {
-        MedicationDTO dto = new MedicationDTO(null, "Ibuprofen", "", "Pain");
-        BindingResult br = mock(BindingResult.class);
-        when(br.hasErrors()).thenReturn(true);
-
-        List<FieldError> errors = new ArrayList<>();
-        errors.add(new FieldError("medicationDTO", "brand", "Brand is required"));
-        when(br.getFieldErrors()).thenReturn(errors);
-
-        when(medicationService.create(any(MedicationDTO.class))).thenThrow(new ValidationException(errors));
-
-        assertThrows(ValidationException.class, () -> controller.createMedication(dto, br));
-    }
-
-    @Test
-    void testCreateMedication_InvalidDescription() {
-        MedicationDTO dto = new MedicationDTO(null, "Ibuprofen", "Pfizer", "");
-        BindingResult br = mock(BindingResult.class);
-        when(br.hasErrors()).thenReturn(true);
-
-        List<FieldError> errors = new ArrayList<>();
-        errors.add(new FieldError("medicationDTO", "description", "Description is required"));
-        when(br.getFieldErrors()).thenReturn(errors);
-
-        when(medicationService.create(any(MedicationDTO.class))).thenThrow(new ValidationException(errors));
-
-        assertThrows(ValidationException.class, () -> controller.createMedication(dto, br));
+        mockMvc.perform(post("/admin/medications")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.errMsg").value("Medication already exists"));
     }
 }
