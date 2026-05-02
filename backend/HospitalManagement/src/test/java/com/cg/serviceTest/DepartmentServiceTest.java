@@ -3,6 +3,7 @@ package com.cg.serviceTest;
 import com.cg.dto.DepartmentDTO;
 import com.cg.entity.Department;
 import com.cg.entity.Physician;
+import com.cg.exception.BadRequestException;
 import com.cg.exception.DuplicateResourceException;
 import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.DepartmentRepository;
@@ -25,7 +26,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.util.*;
 
 @SpringBootTest
-//@ExtendWith(MockitoExtension.class)
 public class DepartmentServiceTest {
 
     @MockitoBean
@@ -53,7 +53,6 @@ public class DepartmentServiceTest {
         dept.setHead(physician);
     }
 
-    // 🔥 getById SUCCESS
     @Test
     public void testGetById_success() {
 
@@ -68,7 +67,6 @@ public class DepartmentServiceTest {
         Mockito.verify(departmentRepository).findById(10);
     }
 
-    // 🔥 getById NOT FOUND
     @Test
     public void testGetById_notFound() {
 
@@ -81,7 +79,6 @@ public class DepartmentServiceTest {
         Mockito.verify(departmentRepository).findById(20);
     }
 
-    // 🔥 getAll
     @Test
     public void testGetAll() {
 
@@ -97,7 +94,6 @@ public class DepartmentServiceTest {
         Mockito.verify(departmentRepository).findAll();
     }
 
-    // 🔥 getByName SUCCESS
     @Test
     public void testGetByName_success() {
 
@@ -111,7 +107,6 @@ public class DepartmentServiceTest {
         Mockito.verify(departmentRepository).findByName("Cardiology");
     }
 
-    // 🔥 getByName NOT FOUND
     @Test
     public void testGetByName_notFound() {
 
@@ -124,7 +119,6 @@ public class DepartmentServiceTest {
         Mockito.verify(departmentRepository).findByName("XYZ");
     }
 
-    // 🔥 getByHeadId
     @Test
     public void testGetByHeadId() {
 
@@ -138,12 +132,14 @@ public class DepartmentServiceTest {
         Mockito.verify(departmentRepository).findByHead_EmployeeId(1);
     }
 
-    // 🔥 create SUCCESS
     @Test
     public void testCreate_success() {
 
         DepartmentDTO input = new DepartmentDTO(null, "Cardiology", 1, null);
-
+        
+        Mockito.when(departmentRepository.findByName("Cardiology"))
+        .thenReturn(Optional.empty());
+        
         Mockito.when(physicianRepository.findById(1))
                 .thenReturn(Optional.of(physician));
 
@@ -159,7 +155,6 @@ public class DepartmentServiceTest {
         Mockito.verify(departmentRepository).save(Mockito.any(Department.class));
     }
 
-    // 🔥 create FAIL (physician not found)
     @Test
     public void testCreate_physicianNotFound() {
 
@@ -189,4 +184,29 @@ public class DepartmentServiceTest {
         Mockito.verify(departmentRepository)
                 .findByName("Cardiology");
     }
+    
+    @Test
+    void testGetById_invalidId() {
+        Assertions.assertThrows(BadRequestException.class,
+                () -> departmentService.getById(0));
+    }
+
+    @Test
+    void testGetByHeadId_invalid() {
+        Assertions.assertThrows(BadRequestException.class,
+                () -> departmentService.getByHeadId(-1));
+    }
+    
+    @Test
+    void testGetByHeadId_empty() {
+
+        Mockito.when(departmentRepository.findByHead_EmployeeId(1))
+                .thenReturn(List.of());
+
+        List<DepartmentDTO> result = departmentService.getByHeadId(1);
+
+        Assertions.assertTrue(result.isEmpty());
+    }
+    
+    
 }

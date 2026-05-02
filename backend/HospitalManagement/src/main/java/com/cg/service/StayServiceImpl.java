@@ -4,6 +4,7 @@ import com.cg.dto.StayDTO;
 import com.cg.entity.Patient;
 import com.cg.entity.Room;
 import com.cg.entity.Stay;
+import com.cg.exception.BadRequestException;
 import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.PatientRepository;
 import com.cg.repo.RoomRepository;
@@ -55,6 +56,9 @@ public class StayServiceImpl implements StayService {
 
     @Override
     public StayDTO getById(Integer id) {
+    	if(id<=0) {
+    		throw new BadRequestException("Id can not be negative or 0");
+    	}
         Stay s = stayRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Stay not found with id: " + id));
@@ -76,6 +80,9 @@ public class StayServiceImpl implements StayService {
 
     @Override
     public List<StayDTO> getByRoomNumber(Integer roomNumber) {
+    	if(roomNumber<=0) {
+    		throw new BadRequestException("Id can not be negative or 0");
+    	}
         List<Stay> list = stayRepository.findByRoom_RoomNumber(roomNumber);
         List<StayDTO> dtoList = new ArrayList<>();
 

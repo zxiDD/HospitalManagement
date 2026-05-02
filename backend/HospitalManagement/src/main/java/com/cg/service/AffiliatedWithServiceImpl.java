@@ -6,6 +6,7 @@ import com.cg.entity.AffiliatedWith;
 import com.cg.entity.AffiliatedWithId;
 import com.cg.entity.Department;
 import com.cg.entity.Physician;
+import com.cg.exception.BadRequestException;
 import com.cg.exception.DuplicateResourceException;
 import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.AffiliatedWithRepository;
@@ -64,6 +65,9 @@ public class AffiliatedWithServiceImpl implements AffiliatedWithService {
 
     @Override
     public List<AffiliatedWithDTO> getByPhysicianId(Integer physicianId) {
+    	if(physicianId<=0) {
+    		throw new BadRequestException("Id can not be negative or 0");
+    	}
         List<AffiliatedWith> list = affiliatedWithRepository.findByPhysician_EmployeeId(physicianId);
         List<AffiliatedWithDTO> dtoList = new ArrayList<>();
 
@@ -76,6 +80,9 @@ public class AffiliatedWithServiceImpl implements AffiliatedWithService {
 
     @Override
     public List<AffiliatedWithDTO> getByDepartmentId(Integer departmentId) {
+    	if(departmentId<=0) {
+    		throw new BadRequestException("Id can not be negative or 0");
+    	}
         List<AffiliatedWith> list = affiliatedWithRepository.findByDepartment_DepartmentId(departmentId);
         List<AffiliatedWithDTO> dtoList = new ArrayList<>();
 
@@ -100,7 +107,9 @@ public class AffiliatedWithServiceImpl implements AffiliatedWithService {
 
     @Override
     public DepartmentDTO getPrimaryDepartment(Integer physicianId) {
-
+    	if(physicianId<=0) {
+    		throw new BadRequestException("Id can not be negative or 0");
+    	}
         AffiliatedWith a = affiliatedWithRepository
                 .findByPhysician_EmployeeIdAndPrimaryAffiliationTrue(physicianId)
                 .orElseThrow(() ->
@@ -128,7 +137,6 @@ public class AffiliatedWithServiceImpl implements AffiliatedWithService {
 
     @Override
     public AffiliatedWithDTO create(AffiliatedWithDTO dto) {
-
         if (dto.getPrimaryAffiliation()) {
             Optional<AffiliatedWith> existing =
                     affiliatedWithRepository
