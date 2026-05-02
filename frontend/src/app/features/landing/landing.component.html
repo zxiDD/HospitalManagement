@@ -1,105 +1,217 @@
-<!-- FULL PAGE BACKGROUND -->
-<div style="background: linear-gradient(135deg, #6dd5ed, #2193b0); min-height: 100vh;">
+<!-- PAGE WRAPPER -->
+<div style="background: linear-gradient(135deg, #6dd5ed, #2193b0);">
 
   <!-- NAVBAR -->
-  <nav class="d-flex justify-content-between align-items-center px-5 py-3">
+  <nav class="d-flex justify-content-between align-items-center px-5 py-3"
+    style="background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1);">
+
     <h4 class="text-white fw-bold">GOMEDIC</h4>
 
     <div>
       <a routerLink="/login" class="btn btn-outline-light me-2">Login</a>
-      <a routerLink="/register" class="btn btn-outline-light me-2">Signup</a>
-      <a routerLink="/contact" class="btn btn-outline-light me-2">Contact</a>
+      <a routerLink="/register" class="btn btn-light">Signup</a>
     </div>
   </nav>
 
-  <!-- HERO SECTION -->
-  <div class="container d-flex align-items-center" style="min-height: 90vh;">
-    <div class="row w-100 align-items-center">
+  <!-- HERO -->
+  <div class="container py-5">
+    <div class="row align-items-center">
 
-      <!-- LEFT CONTENT -->
       <div class="col-md-6 text-white">
-        <h1 class="fw-bold display-4 mb-3">
-          Best Medical System For Your Healthcare
+        <h1 class="display-3 fw-bold mb-3">
+          Smart Healthcare Platform
         </h1>
 
-        <p class="mb-4">
-          Manage patients, doctors, and appointments with a powerful and modern system.
+        <p class="fs-5 mb-4">
+          Manage patients, doctors, and appointments with a modern,
+          secure, and powerful hospital system.
         </p>
 
-        <!-- BUTTONS -->
-        <button class="btn btn-light me-3 px-4"
-                (click)="scrollToFeatures()">
+        <button class="btn btn-light px-4 py-2 fw-bold" (click)="scrollToFeatures()">
           Get Started
         </button>
-
-        <!-- <button routerLink="/login"
-                class="btn btn-outline-light px-4">
-          Login
-        </button> -->
       </div>
 
-      <!-- RIGHT IMAGE -->
       <div class="col-md-6 text-center">
-        <div style="
-              background: white;
-              border-radius: 30px;
-              padding: 15px;
-              display: inline-block;
-            ">
-
-          <img src="assets/images/DoctorsImage.avif"
-               class="img-fluid"
-               style="border-radius: 20px; max-height: 350px;">
-        </div>
+        <img src="assets/images/DoctorsImage.avif" class="img-fluid"
+          style="border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
       </div>
 
     </div>
   </div>
+</div>
+
+<!-- FEATURES (FLOATING CARDS STYLE) -->
+<div id="features" class="container py-5">
+
+  <h2 class="text-center fw-bold mb-5">Core Features</h2>
+
+  <div class="row g-4 text-center">
+
+    <div class="col-md-3">
+      <div class="p-4 bg-white rounded shadow-lg h-100">
+        <h4>📅</h4>
+        <h6 class="fw-bold">Appointments</h6>
+        <p class="text-muted">Easy scheduling & tracking</p>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="p-4 bg-white rounded shadow-lg h-100">
+        <h4>👨‍⚕️</h4>
+        <h6 class="fw-bold">Doctors</h6>
+        <p class="text-muted">Manage doctor data</p>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="p-4 bg-white rounded shadow-lg h-100">
+        <h4>🧑</h4>
+        <h6 class="fw-bold">Patients</h6>
+        <p class="text-muted">Secure patient records</p>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="p-4 bg-white rounded shadow-lg h-100">
+        <h4>📊</h4>
+        <h6 class="fw-bold">Reports</h6>
+        <p class="text-muted">Analytics & insights</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ABOUT (NOW PREMIUM DESIGN) -->
+<div class="container py-5">
+  <div class="row align-items-center">
+
+    <div class="col-md-6 position-relative">
+
+      <img src="assets/images/aboutImage.avif" class="img-fluid" style="border-radius: 20px;">
+
+      <!-- Floating card -->
+      <div style="
+            position:absolute;
+            bottom:-20px;
+            right:20px;
+            background:white;
+            padding:15px;
+            border-radius:15px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.2);
+          ">
+        <strong>500+</strong><br>
+        Patients Managed
+      </div>
+
+    </div>
+
+    <div class="col-md-6">
+      <h2 class="fw-bold mb-3">About GOMEDIC</h2>
+
+      <p class="text-muted">
+        GOMEDIC is a next-generation hospital management system built to simplify healthcare operations.
+      </p>
+
+      <p class="text-muted">
+        From appointments to analytics, everything is integrated into one seamless platform.
+      </p>
+
+      <div class="mt-4">
+        <span class="badge bg-primary p-2 me-2">Secure</span>
+        <span class="badge bg-success p-2 me-2">Fast</span>
+        <span class="badge bg-info p-2">Reliable</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- STATS SECTION -->
+<div class="container py-5 text-center">
+  <div class="row">
+
+    <div class="col-md-3">
+      <h2 class="fw-bold text-primary">100+</h2>
+      <p>Doctors</p>
+    </div>
+
+    <div class="col-md-3">
+      <h2 class="fw-bold text-primary">500+</h2>
+      <p>Patients</p>
+    </div>
+
+    <div class="col-md-3">
+      <h2 class="fw-bold text-primary">300+</h2>
+      <p>Appointments</p>
+    </div>
+
+    <div class="col-md-3">
+      <h2 class="fw-bold text-primary">24/7</h2>
+      <p>Support</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- CTA (SMART VERSION) -->
+<div class="text-center py-5 text-white" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+
+  <h2 class="fw-bold mb-3">Ready to Transform Healthcare?</h2>
+
+  <p class="mb-4">Explore features or get in touch with us</p>
+
+  <button class="btn btn-light px-4 me-2" (click)="scrollToFeatures()">
+    Explore Features
+  </button>
+
+  <a routerLink="/contact" class="btn btn-outline-light px-4">
+    Contact Us
+  </a>
 
 </div>
 
-<!-- FEATURES SECTION -->
-<div id="features" class="container py-5 text-center">
+<!-- PREMIUM FOOTER -->
+<div style="background:#1e3c72; color:white;">
 
-  <h3 class="mb-5 fw-bold">Why Choose Our HMS?</h3>
+  <div class="container py-5">
+    <div class="row">
 
-  <div class="row g-4">
-
-    <!-- CARD 1 -->
-    <div class="col-md-3">
-      <div class="p-4 shadow rounded"
-           style="border: 2px solid #2193b0;">
-        <h5>Appointments</h5>
-        <p>Book and manage appointments easily</p>
+      <!-- BRAND -->
+      <div class="col-md-4">
+        <h4 class="fw-bold">GOMEDIC</h4>
+        <p>
+          Modern hospital management system for better healthcare.
+        </p>
       </div>
-    </div>
 
-    <!-- CARD 2 -->
-    <div class="col-md-3">
-      <div class="p-4 shadow rounded"
-           style="border: 2px solid #2193b0;">
-        <h5>Doctors</h5>
-        <p>Manage doctor profiles efficiently</p>
+      <!-- LINKS -->
+      <div class="col-md-4">
+        <h6 class="fw-bold">Quick Links</h6>
+        <p>
+          <a href="javascript:void(0)" (click)="scrollToTop()" class="text-white text-decoration-none">
+            Home
+          </a>
+        </p>
+        <p><a routerLink="/contact" class="text-white text-decoration-none">Contact</a></p>
+        <p><a routerLink="/login" class="text-white text-decoration-none">Login</a></p>
       </div>
-    </div>
 
-    <!-- CARD 3 -->
-    <div class="col-md-3">
-      <div class="p-4 shadow rounded"
-           style="border: 2px solid #2193b0;">
-        <h5>Patients</h5>
-        <p>Maintain patient records securely</p>
+      <!-- CONTACT -->
+      <div class="col-md-4">
+        <h6 class="fw-bold">Contact</h6>
+        <p>📍 Delhi, India</p>
+        <p>📞 +91 9876543210</p>
+        <p>📧 support&#64;gomedic.com</p>
       </div>
-    </div>
 
-    <!-- CARD 4 -->
-    <div class="col-md-3">
-      <div class="p-4 shadow rounded"
-           style="border: 2px solid #2193b0;">
-        <h5>Reports</h5>
-        <p>Generate medical reports instantly</p>
-      </div>
     </div>
-
   </div>
+
+  <!-- BOTTOM -->
+  <div class="text-center py-3" style="background:#162a5c;">
+    © 2026 GOMEDIC | All Rights Reserved
+  </div>
+
 </div>
