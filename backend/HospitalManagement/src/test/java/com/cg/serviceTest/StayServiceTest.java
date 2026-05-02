@@ -2,6 +2,7 @@ package com.cg.serviceTest;
 
 import com.cg.dto.StayDTO;
 import com.cg.entity.*;
+import com.cg.exception.BadRequestException;
 import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.PatientRepository;
 import com.cg.repo.RoomRepository;
@@ -141,7 +142,7 @@ class StayServiceTest {
     @Test
     void testGetActiveStays() {
 
-        Mockito.when(stayRepo.findActiveStays(Mockito.any()))
+    	Mockito.when(stayRepo.findActiveStays(Mockito.any(LocalDateTime.class)))
                 .thenReturn(List.of(stay));
 
         List<StayDTO> result = service.getActiveStays();
@@ -262,4 +263,29 @@ class StayServiceTest {
         Assertions.assertFalse(result);
         Mockito.verify(stayRepo).existsActiveStayByPatient(1001L);
     }
+    
+    @Test
+    void testGetById_invalid() {
+        Assertions.assertThrows(BadRequestException.class,
+                () -> service.getById(0));
+    }
+
+    @Test
+    void testGetByRoomNumber_invalid() {
+        Assertions.assertThrows(BadRequestException.class,
+                () -> service.getByRoomNumber(0));
+    }
+    
+    @Test
+    void testGetByPatientSsn_empty() {
+
+        Mockito.when(stayRepo.findByPatient_Ssn(1001L))
+                .thenReturn(List.of());
+
+        List<StayDTO> result = service.getByPatientSsn(1001L);
+
+        Assertions.assertTrue(result.isEmpty());
+    }
+    
+    
 }

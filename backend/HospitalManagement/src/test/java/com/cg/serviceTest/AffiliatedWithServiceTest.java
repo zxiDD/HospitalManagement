@@ -3,6 +3,7 @@ package com.cg.serviceTest;
 import com.cg.dto.AffiliatedWithDTO;
 import com.cg.dto.DepartmentDTO;
 import com.cg.entity.*;
+import com.cg.exception.BadRequestException;
 import com.cg.exception.DuplicateResourceException;
 import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.AffiliatedWithRepository;
@@ -258,5 +259,34 @@ class AffiliatedWithServiceTest {
 
         Mockito.verify(affiliatedRepo, Mockito.never())
                 .save(Mockito.any());
+    }
+    
+    @Test
+    void testGetByPhysicianId_invalid() {
+        Assertions.assertThrows(BadRequestException.class,
+                () -> service.getByPhysicianId(0));
+    }
+
+    @Test
+    void testGetByDepartmentId_invalid() {
+        Assertions.assertThrows(BadRequestException.class,
+                () -> service.getByDepartmentId(-1));
+    }
+
+    @Test
+    void testGetPrimaryDepartment_invalid() {
+        Assertions.assertThrows(BadRequestException.class,
+                () -> service.getPrimaryDepartment(0));
+    }
+    
+    @Test
+    void testGetByPhysicianId_empty() {
+
+        Mockito.when(affiliatedRepo.findByPhysician_EmployeeId(1))
+                .thenReturn(List.of());
+
+        List<AffiliatedWithDTO> result = service.getByPhysicianId(1);
+
+        Assertions.assertTrue(result.isEmpty());
     }
 }

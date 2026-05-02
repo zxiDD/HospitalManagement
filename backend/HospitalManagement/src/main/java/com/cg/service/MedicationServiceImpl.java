@@ -2,6 +2,7 @@ package com.cg.service;
 
 import com.cg.dto.MedicationDTO;
 import com.cg.entity.Medication;
+import com.cg.exception.BadRequestException;
 import com.cg.exception.DuplicateResourceException;
 import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.MedicationRepository;
@@ -42,6 +43,9 @@ public class MedicationServiceImpl implements MedicationService {
 
     @Override
     public MedicationDTO getById(Integer code) {
+    	if(code<=0) {
+    		throw new BadRequestException("code can not be negative or 0");
+    	}
         Medication m = medicationRepository.findById(code)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Medication not found with code: " + code));

@@ -3,6 +3,7 @@ package com.cg.service;
 import com.cg.dto.DepartmentDTO;
 import com.cg.entity.Department;
 import com.cg.entity.Physician;
+import com.cg.exception.BadRequestException;
 import com.cg.exception.DuplicateResourceException;
 import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.DepartmentRepository;
@@ -46,6 +47,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public DepartmentDTO getById(Integer id) {
+    	if (id<=0) {
+    		throw new BadRequestException("Id can not be negative or 0");
+    	}
         Department d = departmentRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Department not found with id: " + id));
@@ -64,6 +68,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public List<DepartmentDTO> getByHeadId(Integer headId) {
+    	if(headId<=0) {
+    		throw new BadRequestException("Id can not be negative or 0");
+    	}
         List<Department> departments = departmentRepository.findByHead_EmployeeId(headId);
         List<DepartmentDTO> dtoList = new ArrayList<>();
 

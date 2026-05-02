@@ -2,6 +2,7 @@ package com.cg.serviceTest;
 
 import com.cg.dto.MedicationDTO;
 import com.cg.entity.Medication;
+import com.cg.exception.BadRequestException;
 import com.cg.exception.DuplicateResourceException;
 import com.cg.exception.ResourceNotFoundException;
 import com.cg.repo.MedicationRepository;
@@ -195,6 +196,11 @@ class MedicationServiceTest {
         MedicationDTO input =
                 new MedicationDTO(null, "Paracetamol", "Cipla", "Fever");
 
+        // ✅ ADD THIS (VERY IMPORTANT)
+        Mockito.when(medicationRepository
+                .findByNameAndBrand("Paracetamol", "Cipla"))
+                .thenReturn(Optional.empty());
+
         Mockito.when(medicationRepository.save(Mockito.any(Medication.class)))
                 .thenReturn(med);
 
@@ -203,6 +209,8 @@ class MedicationServiceTest {
         assertNotNull(result);
         assertEquals("Paracetamol", result.getName());
 
+        Mockito.verify(medicationRepository)
+                .findByNameAndBrand("Paracetamol", "Cipla"); // optional but good
         Mockito.verify(medicationRepository)
                 .save(Mockito.any(Medication.class));
     }
@@ -223,4 +231,11 @@ class MedicationServiceTest {
         Mockito.verify(medicationRepository)
                 .findByNameAndBrand("Paracetamol", "Cipla");
     }
+    @Test
+    void testGetById_invalid() {
+
+        assertThrows(BadRequestException.class,
+                () -> medicationService.getById(0));
+    }
+    
 }
