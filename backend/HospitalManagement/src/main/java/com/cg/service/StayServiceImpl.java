@@ -16,118 +16,111 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StayServiceImpl implements StayService {
 
-    @Autowired
-    private StayRepository stayRepository;
+	@Autowired
+	private StayRepository stayRepository;
 
-    @Autowired
-    private PatientRepository patientRepository;
+	@Autowired
+	private PatientRepository patientRepository;
 
-    @Autowired
-    private RoomRepository roomRepository;
-    
-    // 🔹 helper method (cleaner code)
-    private StayDTO mapToDTO(Stay s) {
-        return new StayDTO(
-                s.getStayId(),
-                s.getPatient().getSsn(),
-                s.getPatient().getName(),
-                s.getRoom().getRoomNumber(),
-                s.getRoom().getRoomType(),
-                s.getStayStart(),
-                s.getStayEnd()
-        );
-    }
+	@Autowired
+	private RoomRepository roomRepository;
 
-    @Override
-    public List<StayDTO> getAll() {
-        List<Stay> list = stayRepository.findAll();
-        List<StayDTO> dtoList = new ArrayList<>();
+	// 🔹 helper method (cleaner code)
+	private StayDTO mapToDTO(Stay s) {
+		return new StayDTO(s.getStayId(), s.getPatient().getSsn(), s.getPatient().getName(),
+				s.getRoom().getRoomNumber(), s.getRoom().getRoomType(), s.getStayStart(), s.getStayEnd());
+	}
 
-        for (Stay s : list) {
-            dtoList.add(mapToDTO(s));
-        }
+	@Override
+	public List<StayDTO> getAll() {
+		List<Stay> list = stayRepository.findAll();
+		List<StayDTO> dtoList = new ArrayList<>();
 
-        return dtoList;
-    }
+		for (Stay s : list) {
+			dtoList.add(mapToDTO(s));
+		}
 
-    @Override
-    public StayDTO getById(Integer id) {
-    	if(id<=0) {
-    		throw new BadRequestException("Id can not be negative or 0");
-    	}
-        Stay s = stayRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Stay not found with id: " + id));
+		return dtoList;
+	}
 
-        return mapToDTO(s);
-    }
+	@Override
+	public StayDTO getById(Integer id) {
+		if (id <= 0) {
+			throw new BadRequestException("Id can not be negative or 0");
+		}
+		Stay s = stayRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Stay not found with id: " + id));
 
-    @Override
-    public List<StayDTO> getByPatientSsn(Long ssn) {
-        List<Stay> list = stayRepository.findByPatient_Ssn(ssn);
-        List<StayDTO> dtoList = new ArrayList<>();
+		return mapToDTO(s);
+	}
 
-        for (Stay s : list) {
-            dtoList.add(mapToDTO(s));
-        }
+	@Override
+	public List<StayDTO> getByPatientSsn(Long ssn) {
+		List<Stay> list = stayRepository.findByPatient_Ssn(ssn);
+		List<StayDTO> dtoList = new ArrayList<>();
 
-        return dtoList;
-    }
+		for (Stay s : list) {
+			dtoList.add(mapToDTO(s));
+		}
 
-    @Override
-    public List<StayDTO> getByRoomNumber(Integer roomNumber) {
-    	if(roomNumber<=0) {
-    		throw new BadRequestException("Id can not be negative or 0");
-    	}
-        List<Stay> list = stayRepository.findByRoom_RoomNumber(roomNumber);
-        List<StayDTO> dtoList = new ArrayList<>();
+		return dtoList;
+	}
 
-        for (Stay s : list) {
-            dtoList.add(mapToDTO(s));
-        }
+	@Override
+	public List<StayDTO> getByRoomNumber(Integer roomNumber) {
+		if (roomNumber <= 0) {
+			throw new BadRequestException("Id can not be negative or 0");
+		}
+		List<Stay> list = stayRepository.findByRoom_RoomNumber(roomNumber);
+		List<StayDTO> dtoList = new ArrayList<>();
 
-        return dtoList;
-    }
+		for (Stay s : list) {
+			dtoList.add(mapToDTO(s));
+		}
 
-    @Override
-    public List<StayDTO> getStaysAfter(LocalDateTime date) {
-        List<Stay> list = stayRepository.findByStayStartAfter(date);
-        List<StayDTO> dtoList = new ArrayList<>();
+		return dtoList;
+	}
 
-        for (Stay s : list) {
-            dtoList.add(mapToDTO(s));
-        }
+	@Override
+	public List<StayDTO> getStaysAfter(LocalDateTime date) {
+		List<Stay> list = stayRepository.findByStayStartAfter(date);
+		List<StayDTO> dtoList = new ArrayList<>();
 
-        return dtoList;
-    }
+		for (Stay s : list) {
+			dtoList.add(mapToDTO(s));
+		}
 
-    @Override
-    public List<StayDTO> getActiveStays() {
-        List<Stay> list = stayRepository.findActiveStays(LocalDateTime.now());
-        List<StayDTO> dtoList = new ArrayList<>();
+		return dtoList;
+	}
 
-        for (Stay s : list) {
-            dtoList.add(mapToDTO(s));
-        }
+	@Override
+	public List<StayDTO> getActiveStays() {
+		List<Stay> list = stayRepository.findActiveStays(LocalDateTime.now());
+		List<StayDTO> dtoList = new ArrayList<>();
 
-        return dtoList;
-    }
+		for (Stay s : list) {
+			dtoList.add(mapToDTO(s));
+		}
 
-    @Override
-    public List<StayDTO> getPatientStayHistory(Long ssn) {
-        List<Stay> list = stayRepository.findByPatientSsnOrderByStayStartDesc(ssn);
-        List<StayDTO> dtoList = new ArrayList<>();
+		return dtoList;
+	}
 
-        for (Stay s : list) {
-            dtoList.add(mapToDTO(s));
-        }
+	@Override
+	public List<StayDTO> getPatientStayHistory(Long ssn) {
+		List<Stay> list = stayRepository.findByPatientSsnOrderByStayStartDesc(ssn);
+		List<StayDTO> dtoList = new ArrayList<>();
 
-        return dtoList;
-    }
+		for (Stay s : list) {
+			dtoList.add(mapToDTO(s));
+		}
+
+		return dtoList;
+	}
 
 //    @Override
 //    public boolean exists(Integer id) {
@@ -139,32 +132,42 @@ public class StayServiceImpl implements StayService {
 //        return stayRepository.count();
 //    }
 
-    @Override
-    public StayDTO create(StayDTO dto) {
+	@Override
+	public StayDTO create(StayDTO dto) {
 
-        Patient patient = patientRepository.findById(dto.getPatientSsn())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Patient not found with ssn: " + dto.getPatientSsn()));
+		Patient patient = patientRepository.findById(dto.getPatientSsn())
+				.orElseThrow(() -> new ResourceNotFoundException("Patient not found with ssn: " + dto.getPatientSsn()));
 
-        Room room = roomRepository.findById(dto.getRoomNumber())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Room not found with number: " + dto.getRoomNumber()));
+		Room room = roomRepository.findById(dto.getRoomNumber())
+				.orElseThrow(() -> new ResourceNotFoundException("Room not found with number: " + dto.getRoomNumber()));
 
-        Stay stay = new Stay();
-        stay.setPatient(patient);
-        stay.setRoom(room);
-        stay.setStayStart(dto.getStayStart());
-        stay.setStayEnd(dto.getStayEnd());
+		Stay stay = new Stay();
+		stay.setPatient(patient);
+		stay.setRoom(room);
+		stay.setStayStart(dto.getStayStart());
+		stay.setStayEnd(dto.getStayEnd());
 
-        Stay saved = stayRepository.save(stay);
+		Stay saved = stayRepository.save(stay);
 
-        return mapToDTO(saved);
-    }
+		return mapToDTO(saved);
+	}
 
-    @Override
-    public boolean isPatientActive(Long ssn) {
-        return stayRepository.existsActiveStayByPatient(ssn);
-    }
+	@Override
+	public boolean isPatientActive(Long ssn) {
+		return stayRepository.existsActiveStayByPatient(ssn);
+	}
 
+	@Override
+	public StayDTO getActiveStayByPatient(Long ssn) {
+		Optional<Stay> optionalStay = stayRepository.findByPatientSsnAndIsActiveTrue(ssn);
+
+		if (optionalStay.isEmpty()) {
+			return null;
+		}
+
+		Stay stay = optionalStay.get();
+
+		return mapToDTO(stay);
+	}
 
 }

@@ -51,6 +51,9 @@ public class SecurityConfig {
 								"/medications/**", "/procedures/**")
 						.hasRole("ADMIN").requestMatchers("/prescribes/patient/**").hasAnyRole("PATIENT", "ADMIN")
 						.requestMatchers("/prescribes/**").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.GET, "/patients/**").authenticated()
+						.requestMatchers(HttpMethod.POST, "/appointments/**").hasAnyRole("PATIENT", "ADMIN")
+						.requestMatchers(HttpMethod.GET, "/appointments/**").hasAnyRole("PATIENT", "ADMIN")
 						.requestMatchers("/patients/**", "/appointments/**", "/undergoes/**", "/stays/**", "/rooms/**",
 								"/blocks/**")
 						.hasAnyRole("PATIENT", "ADMIN")

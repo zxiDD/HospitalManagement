@@ -95,13 +95,13 @@ class PhysicianServiceTest {
 
     @Test
     void testGetByPosition() {
-        Mockito.when(repo.findByPosition("Cardiologist"))
+        Mockito.when(repo.findByPositionAndIsActiveTrue("Cardiologist"))
                 .thenReturn(List.of(physician));
 
         List<Physician> result = service.getByPosition("Cardiologist");
 
         Assertions.assertEquals(1, result.size());
-        Mockito.verify(repo).findByPosition("Cardiologist");
+        Mockito.verify(repo).findByPositionAndIsActiveTrue("Cardiologist");
     }
 
     @Test

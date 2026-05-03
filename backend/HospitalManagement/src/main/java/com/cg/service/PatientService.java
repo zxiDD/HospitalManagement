@@ -26,4 +26,6 @@ public interface PatientService {
     void delete(Long ssn);
     
     Optional<Patient> getByPhone(String phone);
+    
+    Patient assignPCP(Patient patient);
 }

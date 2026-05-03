@@ -21,12 +21,12 @@ public class PhysicianServiceImpl implements PhysicianService {
 
     @Override
     public List<Physician> getAll() {
-        return repo.findAll();
+        return repo.findByIsActiveTrue();
     }
 
     @Override
     public Physician getById(Integer id) {
-        return repo.findById(id)
+        return repo.findByEmployeeIdAndIsActiveTrue(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Physician not found with id: " + id)
                 );
@@ -54,7 +54,7 @@ public class PhysicianServiceImpl implements PhysicianService {
     
     @Override
     public List<Physician> getByPosition(String position) {
-        return repo.findByPosition(position);
+        return repo.findByPositionAndIsActiveTrue(position);
     }
 
     @Override

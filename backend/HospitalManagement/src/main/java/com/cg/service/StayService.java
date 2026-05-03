@@ -27,4 +27,6 @@ public interface StayService {
 	StayDTO create(StayDTO dto);
 	
 	boolean isPatientActive(Long ssn);
+	
+	StayDTO getActiveStayByPatient(Long ssn);
 }

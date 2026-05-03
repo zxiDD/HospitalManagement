@@ -19,6 +19,9 @@ public class Stay {
     @ManyToOne
     @JoinColumn(name = "room", nullable = false)
     private Room room;
+    
+    @Column(name = "is_active")
+    private boolean isActive = true;
 
     public Stay() {
 		super();
@@ -77,6 +80,14 @@ public class Stay {
 
 	public void setStayEnd(LocalDateTime stayEnd) {
 		this.stayEnd = stayEnd;
+	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
 	}
 
 }

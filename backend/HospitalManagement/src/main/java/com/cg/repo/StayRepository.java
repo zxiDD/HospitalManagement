@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StayRepository extends JpaRepository<Stay, Integer> {
@@ -30,4 +31,6 @@ public interface StayRepository extends JpaRepository<Stay, Integer> {
     
     @Query("SELECT COUNT(s) > 0 FROM Stay s WHERE s.patient.ssn = :ssn AND s.stayEnd IS NULL")
     boolean existsActiveStayByPatient(Long ssn);
+    
+    Optional<Stay> findByPatientSsnAndIsActiveTrue(Long ssn);
 }

@@ -47,17 +47,17 @@ class PatientServiceTest {
 
     @Test
     void testGetAll() {
-        when(repo.findAll()).thenReturn(List.of(patient));
+        when(repo.findByIsActiveTrue()).thenReturn(List.of(patient));
 
         List<Patient> result = service.getAll();
 
         assertEquals(1, result.size());
-        verify(repo).findAll();
+        verify(repo).findByIsActiveTrue();
     }
 
     @Test
     void testGetById_Success() {
-        when(repo.findById(1L)).thenReturn(Optional.of(patient));
+        when(repo.findBySsnAndIsActiveTrue(1L)).thenReturn(Optional.of(patient));
 
         Patient result = service.getById(1L);
 
@@ -67,7 +67,7 @@ class PatientServiceTest {
 
     @Test
     void testGetById_NotFound() {
-        when(repo.findById(1L)).thenReturn(Optional.empty());
+        when(repo.findBySsnAndIsActiveTrue(1L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
                 () -> service.getById(1L));
@@ -75,23 +75,23 @@ class PatientServiceTest {
 
     @Test
     void testGetByName() {
-        when(repo.findByName("Alice")).thenReturn(List.of(patient));
+        when(repo.findByNameAndIsActiveTrue("Alice")).thenReturn(List.of(patient));
 
         List<Patient> result = service.getByName("Alice");
 
         assertEquals(1, result.size());
-        verify(repo).findByName("Alice");
+        verify(repo).findByNameAndIsActiveTrue("Alice");
     }
 
     @Test
     void testGetByNameAndAddress() {
-        when(repo.findByNameAndAddress("Alice", "Delhi"))
+        when(repo.findByNameAndAddressAndIsActiveTrue("Alice", "Delhi"))
                 .thenReturn(List.of(patient));
 
         List<Patient> result = service.getByNameAndAddress("Alice", "Delhi");
 
         assertEquals(1, result.size());
-        verify(repo).findByNameAndAddress("Alice", "Delhi");
+        verify(repo).findByNameAndAddressAndIsActiveTrue("Alice", "Delhi");
     }
 
     @Test
@@ -118,7 +118,7 @@ class PatientServiceTest {
 
     @Test
     void testDelete_Success() {
-        when(repo.findById(1L)).thenReturn(Optional.of(patient));
+        when(repo.findBySsnAndIsActiveTrue(1L)).thenReturn(Optional.of(patient));
 
         service.delete(1L);
 
@@ -128,7 +128,7 @@ class PatientServiceTest {
 
     @Test
     void testDelete_NotFound() {
-        when(repo.findById(1L)).thenReturn(Optional.empty());
+        when(repo.findBySsnAndIsActiveTrue(1L)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class,
                 () -> service.delete(1L));
@@ -136,7 +136,7 @@ class PatientServiceTest {
 
     @Test
     void testGetByPhone_Success() {
-        when(repo.findByPhone("9999999999"))
+        when(repo.findByPhoneAndIsActiveTrue("9999999999"))
                 .thenReturn(Optional.of(patient));
 
         Optional<Patient> result = service.getByPhone("9999999999");
@@ -147,7 +147,7 @@ class PatientServiceTest {
 
     @Test
     void testGetByPhone_NotFound() {
-        when(repo.findByPhone("9999999999"))
+        when(repo.findByPhoneAndIsActiveTrue("9999999999"))
                 .thenReturn(Optional.empty());
 
         Optional<Patient> result = service.getByPhone("9999999999");
