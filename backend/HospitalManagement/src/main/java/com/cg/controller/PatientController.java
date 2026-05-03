@@ -1,19 +1,27 @@
 package com.cg.controller;
 
 import com.cg.dto.AppointmentDTO;
+import com.cg.dto.MedicationDTO;
 import com.cg.dto.PatientDTO;
+import com.cg.dto.PatientDashboardDTO;
+import com.cg.dto.StayDTO;
 import com.cg.entity.Patient;
 import com.cg.entity.Physician;
 import com.cg.exception.BadRequestException;
 import com.cg.exception.ResourceNotFoundException;
 import com.cg.exception.ValidationException;
 import com.cg.repo.PatientRepository;
+import com.cg.service.AppointmentService;
+import com.cg.service.MedicationService;
 import com.cg.service.PatientService;
 import com.cg.service.PhysicianService;
+import com.cg.service.PrescribesService;
+import com.cg.service.StayService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -23,44 +31,45 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/patients")
 @SecurityRequirement(name = "BearerAuth")
 public class PatientController {
-
-	private final PatientService service;
-	private final PhysicianService physicianService;
-
-	public PatientController(PatientService service, PhysicianService physicianService) {
-		this.service = service;
-		this.physicianService = physicianService;
-	}
+	@Autowired
+	private PatientService service;
+	@Autowired
+	private PhysicianService physicianService;
+	@Autowired
+	private AppointmentService appointmentService;
+	@Autowired
+	private PrescribesService prescribesService;
+	@Autowired
+	private StayService stayService;
 
 	private PatientDTO mapToDTO(Patient p) {
 		return new PatientDTO(p.getSsn(), p.getName(), p.getAddress(), p.getPhone(), p.getInsuranceId(),
 				p.getPhysician() != null ? p.getPhysician().getEmployeeId() : null);
 	}
 
-	@GetMapping
+	@GetMapping("/patients")
 	public ResponseEntity<List<PatientDTO>> getAll() {
 		List<PatientDTO> list = service.getAll().stream().map(this::mapToDTO).collect(Collectors.toList());
 
 		return ResponseEntity.ok(list);
 	}
 
-	@GetMapping("/{ssn}")
+	@GetMapping("/patients/{ssn}")
 	public ResponseEntity<PatientDTO> getBySsn(@PathVariable Long ssn) {
 		Patient p = service.getById(ssn);
 		return ResponseEntity.ok(mapToDTO(p));
 	}
 
-	@GetMapping("/name/{name}")
+	@GetMapping("patients/name/{name}")
 	public ResponseEntity<List<PatientDTO>> getByName(@PathVariable String name) {
 		List<PatientDTO> list = service.getByName(name).stream().map(this::mapToDTO).collect(Collectors.toList());
 
 		return ResponseEntity.ok(list);
 	}
 
-	@GetMapping("/search")
+	@GetMapping("/patients/search")
 	public ResponseEntity<List<PatientDTO>> getByNameAndAddress(@RequestParam String name,
 			@RequestParam String address) {
 
@@ -90,7 +99,7 @@ public class PatientController {
 //        return ResponseEntity.ok(service.exists(ssn));
 //    }
 
-	@PostMapping
+	@PostMapping("/admin/patients")
 	public ResponseEntity<PatientDTO> create(@Valid @RequestBody PatientDTO dto, BindingResult br) {
 
 		if (br.hasErrors()) {
@@ -116,7 +125,7 @@ public class PatientController {
 		return ResponseEntity.status(201).body(mapToDTO(saved));
 	}
 
-	@PutMapping("/{ssn}")
+	@PutMapping("/admin/patients/{ssn}")
 	public ResponseEntity<PatientDTO> update(@PathVariable Long ssn, @Valid @RequestBody PatientDTO dto) {
 
 		Patient existing = service.getById(ssn);
@@ -136,7 +145,7 @@ public class PatientController {
 		return ResponseEntity.ok(mapToDTO(updated));
 	}
 
-	@DeleteMapping("/{ssn}")
+	@DeleteMapping("/admin/patients/{ssn}")
 	public ResponseEntity<Void> delete(@PathVariable Long ssn) {
 
 		service.delete(ssn); // soft delete
@@ -150,5 +159,50 @@ public class PatientController {
 				.orElseThrow(() -> new ResourceNotFoundException("Patient not found with phone number: " + phone));
 
 		return ResponseEntity.ok(mapToDTO(patient));
+	}
+
+	@PatchMapping("/admin/patients/{ssn}/pcp/{physicianId}")
+	public ResponseEntity<PatientDTO> assignPCP(@PathVariable Long ssn, @PathVariable Integer physicianId) {
+
+		Patient patient = service.getById(ssn);
+
+		Physician physician = physicianService.getById(physicianId);
+
+		patient.setPhysician(physician);
+
+		Patient updatedPatient = service.assignPCP(patient);
+
+		return ResponseEntity.ok(mapToDTO(updatedPatient));
+	}
+
+	@GetMapping("/patients/{ssn}/dashboard")
+	public ResponseEntity<PatientDashboardDTO> getPatientDashboard(@PathVariable Long ssn) {
+
+		Patient patient = service.getById(ssn);
+
+		PatientDTO patientSummary = new PatientDTO();
+		patientSummary.setName(patient.getName());
+		patientSummary.setSsn(patient.getSsn());
+		patientSummary.setAddress(patient.getAddress());
+		patientSummary.setInsuranceId(patient.getInsuranceId());
+		patientSummary.setPhone(patient.getPhone());
+
+		if (patient.getPhysician() != null) {
+			patientSummary.setPhysicianId(patient.getPhysician().getEmployeeId());
+		}
+
+		List<AppointmentDTO> appointments = appointmentService.getUpcomingAppointmentsByPatient(ssn);
+
+		StayDTO currentStay = stayService.getActiveStayByPatient(ssn);
+
+		List<MedicationDTO> medications = prescribesService.getMedicationsByPatient(ssn);
+
+		PatientDashboardDTO dashboard = new PatientDashboardDTO();
+		dashboard.setPatient(patientSummary);
+		dashboard.setAppointments(appointments);
+		dashboard.setStay(currentStay);
+		dashboard.setMedications(medications);
+
+		return ResponseEntity.ok(dashboard);
 	}
 }

@@ -9,9 +9,13 @@ import { RouterModule } from '@angular/router';
 })
 export class LandingComponent {
   scrollToFeatures() {
-  const section = document.getElementById('features');
-  if (section) {
-    section.scrollIntoView({ behavior: 'smooth' });
+    const section = document.getElementById('features');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
   }
-}
+
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }

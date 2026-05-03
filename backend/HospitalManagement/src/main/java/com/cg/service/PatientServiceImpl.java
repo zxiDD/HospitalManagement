@@ -22,22 +22,22 @@ public class PatientServiceImpl implements PatientService {
 
 	@Override
 	public List<Patient> getAll() {
-		return repo.findAll();
+		return repo.findByIsActiveTrue();
 	}
 
 	@Override
 	public Patient getById(Long id) {
-		return repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Patient not found with SSN: " + id));
+		return repo.findBySsnAndIsActiveTrue(id).orElseThrow(() -> new ResourceNotFoundException("Patient not found with SSN: " + id));
 	}
 
 	@Override
 	public List<Patient> getByName(String name) {
-		return repo.findByName(name);
+		return repo.findByNameAndIsActiveTrue(name);
 	}
 
 	@Override
 	public List<Patient> getByNameAndAddress(String name, String address) {
-		return repo.findByNameAndAddress(name, address);
+		return repo.findByNameAndAddressAndIsActiveTrue(name, address);
 	}
 
 //	@Override
@@ -68,7 +68,7 @@ public class PatientServiceImpl implements PatientService {
 	@Override
 	public void delete(Long ssn) {
 
-		Patient patient = repo.findById(ssn).orElseThrow(() -> new RuntimeException("Patient not found"));
+		Patient patient = repo.findBySsnAndIsActiveTrue(ssn).orElseThrow(() -> new RuntimeException("Patient not found"));
 
 		patient.setIsActive(false); // 👈 soft delete
 
@@ -77,6 +77,11 @@ public class PatientServiceImpl implements PatientService {
 
 	@Override
 	public Optional<Patient> getByPhone(String phone) {
-		return repo.findByPhone(phone);
+		return repo.findByPhoneAndIsActiveTrue(phone);
+	}
+
+	@Override
+	public Patient assignPCP(Patient patient) {
+		return repo.save(patient);
 	}
 }

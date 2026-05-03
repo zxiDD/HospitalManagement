@@ -1,5 +1,6 @@
 package com.cg.service;
 
+import com.cg.dto.AppointmentDTO;
 import com.cg.entity.Appointment;
 import com.cg.entity.Nurse;
 import com.cg.entity.Patient;
@@ -15,6 +16,8 @@ import com.cg.repo.PhysicianRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -86,7 +89,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 		Appointment appointment = repository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Appointment not found with ID: " + id));
 
-		appointment.setActive(false);
+		appointment.setIsActive(false);
 
 		repository.save(appointment);
 	}
@@ -128,5 +131,42 @@ public class AppointmentServiceImpl implements AppointmentService {
 		List<Patient> patients = patientRepo.findByPhysicianEmployeeId(physicianId);
 
 		return patients;
+	}
+
+	@Override
+	public List<AppointmentDTO> getUpcomingAppointmentsByPatient(Long ssn) {
+
+		patientRepo.findById(ssn).orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+		LocalDateTime now = LocalDateTime.now();
+
+		List<Appointment> appointments = repository.findByPatient_Ssn(ssn);
+
+		return appointments.stream()
+
+				.filter(appointment -> appointment.getStarto().isAfter(now))
+
+				.filter(Appointment::getIsActive)
+
+				.sorted(Comparator.comparing(Appointment::getStarto))
+
+				.map(appointment -> {
+					AppointmentDTO dto = new AppointmentDTO();
+
+					dto.setAppointmentID(appointment.getAppointmentID());
+					dto.setStarto(appointment.getStarto());
+
+					if (appointment.getPhysician() != null) {
+						dto.setPhysicianId(appointment.getPhysician().getEmployeeId());
+					}
+
+					if (appointment.getExaminationRoom() != null) {
+						dto.setExaminationRoom("Room " + appointment.getExaminationRoom());
+					}
+
+					return dto;
+				})
+
+				.toList();
 	}
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cg.dto.MedicationDTO;
 import com.cg.dto.PrescribesDTO;
 import com.cg.entity.Appointment;
 import com.cg.entity.Medication;

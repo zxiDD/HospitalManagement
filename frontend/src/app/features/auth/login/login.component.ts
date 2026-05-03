@@ -44,20 +44,21 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, RouterModule,CommonModule],
-  templateUrl: './login.component.html'
+  imports: [FormsModule, RouterModule, CommonModule],
+  templateUrl: './login.component.html',
 })
 export class LoginComponent {
-
   username = '';
   password = '';
   errorMessage = '';
-  showPassword = false; // 👁️ toggle
+  showPassword = false;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+  ) {}
 
   onLogin() {
-    // basic validation
     if (!this.username || !this.password) {
       this.errorMessage = 'Please enter username and password';
       return;
@@ -65,21 +66,20 @@ export class LoginComponent {
 
     const data = {
       username: this.username,
-      password: this.password
+      password: this.password,
     };
 
     this.auth.login(data).subscribe({
       next: (res: any) => {
         console.log('Login success:', res);
 
-        // ⚠️ Handle different backend responses
-        const token = res.token || res.jwt || res.accessToken;
+        const token = res.token;
+        this.auth.storeUserData(res);
 
-        if (token) {
-          this.auth.saveToken(token);
-          this.router.navigate(['/dashboard']);
-        } else {
-          this.errorMessage = 'Token not received from server';
+        if (res.roles.includes('ROLE_ADMIN')) {
+          this.router.navigate(['/admin-dashboard']);
+        } else if (res.roles.includes('ROLE_PATIENT')) {
+          this.router.navigate(['/patient-dashboard']);
         }
       },
       error: (err) => {
@@ -92,7 +92,7 @@ export class LoginComponent {
         } else {
           this.errorMessage = 'Something went wrong';
         }
-      }
+      },
     });
   }
 }

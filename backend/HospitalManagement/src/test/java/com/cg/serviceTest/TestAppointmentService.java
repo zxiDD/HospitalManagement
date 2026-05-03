@@ -73,6 +73,6 @@ class TestAppointmentService {
     void testSoftDelete() {
         Mockito.when(repo.findById(1)).thenReturn(opt);
         service.cancelAppointment(1);
-        Assertions.assertFalse(a.isActive());
+        Assertions.assertFalse(a.getIsActive());
     }
 }

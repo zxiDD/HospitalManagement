@@ -8,13 +8,15 @@ import java.util.Optional;
 
 public interface PatientRepository extends JpaRepository<Patient, Long> {
 
-    List<Patient> findByName(String name);
+    List<Patient> findByNameAndIsActiveTrue(String name);
 
-    List<Patient> findByNameAndAddress(String name, String address);
+    List<Patient> findByNameAndAddressAndIsActiveTrue(String name, String address);
     
     List<Patient> findByIsActiveTrue();
     
-    Optional<Patient> findByPhone(String phone);
+    Optional<Patient> findByPhoneAndIsActiveTrue(String phone);
     
     List<Patient> findByPhysicianEmployeeId(Integer employeeId);
+    
+    Optional<Patient> findBySsnAndIsActiveTrue(Long ssn);
 }

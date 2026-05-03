@@ -101,7 +101,7 @@ public class AuthController {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body("Patient already exists");
 		}
 
-		if (patientRepository.findByPhone(dto.getPhoneNo()).isPresent()) {
+		if (patientRepository.findByPhoneAndIsActiveTrue(dto.getPhoneNo()).isPresent()) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body("Phone number already exists");
 		}
 
@@ -117,7 +117,7 @@ public class AuthController {
 
 		RolePk rolePk = new RolePk();
 		rolePk.setUserName(dto.getUsername());
-		rolePk.setRoleName("ROLE_USER");
+		rolePk.setRoleName("ROLE_PATIENT");
 
 		Role role = new Role();
 		role.setKey(rolePk);
