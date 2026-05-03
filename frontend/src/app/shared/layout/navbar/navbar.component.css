@@ -1,0 +1,9 @@
+.topbar {
+  height: 60px;
+  background: linear-gradient(90deg, #1e293b, #334155);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
