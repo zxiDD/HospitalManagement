@@ -52,9 +52,17 @@ public class PrescribesController {
 	}
 
 	private PrescribesDTO mapToDTO(Prescribes p) {
-		return new PrescribesDTO(p.getPhysician().getEmployeeId(), p.getPatient().getSsn(), p.getMedication().getCode(),
-				p.getId().getDate(), p.getDose(),
-				p.getAppointment() != null ? p.getAppointment().getAppointmentID() : null);
+		return new PrescribesDTO(
+				p.getPhysician().getEmployeeId(),
+				p.getPhysician().getName(),
+				p.getPatient().getSsn(),
+				p.getPatient().getName(),
+				p.getMedication().getCode(),
+				p.getMedication().getName(),
+				p.getId().getDate(),
+				p.getDose(),
+				p.getAppointment() != null ? p.getAppointment().getAppointmentID() : null
+		);
 	}
 
 	@GetMapping("/prescribes")
@@ -151,9 +159,17 @@ public class PrescribesController {
 
 		Prescribes saved = service.save(prescribes);
 
-		PrescribesDTO response = new PrescribesDTO(saved.getPhysician().getEmployeeId(), saved.getPatient().getSsn(),
-				saved.getMedication().getCode(), saved.getId().getDate(), saved.getDose(),
-				saved.getAppointment() != null ? saved.getAppointment().getAppointmentID() : null);
+		PrescribesDTO response = new PrescribesDTO(
+				saved.getPhysician().getEmployeeId(),
+				null, // Ideally we would fetch the name, but for a simple response it can be null or we rely on mapToDTO
+				saved.getPatient().getSsn(),
+				null,
+				saved.getMedication().getCode(),
+				null,
+				saved.getId().getDate(),
+				saved.getDose(),
+				saved.getAppointment() != null ? saved.getAppointment().getAppointmentID() : null
+		);
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}

@@ -1,0 +1,101 @@
+<!-- Skeleton while loading -->
+<section class="page" *ngIf="!dashboard()">
+  <div class="skeleton skeleton-card" style="height:60px;"></div>
+  <div class="detail-grid">
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+  </div>
+  <div class="skeleton skeleton-card" style="height:200px;"></div>
+</section>
+
+<section class="page" *ngIf="dashboard() as data">
+  <!-- Welcome header -->
+  <div class="page-header">
+    <div class="patient-welcome">
+      <span class="greeting">{{ greeting() }}</span>
+      <h1>{{ data.patient.name }}</h1>
+      <p>Your personal health dashboard</p>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <!-- Profile -->
+    <article class="panel">
+      <div class="profile-header">
+        <span class="profile-avatar">{{ nameInitials(data.patient.name) }}</span>
+        <div class="profile-meta">
+          <strong>{{ data.patient.name }}</strong>
+          <span>SSN: {{ data.patient.ssn }}</span>
+        </div>
+      </div>
+      <dl>
+        <dt>Phone</dt>
+        <dd>{{ data.patient.phone }}</dd>
+        <dt>Address</dt>
+        <dd>{{ data.patient.address }}</dd>
+        <dt>Insurance</dt>
+        <dd>{{ data.patient.insuranceId }}</dd>
+        <dt>Primary Physician</dt>
+        <dd>{{ data.patient.physicianId || 'Unassigned' }}</dd>
+      </dl>
+    </article>
+
+    <!-- Current Stay -->
+    <article class="panel">
+      <h2>Current Stay</h2>
+      <ng-container *ngIf="data.stay; else noStay">
+        <div class="stay-active">
+          <span class="pulse-dot"></span>
+          Active Admission
+        </div>
+        <dl>
+          <dt>Room</dt>
+          <dd>{{ data.stay.roomNumber }} {{ data.stay.roomType || '' }}</dd>
+          <dt>Admitted</dt>
+          <dd>{{ data.stay.stayStart | date: 'dd MMM yyyy, HH:mm' }}</dd>
+        </dl>
+      </ng-container>
+      <ng-template #noStay>
+        <div class="empty-state" style="padding:1.5rem 0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" width="40" height="40" style="margin:0 auto 0.5rem;display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75"/></svg>
+          <p class="muted">No active stay</p>
+        </div>
+      </ng-template>
+    </article>
+  </div>
+
+  <!-- Appointments -->
+  <section class="panel">
+    <h2>Upcoming Appointments</h2>
+    <div class="responsive-table" *ngIf="data.appointments.length; else noAppts">
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Physician</th><th>Start</th><th>End</th><th>Room</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of data.appointments">
+            <td>{{ item.appointmentID }}</td>
+            <td>{{ item.physicianId }}</td>
+            <td>{{ item.starto | date: 'dd MMM yyyy, HH:mm' }}</td>
+            <td>{{ item.endo | date: 'dd MMM yyyy, HH:mm' }}</td>
+            <td><span class="badge">{{ item.examinationRoom }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #noAppts>
+      <div class="empty-state">No upcoming appointments</div>
+    </ng-template>
+  </section>
+
+  <!-- Medications -->
+  <section class="panel">
+    <h2>Current Medications</h2>
+    <div class="tag-list" *ngIf="data.medications.length; else noMeds">
+      <span class="tag" *ngFor="let med of data.medications">💊 {{ med.name }} — {{ med.brand }}</span>
+    </div>
+    <ng-template #noMeds>
+      <div class="empty-state">No active medications</div>
+    </ng-template>
+  </section>
+</section>

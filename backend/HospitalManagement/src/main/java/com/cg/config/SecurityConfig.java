@@ -25,7 +25,7 @@ public class SecurityConfig {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(List.of("http://localhost:4200"));
+		config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:4201", "http://127.0.0.1:4200"));
 		config.setAllowedMethods(List.of("GET", "POST", "DELETE", "PATCH", "PUT", "OPTIONS"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowCredentials(true);
@@ -58,7 +58,7 @@ public class SecurityConfig {
 								"/blocks/**")
 						.hasAnyRole("PATIENT", "ADMIN")
 						.requestMatchers(HttpMethod.GET, "/physicians/**", "/nurses/**", "/departments/**",
-								"/medications/**", "/procedures/**")
+								"/medications/**", "/procedures/**", "/stats/**")
 						.authenticated().anyRequest().authenticated())
 				.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class).build();

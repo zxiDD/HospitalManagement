@@ -13,6 +13,8 @@ public class OnCallDTO {
     @NotNull(message = "Nurse ID is required")
     @Min(value = 1, message = "Nurse ID must be positive")
     private Integer nurseId;
+    
+    private String nurseName;
 
     @NotNull(message = "Block Floor is required")
     @Min(value = 1, message = "Block Floor must be positive")
@@ -33,10 +35,11 @@ public class OnCallDTO {
     public OnCallDTO() {
     }
 
-	public OnCallDTO(Integer nurseId, Integer blockFloor, Integer blockCode, LocalDateTime onCallStart,
+	public OnCallDTO(Integer nurseId, String nurseName, Integer blockFloor, Integer blockCode, LocalDateTime onCallStart,
 			LocalDateTime onCallEnd) {
 		super();
 		this.nurseId = nurseId;
+		this.nurseName = nurseName;
 		this.blockFloor = blockFloor;
 		this.blockCode = blockCode;
 		this.onCallStart = onCallStart;
@@ -49,6 +52,14 @@ public class OnCallDTO {
 
 	public void setNurseId(Integer nurseId) {
 		this.nurseId = nurseId;
+	}
+
+	public String getNurseName() {
+		return nurseName;
+	}
+
+	public void setNurseName(String nurseName) {
+		this.nurseName = nurseName;
 	}
 
 	public Integer getBlockFloor() {

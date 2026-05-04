@@ -26,5 +26,5 @@ public interface RoomService {
 	// Get rooms by block floor and block code
 	public List<Room> getRoomsByBlock(Integer blockFloor, Integer blockCode);
 	
-	Room markRoomUnavailable(Integer roomNumber);
+	Room toggleRoomAvailability(Integer roomNumber);
 }

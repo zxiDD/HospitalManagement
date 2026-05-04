@@ -47,7 +47,8 @@ public class PatientController {
 	
 	private PatientDTO mapToDTO(Patient p) {
 		return new PatientDTO(p.getSsn(), p.getName(), p.getAddress(), p.getPhone(), p.getInsuranceId(),
-				p.getPhysician() != null ? p.getPhysician().getEmployeeId() : null);
+				p.getPhysician() != null ? p.getPhysician().getEmployeeId() : null,
+				p.getPhysician() != null ? p.getPhysician().getName() : null);
 	}
 
 	@GetMapping("/patients")

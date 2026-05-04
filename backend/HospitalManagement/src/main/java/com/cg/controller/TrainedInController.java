@@ -28,7 +28,9 @@ public class TrainedInController {
     	
         return new TrainedInDTO(
                 t.getId().getPhysician(),
+                t.getPhysician().getName(),
                 t.getId().getTreatment(),
+                t.getTreatment().getName(),
                 t.getCertificationDate().toLocalDate(),
                 t.getCertificationExpires().toLocalDate()
         );
@@ -86,6 +88,14 @@ public class TrainedInController {
         t.setCertificationDate(dto.getCertificationDate().atStartOfDay());
         t.setCertificationExpires(dto.getCertificationExpires().atStartOfDay());
 
-        return ResponseEntity.status(201).body(service.save(t));
+        TrainedIn saved = service.save(t);
+        return ResponseEntity.status(201).body(new TrainedInDTO(
+                saved.getId().getPhysician(),
+                null,
+                saved.getId().getTreatment(),
+                null,
+                saved.getCertificationDate().toLocalDate(),
+                saved.getCertificationExpires().toLocalDate()
+        ));
     }
 }

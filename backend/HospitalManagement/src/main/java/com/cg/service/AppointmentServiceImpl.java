@@ -72,14 +72,51 @@ public class AppointmentServiceImpl implements AppointmentService {
 	@Override
 	public Appointment save(Appointment a) {
 
-		if (a.getAppointmentID() != null && repository.existsById(a.getAppointmentID())) {
-			throw new DuplicateResourceException("Appointment already exists");
+		if (a.getAppointmentID() == null) {
+			a.setIsActive(true);
 		}
 
 		if (a.getEndo().isBefore(a.getStarto())) {
 			throw new IllegalOperationException("End time cannot be before start time");
 		}
 
+		if (a.getPhysician() != null) {
+			boolean isBooked = repository.isPhysicianBookedDuring(
+					a.getPhysician().getEmployeeId(),
+					a.getStarto(),
+					a.getEndo(),
+					a.getAppointmentID() // null for new appointments
+			);
+
+			if (isBooked) {
+				throw new BadRequestException("The selected physician is already booked during this time.");
+			}
+		}
+
+		if (a.getExaminationRoom() != null && !a.getExaminationRoom().equalsIgnoreCase("TBD")) {
+			boolean isRoomBooked = repository.isRoomBookedDuring(
+					a.getExaminationRoom(),
+					a.getStarto(),
+					a.getEndo(),
+					a.getAppointmentID()
+			);
+
+			if (isRoomBooked) {
+				throw new BadRequestException("Room " + a.getExaminationRoom() + " is already booked for another appointment at this time.");
+			}
+		}
+
+        // ✅ Ensure a patient can only have one appointment per day
+        java.time.LocalDate appointmentDate = a.getStarto().toLocalDate();
+        boolean patientBooked;
+        if (a.getAppointmentID() == null) {
+            patientBooked = repository.existsAppointmentForPatientOnDate(a.getPatient().getSsn(), appointmentDate);
+        } else {
+            patientBooked = repository.existsAppointmentForPatientOnDateExcluding(a.getPatient().getSsn(), appointmentDate, a.getAppointmentID());
+        }
+        if (patientBooked) {
+            throw new BadRequestException("Patient already has an appointment on " + appointmentDate);
+        }
 		return repository.save(a);
 	}
 

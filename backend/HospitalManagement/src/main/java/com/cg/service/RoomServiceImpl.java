@@ -53,18 +53,14 @@ public class RoomServiceImpl implements RoomService {
 	}
 	
 	@Override
-	public Room markRoomUnavailable(Integer roomNumber) {
+	public Room toggleRoomAvailability(Integer roomNumber) {
 
 	    Room room = roomRepository.findById(roomNumber)
 	            .orElseThrow(() ->
 	                    new ResourceNotFoundException("Room not found with number: " + roomNumber));
 
-	    // 🔴 Business validation
-	    if (room.getUnavailable()) {
-	        throw new BadRequestException("Room is already unavailable");
-	    }
-
-	    room.setUnavailable(true);
+	    // 🔴 Toggle status
+	    room.setUnavailable(!room.getUnavailable());
 
 	    return roomRepository.save(room);
 	}

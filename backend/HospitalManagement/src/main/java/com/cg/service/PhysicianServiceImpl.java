@@ -59,13 +59,6 @@ public class PhysicianServiceImpl implements PhysicianService {
 
     @Override
     public Physician save(Physician physician) {
-
-        if (physician.getEmployeeId()!=null && repo.existsById(physician.getEmployeeId())) {
-            throw new BadRequestException(
-                    "Physician already exists with id: " + physician.getEmployeeId()
-            );
-        }
-
         return repo.save(physician);
     }
     

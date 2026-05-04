@@ -3,9 +3,6 @@ package com.cg.dto;
 import jakarta.validation.constraints.*;
 
 public class NurseDTO {
-
-    @NotNull(message = "Employee ID cannot be null")
-    @Min(value = 1, message = "Employee ID must be greater than 0")
     private Integer employeeId;
 
     @NotBlank(message = "Name cannot be empty")

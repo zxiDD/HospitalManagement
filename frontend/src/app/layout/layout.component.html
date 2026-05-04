@@ -1,0 +1,58 @@
+<!-- Mobile overlay -->
+<div class="mobile-overlay" *ngIf="mobileOpen()" (click)="mobileOpen.set(false)"></div>
+
+<div class="app-shell" [class.collapsed]="collapsed()">
+  <aside class="sidebar" [class.mobile-open]="mobileOpen()">
+    <a class="brand" routerLink="/dashboard">
+      <span class="brand-mark">H</span>
+      <span class="brand-text">
+        <strong>HMS</strong>
+        <small>Hospital Management</small>
+      </span>
+    </a>
+
+    <div *ngFor="let section of sections()" class="sidebar-section">
+      <div class="sidebar-section-label">{{ section.label }}</div>
+      <nav>
+        <a
+          *ngFor="let item of section.items"
+          [routerLink]="resolveRoute(item.route)"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.route.includes('dashboard') }"
+          (click)="mobileOpen.set(false)"
+        >
+          <span class="nav-icon" [innerHTML]="getIcon(item.icon)"></span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="sidebar-footer">
+      <a class="sidebar-nav-link" style="display:flex;align-items:center;gap:0.7rem;padding:0.55rem 0.65rem;border-radius:8px;color:var(--sidebar-text);font-size:0.85rem;cursor:pointer;text-decoration:none;" (click)="auth.logout()">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg></span>
+        <span class="nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="workspace">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="toggle-btn" type="button" (click)="toggleSidebar()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+        </button>
+      </div>
+      <div class="topbar-right">
+        <div class="user-info">
+          <div class="user-meta">
+            <strong>{{ auth.userName() }}</strong>
+            <span class="user-role">{{ auth.isAdmin() ? 'Administrator' : 'Patient' }}</span>
+          </div>
+          <span class="user-avatar">{{ initials() }}</span>
+        </div>
+      </div>
+    </header>
+
+    <router-outlet />
+  </main>
+</div>

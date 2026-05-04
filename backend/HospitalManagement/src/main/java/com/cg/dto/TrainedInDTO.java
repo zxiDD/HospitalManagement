@@ -12,10 +12,12 @@ public class TrainedInDTO {
     @NotNull(message = "Physician ID is required")
     @Min(value = 1, message = "Physician ID must be positive")
     private Integer physicianId;
+	private String physicianName;
 
     @NotNull(message = "Treatment ID is required")
     @Min(value = 1, message = "Treatment ID must be positive")
     private Integer treatmentId;
+	private String treatmentName;
 
     @NotNull(message = "Certification date is required")
     @PastOrPresent(message = "Certification date cannot be future")
@@ -28,16 +30,16 @@ public class TrainedInDTO {
     public TrainedInDTO() {
     }
     
-
-	public TrainedInDTO(Integer physicianId, Integer treatmentId, LocalDate certificationDate,
+	public TrainedInDTO(Integer physicianId, String physicianName, Integer treatmentId, String treatmentName, LocalDate certificationDate,
 			LocalDate certificationExpires) {
 		super();
 		this.physicianId = physicianId;
+		this.physicianName = physicianName;
 		this.treatmentId = treatmentId;
+		this.treatmentName = treatmentName;
 		this.certificationDate = certificationDate;
 		this.certificationExpires = certificationExpires;
 	}
-
 
 	public Integer getPhysicianId() {
 		return physicianId;
@@ -47,6 +49,9 @@ public class TrainedInDTO {
 		this.physicianId = physicianId;
 	}
 
+	public String getPhysicianName() { return physicianName; }
+	public void setPhysicianName(String physicianName) { this.physicianName = physicianName; }
+
 	public Integer getTreatmentId() {
 		return treatmentId;
 	}
@@ -54,6 +59,9 @@ public class TrainedInDTO {
 	public void setTreatmentId(Integer treatmentId) {
 		this.treatmentId = treatmentId;
 	}
+
+	public String getTreatmentName() { return treatmentName; }
+	public void setTreatmentName(String treatmentName) { this.treatmentName = treatmentName; }
 
 	public LocalDate getCertificationDate() {
 		return certificationDate;

@@ -19,8 +19,8 @@ public interface NurseRepository extends JpaRepository<Nurse, Integer> {
 			    SELECT COUNT(oc) > 0
 			    FROM OnCall oc
 			    WHERE oc.nurse.employeeId = :nurseId
-			      AND oc.onCallStart <= :start
-			      AND oc.onCallEnd   >= :end
+			      AND oc.onCallStart < :end
+			      AND oc.onCallEnd   > :start
 			""")
 	boolean isNurseOnCallDuring(@Param("nurseId") Integer nurseId, @Param("start") LocalDateTime start,
 			@Param("end") LocalDateTime end);

@@ -28,16 +28,19 @@ public class PatientDTO {
 	@Min(value = 1, message = "Physician ID must be greater than 0")
 	private Integer physicianId;
 
+	private String physicianName;
+
 	public PatientDTO() {
 	}
 
-	public PatientDTO(Long ssn, String name, String address, String phone, Integer insuranceId, Integer physicianId) {
+	public PatientDTO(Long ssn, String name, String address, String phone, Integer insuranceId, Integer physicianId, String physicianName) {
 		this.ssn = ssn;
 		this.name = name;
 		this.address = address;
 		this.phone = phone;
 		this.insuranceId = insuranceId;
 		this.physicianId = physicianId;
+		this.physicianName = physicianName;
 	}
 
 	public Long getSsn() {
@@ -86,5 +89,13 @@ public class PatientDTO {
 
 	public void setPhysicianId(Integer physicianId) {
 		this.physicianId = physicianId;
+	}
+
+	public String getPhysicianName() {
+		return physicianName;
+	}
+
+	public void setPhysicianName(String physicianName) {
+		this.physicianName = physicianName;
 	}
 }

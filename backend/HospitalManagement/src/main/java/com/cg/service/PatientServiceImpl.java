@@ -57,8 +57,7 @@ public class PatientServiceImpl implements PatientService {
 
 	@Override
 	public Patient save(Patient patient) {
-
-		if (repo.existsById(patient.getSsn())) {
+		if (patient.getSsn() != null && repo.existsById(patient.getSsn())) {
 			throw new BadRequestException("Patient already exists with SSN: " + patient.getSsn());
 		}
 

@@ -26,7 +26,7 @@ public class OnCallController {
 	private OnCallService service;
 
 	private OnCallDTO convertToDTO(OnCall o) {
-		return new OnCallDTO(o.getId().getNurse(), o.getId().getBlockFloor(), o.getId().getBlockCode(),
+		return new OnCallDTO(o.getId().getNurse(), o.getNurse().getName(), o.getId().getBlockFloor(), o.getId().getBlockCode(),
 				o.getOnCallStart(), o.getOnCallEnd());
 	}
 

@@ -61,10 +61,18 @@ public class UndergoesController {
 	private PhysicianService physicianService;
 
 	private UndergoesDTO convertToDTO(Undergoes undergoes) {
-		return new UndergoesDTO(undergoes.getPatient().getSsn(), undergoes.getProcedures().getCode(),
-				undergoes.getStay().getStayId(), undergoes.getId().getDateUndergoes(),
+		return new UndergoesDTO(
+				undergoes.getPatient().getSsn(),
+				undergoes.getPatient().getName(),
+				undergoes.getProcedures().getCode(),
+				undergoes.getProcedures().getName(),
+				undergoes.getStay().getStayId(),
+				undergoes.getId().getDateUndergoes(),
 				undergoes.getPhysician().getEmployeeId(),
-				undergoes.getAssistingNurse() != null ? undergoes.getAssistingNurse().getEmployeeId() : null);
+				undergoes.getPhysician().getName(),
+				undergoes.getAssistingNurse() != null ? undergoes.getAssistingNurse().getEmployeeId() : null,
+				undergoes.getAssistingNurse() != null ? undergoes.getAssistingNurse().getName() : null
+		);
 	}
 
 	@GetMapping("/undergoes")
@@ -187,9 +195,18 @@ public class UndergoesController {
 
 		Undergoes saved = undergoesService.saveUndergoes(undergoes);
 
-		UndergoesDTO response = new UndergoesDTO(saved.getPatient().getSsn(), saved.getProcedures().getCode(),
-				saved.getStay().getStayId(), saved.getId().getDateUndergoes(), saved.getPhysician().getEmployeeId(),
-				saved.getAssistingNurse() != null ? saved.getAssistingNurse().getEmployeeId() : null);
+		UndergoesDTO response = new UndergoesDTO(
+				saved.getPatient().getSsn(),
+				saved.getPatient().getName(),
+				saved.getProcedures().getCode(),
+				saved.getProcedures().getName(),
+				saved.getStay().getStayId(),
+				saved.getId().getDateUndergoes(),
+				saved.getPhysician().getEmployeeId(),
+				saved.getPhysician().getName(),
+				saved.getAssistingNurse() != null ? saved.getAssistingNurse().getEmployeeId() : null,
+				saved.getAssistingNurse() != null ? saved.getAssistingNurse().getName() : null
+		);
 
 		return ResponseEntity.ok(response);
 	}

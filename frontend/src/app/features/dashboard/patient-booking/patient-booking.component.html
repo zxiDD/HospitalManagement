@@ -1,0 +1,74 @@
+<section class="page">
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">Appointments</span>
+      <h1>Book an Appointment</h1>
+      <p>Schedule a 30-minute consultation with one of our physicians.</p>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <article class="panel">
+      <h2>Appointment Details</h2>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-grid">
+          <label>
+            Select Physician
+            <select formControlName="physicianId" (change)="fetchAvailability()">
+              <option value="" disabled selected>-- Choose a Doctor --</option>
+              <option *ngFor="let doc of physicians()" [value]="doc.employeeId">
+                Dr. {{ doc.name }} ({{ doc.position }})
+              </option>
+            </select>
+          </label>
+
+          <label>
+            Date
+            <input type="date" formControlName="date" [min]="minDate()" (change)="fetchAvailability()" />
+          </label>
+        </div>
+
+        <!-- Time Slots Grid -->
+        <div *ngIf="showSlots()" style="margin-top: 1.5rem;">
+          <h3 style="margin-bottom: 0.75rem; font-size: 1rem;">Available Times</h3>
+          
+          <div *ngIf="fetchingSlots()" class="skeleton skeleton-row" style="height: 100px;"></div>
+          
+          <div *ngIf="!fetchingSlots()" class="slots-grid">
+            <button 
+              type="button"
+              *ngFor="let slot of slots()" 
+              class="slot-btn" 
+              [class.available]="slot.available"
+              [class.disabled]="!slot.available"
+              [class.selected]="slot.selected"
+              [disabled]="!slot.available"
+              (click)="selectSlot(slot)"
+            >
+              {{ slot.time | date:'shortTime' }}
+            </button>
+          </div>
+          <p *ngIf="!fetchingSlots() && !hasAvailableSlots()" style="color: var(--color-danger); font-size: 0.9rem; margin-top: 0.5rem;">
+            No available times for this date. Please select another date.
+          </p>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <button class="button primary" type="submit" [disabled]="form.invalid || loading() || !selectedSlot()">
+            {{ loading() ? 'Booking...' : 'Confirm Booking' }}
+          </button>
+        </div>
+      </form>
+    </article>
+
+    <article class="panel">
+      <h2>Important Information</h2>
+      <ul style="color: var(--color-text-secondary); font-size: 0.9rem; padding-left: 1.25rem; line-height: 1.6;">
+        <li>All appointments are scheduled for <strong>30 minutes</strong> between 09:00 AM and 05:00 PM.</li>
+        <li>Please arrive 10 minutes prior to your scheduled time.</li>
+        <li>Your examination room will be assigned upon arrival at the reception.</li>
+        <li>If you need to cancel, please contact the hospital directly or manage it in your appointments tab.</li>
+      </ul>
+    </article>
+  </div>
+</section>

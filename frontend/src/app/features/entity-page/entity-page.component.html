@@ -1,0 +1,128 @@
+<!-- Confirm Delete Modal -->
+<div class="modal-overlay" *ngIf="deleteModalTarget()">
+  <div class="modal-box">
+    <h3>Delete record?</h3>
+    <p>Are you sure you want to delete this record? This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="button ghost" (click)="deleteModalTarget.set(null)">Cancel</button>
+      <button class="button danger" (click)="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create form sliding panel (visible if auth.isAdmin and showCreateForm) -->
+<section class="panel" *ngIf="showCreateForm() && config() as cfg">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2>Add {{ cfg.title }}</h2>
+    <button class="button icon-btn ghost" (click)="showCreateForm.set(false)">✕</button>
+  </div>
+  <form [formGroup]="form" (ngSubmit)="create(cfg)">
+    <div class="form-grid">
+      <label *ngFor="let field of cfg.createFields">
+        {{ field.label }}
+        <input *ngIf="field.type !== 'boolean'" [type]="inputType(field)" [formControlName]="field.key" />
+        <select *ngIf="field.type === 'boolean'" [formControlName]="field.key">
+          <option [ngValue]="false">False</option>
+          <option [ngValue]="true">True</option>
+        </select>
+      </label>
+    </div>
+    <button class="button primary" type="submit" [disabled]="form.invalid || loading()">
+      {{ loading() ? 'Creating...' : 'Create' }}
+    </button>
+  </form>
+</section>
+
+<section class="page" *ngIf="config() as cfg">
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">{{ entityName() | titlecase }}</span>
+      <h1>{{ cfg.title }}</h1>
+      <p>{{ cfg.description }}</p>
+    </div>
+    <div style="display:flex;gap:0.5rem;">
+      <button class="button ghost" type="button" (click)="load()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        Refresh
+      </button>
+      <button class="button primary" *ngIf="canCreate(cfg) && !showCreateForm()" (click)="showCreateForm.set(true)">
+        + Add New
+      </button>
+    </div>
+  </div>
+
+  <section class="panel compact" *ngIf="cfg.filters?.length">
+    <div class="filter-row">
+      <button class="button ghost tiny" type="button" *ngFor="let filter of cfg.filters" (click)="runFilter(filter)">
+        {{ filter.label }}
+      </button>
+      <button class="button ghost tiny" type="button" (click)="load()">Clear</button>
+    </div>
+    <div class="form-grid" *ngIf="activeFilterFields().length">
+      <label *ngFor="let field of activeFilterFields()">
+        {{ field.label }}
+        <input
+          *ngIf="field.type !== 'boolean'"
+          [(ngModel)]="filterValues[field.key]"
+          [type]="inputType(field)"
+        />
+        <select *ngIf="field.type === 'boolean'" [(ngModel)]="filterValues[field.key]">
+          <option [ngValue]="false">False</option>
+          <option [ngValue]="true">True</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="table-head">
+      <h2>{{ rows().length }} records</h2>
+    </div>
+
+    <div class="responsive-table">
+      <table>
+        <thead>
+          <tr>
+            <th *ngFor="let col of cfg.columns">{{ col.label }}</th>
+            <th *ngIf="hasActions(cfg)">Actions</th>
+          </tr>
+        </thead>
+        <tbody *ngIf="!loading()">
+          <tr *ngFor="let row of rows()">
+            <td *ngFor="let col of cfg.columns">
+              <span [class.badge]="col.type === 'boolean' || isExpired(col, row)" [class.success]="col.type === 'boolean' && row[col.key]" [class.danger]="isExpired(col, row)">
+                {{ display(row, col) }}
+              </span>
+            </td>
+            <td *ngIf="hasActions(cfg)">
+              <div style="display:flex;gap:0.35rem;">
+                <button class="button icon-btn ghost" title="Save changes (auto-detect)" type="button" *ngIf="cfg.updatePath && auth.isAdmin()" (click)="edit(row, cfg)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                </button>
+                <button class="button icon-btn danger" title="Delete" type="button" *ngIf="cfg.deletePath && auth.isAdmin()" (click)="requestDelete(row, cfg)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                </button>
+                <button class="button tiny ghost" type="button" *ngFor="let action of cfg.rowActions" [hidden]="action.adminOnly && !auth.isAdmin()" (click)="runAction(action, row)">
+                  {{ action.label }}
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="!rows().length">
+            <td [attr.colspan]="cfg.columns.length + 1" class="empty-state">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 0.5rem;display:block;opacity:0.5;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              No records found.
+            </td>
+          </tr>
+        </tbody>
+        <tbody *ngIf="loading()">
+          <tr *ngFor="let i of [1,2,3,4,5]">
+            <td [attr.colspan]="cfg.columns.length + 1">
+              <div class="skeleton skeleton-row"></div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
