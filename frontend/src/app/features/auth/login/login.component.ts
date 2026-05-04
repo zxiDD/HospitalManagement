@@ -57,10 +57,43 @@ export class LoginComponent {
     private auth: AuthService,
     private router: Router,
   ) {}
-onLogin() {
-  if (!this.username || !this.password) {
-    this.errorMessage = 'Please enter username and password';
-    return;
+
+  onLogin() {
+    if (!this.username || !this.password) {
+      this.errorMessage = 'Please enter username and password';
+      return;
+    }
+
+    const data = {
+      username: this.username,
+      password: this.password,
+    };
+
+    this.auth.login(data).subscribe({
+      next: (res: any) => {
+        console.log('Login success:', res);
+
+        const token = res.token;
+        this.auth.storeUserData(res);
+
+        if (res.roles.includes('ROLE_ADMIN')) {
+          this.router.navigate(['/admin-dashboard']);
+        } else if (res.roles.includes('ROLE_PATIENT')) {
+          this.router.navigate(['/patient/patient-dashboard']);
+        }
+      },
+      error: (err) => {
+        console.log('Login error:', err);
+
+        if (err.status === 401) {
+          this.errorMessage = 'Invalid username or password';
+        } else if (err.status === 0) {
+          this.errorMessage = 'Server not reachable';
+        } else {
+          this.errorMessage = 'Something went wrong';
+        }
+      },
+    });
   }
 
   const data = {

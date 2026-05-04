@@ -17,37 +17,44 @@ import { AppointmentReportComponent } from './features/reports/appointment-repor
 import { PatientReportComponent } from './features/reports/patient-report/patient-report.component';
 import { PatientDashboardComponent } from './features/patient-dashboard/patient-dashboard.component';
 
-export const routes: Routes = [
+import { PatientLayoutComponent } from './shared/layout/patient-layout/patient-layout.component';
 
+export const routes: Routes = [
   // 🌐 PUBLIC
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: LandingComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
 
-  // 🔐 ADMIN LAYOUT
+  // 🔐 ADMIN
   {
     path: '',
     component: MainLayoutComponent,
     children: [
-
       { path: 'dashboard', component: DashboardComponent },
       { path: 'patients', component: PatientComponent },
       { path: 'doctors', component: PhysicianComponent },
       { path: 'appointments', component: AppointmentComponent },
-
-      // ✅ NEW ROUTES
       { path: 'rooms', component: RoomsComponent },
       { path: 'medications', component: MedicationsComponent },
       { path: 'appointment-report', component: AppointmentReportComponent },
       { path: 'patient-report', component: PatientReportComponent },
-      { path: 'patient-dashboard', component: PatientDashboardComponent }
+    ],
+  },
 
-
-    ]
+  // 👤 PATIENT (NEW STRUCTURE)
+  {
+    path: 'patient',
+    component: PatientLayoutComponent,
+    children: [
+      { path: 'patient-dashboard', component: PatientDashboardComponent },
+      { path: 'appointments', component: AppointmentComponent },
+      { path: 'stay', component: RoomsComponent },
+      { path: 'medications', component: MedicationsComponent },
+      // { path: 'profile', component: PatientProfileComponent }
+    ],
   },
 
   // ❗ fallback
-  { path: '**', redirectTo: 'dashboard' }
-
+  { path: '**', redirectTo: 'dashboard' },
 ];

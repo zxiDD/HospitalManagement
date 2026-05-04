@@ -3,48 +3,23 @@
   <h4 class="logo">🏥 HMS</h4>
 
   <ul>
+    <ng-container *ngFor="let item of menuItems">
 
-    <!-- Dashboard -->
-    <li routerLink="/dashboard"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }">
-      <i class="bi bi-speedometer2"></i> Dashboard
-    </li>
+      <!-- Section -->
+      <p *ngIf="item.section" class="section">
+        {{ item.section }}
+      </p>
 
-    <!-- MANAGEMENT -->
-    <p class="section">MANAGEMENT</p>
+      <!-- Menu Item -->
+      <li *ngIf="!item.section" [routerLink]="item.route" routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.exact || false }">
 
-    <li routerLink="/patients" routerLinkActive="active">
-      <i class="bi bi-people"></i> Patients
-    </li>
+        <i class="bi" [ngClass]="item.icon"></i>
+        {{ item.label }}
 
-    <li routerLink="/doctors" routerLinkActive="active">
-      <i class="bi bi-person-badge"></i> Physicians
-    </li>
+      </li>
 
-    <li routerLink="/appointments" routerLinkActive="active">
-      <i class="bi bi-calendar"></i> Appointments
-    </li>
-
-    <li routerLink="/rooms" routerLinkActive="active">
-      <i class="bi bi-door-open"></i> Rooms
-    </li>
-
-    <li routerLink="/medications" routerLinkActive="active">
-      <i class="bi bi-capsule"></i> Medications
-    </li>
-
-    <!-- REPORTS -->
-    <p class="section">REPORTS</p>
-
-    <li routerLink="/appointment-report" routerLinkActive="active">
-      <i class="bi bi-bar-chart"></i> Appointments Report
-    </li>
-
-    <li routerLink="/patient-report" routerLinkActive="active">
-      <i class="bi bi-file-earmark-text"></i> Patients Report
-    </li>
-
+    </ng-container>
   </ul>
 
 </div>
