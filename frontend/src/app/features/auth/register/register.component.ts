@@ -14,17 +14,27 @@ export class RegisterComponent {
 
   username = '';
   password = '';
-  role = 'USER';
+  patientName = '';
+  phoneNo = '';
+  address = '';
+  ssn: number | null = null;
+  insuranceId: number | null = null;
+
   message = '';
   showPassword = false;
 
   constructor(private auth: AuthService, private router: Router) {}
 
   onRegister() {
+
     const data = {
       username: this.username,
       password: this.password,
-      role: this.role
+      patientName: this.patientName,
+      phoneNo: this.phoneNo,
+      address: this.address,
+      ssn: this.ssn,
+      insuranceId: this.insuranceId
     };
 
     this.auth.register(data).subscribe({
