@@ -1,1 +1,89 @@
-<p>appointment works!</p>
+<div class="card p-3">
+
+  <!-- 🔹 Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Appointments</h4>
+
+    <button class="btn btn-primary">
+      <i class="bi bi-plus"></i> Add Appointment
+    </button>
+  </div>
+
+  <!-- 🔹 Breadcrumb + Search -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+
+    <div>
+      <span class="text-muted">Dashboard / </span>
+      <span class="fw-bold">Appointments</span>
+    </div>
+
+    <input
+      type="text"
+      class="form-control w-25"
+      placeholder="Search appointment..."
+      [(ngModel)]="searchText"
+    />
+
+  </div>
+
+  <!-- 🔹 Table -->
+  <div class="table-responsive">
+
+    <table class="table table-hover align-middle">
+
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Patient</th>
+          <th>Physician</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let a of filteredAppointments(); let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ a.patient }}</td>
+          <td>{{ a.doctor }}</td>
+          <td>{{ a.date }}</td>
+
+          <td>
+            <span class="badge"
+                  [ngClass]="{
+                    'bg-success': a.status === 'Active',
+                    'bg-danger': a.status === 'Cancelled'
+                  }">
+              {{ a.status || 'Active' }}
+            </span>
+          </td>
+
+          <td class="text-center">
+
+            <button class="btn btn-warning btn-sm me-2">
+              <i class="bi bi-pencil"></i>
+            </button>
+
+            <button class="btn btn-danger btn-sm">
+              <i class="bi bi-trash"></i>
+            </button>
+
+          </td>
+        </tr>
+
+        <!-- 🔹 Empty State -->
+        <tr *ngIf="filteredAppointments().length === 0">
+          <td colspan="6" class="text-center text-muted">
+            No appointments found
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
