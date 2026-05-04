@@ -18,6 +18,7 @@ import { PatientReportComponent } from './features/reports/patient-report/patien
 import { PatientDashboardComponent } from './features/patient-dashboard/patient-dashboard.component';
 
 import { PatientLayoutComponent } from './shared/layout/patient-layout/patient-layout.component';
+import { ContactComponent } from './features/contact/contact.component';
 
 export const routes: Routes = [
   // 🌐 PUBLIC
@@ -25,6 +26,7 @@ export const routes: Routes = [
   { path: 'home', component: LandingComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'contact', component: ContactComponent },
 
   // 🔐 ADMIN
   {
