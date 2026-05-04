@@ -79,7 +79,7 @@ export class LoginComponent {
         if (res.roles.includes('ROLE_ADMIN')) {
           this.router.navigate(['/admin-dashboard']);
         } else if (res.roles.includes('ROLE_PATIENT')) {
-          this.router.navigate(['/patient-dashboard']);
+          this.router.navigate(['/patient/patient-dashboard']);
         }
       },
       error: (err) => {

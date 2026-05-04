@@ -28,7 +28,7 @@ export class AuthService {
   storeUserData(response: any) {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('token', response.token);
-      localStorage.setItem('userId', response.userId.toString());
+      localStorage.setItem('userId', response.userId?.toString());
       localStorage.setItem('roles', JSON.stringify(response.roles));
       localStorage.setItem('username', response.userName);
     }

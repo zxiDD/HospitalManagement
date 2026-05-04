@@ -1,270 +1,247 @@
-<div class="patient-shell" *ngIf="patient; else loading">
-  <aside class="sidebar">
-    <div class="brand">
-      <i class="bi bi-list"></i>
-      <i class="bi bi-hospital-fill brand-icon"></i>
-      <span>Hospital Management System</span>
+<div class="dashboard" *ngIf="patient; else loading">
+
+  <!-- Topbar (keep for now or move later to component) -->
+  <!-- <header class="topbar">
+    <div class="mobile-brand">
+      <i class="bi bi-hospital-fill"></i>
+      <span>HMS</span>
     </div>
 
-    <nav class="nav-menu" aria-label="Patient navigation">
-      <a class="nav-link active"><i class="bi bi-house-door-fill"></i>Dashboard</a>
-      <a class="nav-link"><i class="bi bi-calendar2-week-fill"></i>Appointments</a>
-      <a class="nav-link"><i class="bi bi-hospital-fill"></i>My Stay</a>
-      <a class="nav-link"><i class="bi bi-capsule-pill"></i>Medications</a>
-      <a class="nav-link"><i class="bi bi-person-fill"></i>Profile</a>
-    </nav>
+    <button class="menu-btn">
+      <i class="bi bi-list"></i>
+    </button>
 
-    <a class="logout" (click)="logout()">
-      <i class="bi bi-box-arrow-right"></i>Logout
-    </a>
-  </aside>
+    <div class="user-chip">
+      <span class="avatar">
+        <i class="bi bi-person-fill"></i>
+      </span>
+      <strong>{{ patient?.name }}</strong>
+    </div>
+  </header> -->
 
-  <main class="dashboard">
-    <header class="topbar">
-      <div class="mobile-brand">
-        <i class="bi bi-hospital-fill"></i>
-        <span>HMS</span>
-      </div>
+  <!-- Welcome -->
+  <section class="welcome">
+    <h1>
+      Welcome back, {{ patient?.name }}!
+      <span>👋</span>
+    </h1>
+    <p>Here's your health overview</p>
+  </section>
 
-      <button class="menu-btn">
-        <i class="bi bi-list"></i>
-      </button>
+  <!-- Summary Cards -->
+  <section class="summary-grid">
 
-      <div class="user-chip">
-        <span class="avatar">
-          <i class="bi bi-person-fill"></i>
-        </span>
-        <strong>{{ patient?.name }}</strong>
-      </div>
-    </header>
+    <article class="summary-card">
+      <span class="icon blue">
+        <i class="bi bi-calendar2-week-fill"></i>
+      </span>
+      <div>
+        <p>Next Appointment</p>
 
-    <section class="welcome">
-      <h1>
-        Welcome back, {{ patient?.name }}!
-        <span>👋</span>
-      </h1>
-      <p>Here's your health overview</p>
-    </section>
+        <ng-container *ngIf="appointments.length > 0; else noAppointments">
+          <h2>{{ appointments[0]?.starto | date:'dd MMM, hh:mm a' }}</h2>
+          <small>with {{ appointments[0]?.physicianName }}</small>
+        </ng-container>
 
-    <!-- Summary Cards -->
-    <section class="summary-grid">
-
-      <!-- Next Appointment -->
-      <article class="summary-card">
-        <span class="icon blue">
-          <i class="bi bi-calendar2-week-fill"></i>
-        </span>
-        <div>
-          <p>Next Appointment</p>
-
-          <ng-container *ngIf="appointments.length > 0; else noAppointments">
-            <h2>{{ appointments[0]?.starto | date:'dd MMM, hh:mm a' }}</h2>
-            <small>with {{ appointments[0]?.physicianName }}</small>
-          </ng-container>
-
-          <ng-template #noAppointments>
-            <h2>No Upcoming</h2>
-            <small>No appointments scheduled</small>
-          </ng-template>
-        </div>
-      </article>
-
-      <!-- Current Stay -->
-      <article class="summary-card">
-        <span class="icon green">
-          <i class="bi bi-hospital-fill"></i>
-        </span>
-        <div>
-          <p>Current Stay</p>
-
-          <ng-container *ngIf="stayDetails; else noStay">
-            <h2>Room {{ stayDetails?.roomNumber }}</h2>
-            <small>{{ stayDetails?.roomType }}</small>
-          </ng-container>
-
-          <ng-template #noStay>
-            <h2>No Active Stay</h2>
-            <small>Not currently admitted</small>
-          </ng-template>
-        </div>
-      </article>
-
-      <!-- Medications -->
-      <article class="summary-card">
-        <span class="icon purple">
-          <i class="bi bi-capsule-pill"></i>
-        </span>
-        <div>
-          <p>Active Medications</p>
-          <h2>{{ medications.length }}</h2>
-          <small>Prescribed</small>
-        </div>
-      </article>
-
-      <!-- Assigned Doctor -->
-      <article class="summary-card">
-        <span class="icon amber">
-          <i class="bi bi-person-badge-fill"></i>
-        </span>
-        <div>
-          <p>Assigned Doctor</p>
-          <h2>{{ patient?.physicianName || 'Not Assigned' }}</h2>
-          <small>{{ patient?.department || 'N/A' }}</small>
-        </div>
-      </article>
-
-    </section>
-
-    <!-- Main Content -->
-    <section class="content-grid">
-
-      <!-- Upcoming Appointments -->
-      <article class="panel appointments">
-        <div class="panel-head">
-          <h3>
-            <span class="mini-icon blue">
-              <i class="bi bi-calendar2-week-fill"></i>
-            </span>
-            Upcoming Appointments
-          </h3>
-        </div>
-
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Doctor</th>
-                <th>Date & Time</th>
-                <th>Room</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr *ngFor="let appt of appointments">
-                <td>{{ appt.physicianName }}</td>
-                <td>{{ appt.starto | date:'dd MMM yyyy, hh:mm a' }}</td>
-                <td>{{ appt.examinationRoom }}</td>
-                <td>
-                  <span class="status blue-status">
-                    {{ appt.status }}
-                  </span>
-                </td>
-              </tr>
-
-              <tr *ngIf="appointments.length === 0">
-                <td colspan="4">No upcoming appointments</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </article>
-
-      <!-- Stay Details -->
-      <article class="panel stay">
-        <div class="panel-head simple">
-          <h3>
-            <span class="mini-icon green">
-              <i class="bi bi-hospital-fill"></i>
-            </span>
-            Current Stay Details
-          </h3>
-        </div>
-
-        <div *ngIf="stayDetails; else noStayPanel">
-          <dl class="details">
-            <div>
-              <dt>Room Number</dt>
-              <dd>{{ stayDetails?.roomNumber }}</dd>
-            </div>
-
-            <div>
-              <dt>Room Type</dt>
-              <dd>{{ stayDetails?.roomType }}</dd>
-            </div>
-
-            <div>
-              <dt>Admitted On</dt>
-              <dd>{{ stayDetails?.startDate | date:'dd MMM yyyy' }}</dd>
-            </div>
-
-            <div>
-              <dt>Status</dt>
-              <dd>
-                <span class="status green-status">
-                  {{ stayDetails?.status }}
-                </span>
-              </dd>
-            </div>
-          </dl>
-        </div>
-
-        <ng-template #noStayPanel>
-          <p>No active hospital stay</p>
+        <ng-template #noAppointments>
+          <h2>No Upcoming</h2>
+          <small>No appointments scheduled</small>
         </ng-template>
-      </article>
+      </div>
+    </article>
 
-      <!-- Medications -->
-      <article class="panel">
-        <div class="panel-head">
-          <h3>
-            <span class="mini-icon purple">
-              <i class="bi bi-capsule-pill"></i>
-            </span>
-            Prescribed Medications
-          </h3>
-        </div>
+    <article class="summary-card">
+      <span class="icon green">
+        <i class="bi bi-hospital-fill"></i>
+      </span>
+      <div>
+        <p>Current Stay</p>
 
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Medication Name</th>
-                <th>Brand</th>
-                <th>Description</th>
-              </tr>
-            </thead>
+        <ng-container *ngIf="stayDetails; else noStay">
+          <h2>Room {{ stayDetails?.roomNumber }}</h2>
+          <small>{{ stayDetails?.roomType }}</small>
+        </ng-container>
 
-            <tbody>
-              <tr *ngFor="let med of medications">
-                <td>{{ med.name }}</td>
-                <td>{{ med.brand }}</td>
-                <td>{{ med.description }}</td>
-              </tr>
+        <ng-template #noStay>
+          <h2>No Active Stay</h2>
+          <small>Not currently admitted</small>
+        </ng-template>
+      </div>
+    </article>
 
-              <tr *ngIf="medications.length === 0">
-                <td colspan="3">No active medications</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </article>
+    <article class="summary-card">
+      <span class="icon purple">
+        <i class="bi bi-capsule-pill"></i>
+      </span>
+      <div>
+        <p>Active Medications</p>
+        <h2>{{ medications.length }}</h2>
+        <small>Prescribed</small>
+      </div>
+    </article>
 
-      <!-- Recent Activity -->
-      <article class="panel activity">
-        <div class="panel-head simple">
-          <h3>
-            <span class="mini-icon blue">
-              <i class="bi bi-list-ul"></i>
-            </span>
-            Recent Activity
-          </h3>
-        </div>
+    <article class="summary-card">
+      <span class="icon amber">
+        <i class="bi bi-person-badge-fill"></i>
+      </span>
+      <div>
+        <p>Assigned Doctor</p>
+        <h2>{{ patient?.physicianName || 'Not Assigned' }}</h2>
+        <small>{{ patient?.department || 'N/A' }}</small>
+      </div>
+    </article>
 
-        <ol class="timeline">
-          <li *ngFor="let activity of activities">
-            <span>{{ activity.description }}</span>
-            <time>{{ activity.date | date:'dd MMM yyyy' }}</time>
-          </li>
+  </section>
 
-          <li *ngIf="activities.length === 0">
-            <span>No recent activity</span>
-          </li>
-        </ol>
-      </article>
+  <!-- Main Content -->
+  <section class="content-grid">
 
-    </section>
-  </main>
+    <!-- Appointments -->
+    <article class="panel appointments">
+      <div class="panel-head">
+        <h3>
+          <span class="mini-icon blue">
+            <i class="bi bi-calendar2-week-fill"></i>
+          </span>
+          Upcoming Appointments
+        </h3>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Doctor</th>
+              <th>Date & Time</th>
+              <th>Room</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let appt of appointments">
+              <td>{{ appt.physicianName }}</td>
+              <td>{{ appt.starto | date:'dd MMM yyyy, hh:mm a' }}</td>
+              <td>{{ appt.examinationRoom }}</td>
+              <td>
+                <span class="status blue-status">
+                  {{ appt.status }}
+                </span>
+              </td>
+            </tr>
+
+            <tr *ngIf="appointments.length === 0">
+              <td colspan="4">No upcoming appointments</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <!-- Stay -->
+    <article class="panel stay">
+      <div class="panel-head simple">
+        <h3>
+          <span class="mini-icon green">
+            <i class="bi bi-hospital-fill"></i>
+          </span>
+          Current Stay Details
+        </h3>
+      </div>
+
+      <div *ngIf="stayDetails; else noStayPanel">
+        <dl class="details">
+          <div>
+            <dt>Room Number</dt>
+            <dd>{{ stayDetails?.roomNumber }}</dd>
+          </div>
+
+          <div>
+            <dt>Room Type</dt>
+            <dd>{{ stayDetails?.roomType }}</dd>
+          </div>
+
+          <div>
+            <dt>Admitted On</dt>
+            <dd>{{ stayDetails?.startDate | date:'dd MMM yyyy' }}</dd>
+          </div>
+
+          <div>
+            <dt>Status</dt>
+            <dd>
+              <span class="status green-status">
+                {{ stayDetails?.status }}
+              </span>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <ng-template #noStayPanel>
+        <p>No active hospital stay</p>
+      </ng-template>
+    </article>
+
+    <!-- Medications -->
+    <article class="panel">
+      <div class="panel-head">
+        <h3>
+          <span class="mini-icon purple">
+            <i class="bi bi-capsule-pill"></i>
+          </span>
+          Prescribed Medications
+        </h3>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Medication Name</th>
+              <th>Brand</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let med of medications">
+              <td>{{ med.name }}</td>
+              <td>{{ med.brand }}</td>
+              <td>{{ med.description }}</td>
+            </tr>
+
+            <tr *ngIf="medications.length === 0">
+              <td colspan="3">No active medications</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <!-- Activity -->
+    <article class="panel activity">
+      <div class="panel-head simple">
+        <h3>
+          <span class="mini-icon blue">
+            <i class="bi bi-list-ul"></i>
+          </span>
+          Recent Activity
+        </h3>
+      </div>
+
+      <ol class="timeline">
+        <li *ngFor="let activity of activities">
+          <span>{{ activity.description }}</span>
+          <time>{{ activity.date | date:'dd MMM yyyy' }}</time>
+        </li>
+
+        <li *ngIf="activities.length === 0">
+          <span>No recent activity</span>
+        </li>
+      </ol>
+    </article>
+
+  </section>
 </div>
 
 <ng-template #loading>
