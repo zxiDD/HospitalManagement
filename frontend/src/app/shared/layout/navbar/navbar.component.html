@@ -1,9 +1,17 @@
 <div class="topbar">
 
-  <h5>🏥 Hospital Management System</h5>
+  <h5>Hospital Management System</h5>
 
-  <div>
-    <i class="bi bi-person-circle"></i> Admin User
+  <div class="user" (click)="toggleDropdown()">
+    <i class="bi bi-person-circle"></i>
+    Admin User
+    <i class="bi bi-caret-down-fill"></i>
+
+    <!-- 🔥 Dropdown -->
+    <div class="dropdown" *ngIf="isOpen">
+      <div (click)="logout()">Logout</div>
+    </div>
+
   </div>
 
 </div>

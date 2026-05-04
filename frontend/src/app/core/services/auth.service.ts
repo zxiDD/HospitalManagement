@@ -74,11 +74,14 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  logout() {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.clear();
-    }
-
-    this.router.navigate(['/login']);
+logout() {
+  if (isPlatformBrowser(this.platformId)) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('roles');
+    localStorage.removeItem('username');
   }
+
+  this.router.navigate(['/login']);
+}
 }
