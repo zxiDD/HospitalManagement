@@ -15,12 +15,15 @@ public class AppointmentDTO {
 	@NotNull(message = "Patient ID is required")
 	@Min(value = 1, message = "Patient ID must be positive")
 	private Integer patientId;
+	private String patientName;
 
 	@NotNull(message = "Physician ID is required")
 	@Min(value = 1, message = "Physician ID must be positive")
 	private Integer physicianId;
+	private String physicianName;
 
 	private Integer nurseId;
+	private String nurseName;
 
 	@NotNull(message = "Start time is required")
 	@FutureOrPresent(message = "Start time must be present or future")
@@ -37,13 +40,16 @@ public class AppointmentDTO {
 	public AppointmentDTO() {
 	}
 
-	public AppointmentDTO(Integer appointmentID, Integer patientId, Integer physicianId, Integer nurseId,
+	public AppointmentDTO(Integer appointmentID, Integer patientId, String patientName, Integer physicianId, String physicianName, Integer nurseId, String nurseName,
 			LocalDateTime starto, LocalDateTime endo, String examinationRoom) {
 		super();
 		this.appointmentID = appointmentID;
 		this.patientId = patientId;
+		this.patientName = patientName;
 		this.physicianId = physicianId;
+		this.physicianName = physicianName;
 		this.nurseId = nurseId;
+		this.nurseName = nurseName;
 		this.starto = starto;
 		this.endo = endo;
 		this.examinationRoom = examinationRoom;
@@ -65,6 +71,14 @@ public class AppointmentDTO {
 		this.patientId = patientId;
 	}
 
+	public String getPatientName() {
+		return patientName;
+	}
+
+	public void setPatientName(String patientName) {
+		this.patientName = patientName;
+	}
+
 	public Integer getPhysicianId() {
 		return physicianId;
 	}
@@ -73,12 +87,28 @@ public class AppointmentDTO {
 		this.physicianId = physicianId;
 	}
 
+	public String getPhysicianName() {
+		return physicianName;
+	}
+
+	public void setPhysicianName(String physicianName) {
+		this.physicianName = physicianName;
+	}
+
 	public Integer getNurseId() {
 		return nurseId;
 	}
 
 	public void setNurseId(Integer nurseId) {
 		this.nurseId = nurseId;
+	}
+
+	public String getNurseName() {
+		return nurseName;
+	}
+
+	public void setNurseName(String nurseName) {
+		this.nurseName = nurseName;
 	}
 
 	public LocalDateTime getStarto() {

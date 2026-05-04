@@ -52,16 +52,24 @@ public class AppointmentController {
 		if (a == null)
 			return null;
 
-		return new AppointmentDTO(a.getAppointmentID(),
+		return new AppointmentDTO(
+				a.getAppointmentID(),
 				a.getPatient() != null ? a.getPatient().getSsn().intValue() : null,
+				a.getPatient() != null ? a.getPatient().getName() : null,
 				a.getPhysician() != null ? a.getPhysician().getEmployeeId() : null,
-				a.getPrepNurse() != null ? a.getPrepNurse().getEmployeeId() : null, a.getStarto(), a.getEndo(),
-				a.getExaminationRoom());
+				a.getPhysician() != null ? a.getPhysician().getName() : null,
+				a.getPrepNurse() != null ? a.getPrepNurse().getEmployeeId() : null,
+				a.getPrepNurse() != null ? a.getPrepNurse().getName() : null,
+				a.getStarto(),
+				a.getEndo(),
+				a.getExaminationRoom()
+		);
 	}
 
 	private PatientDTO convertToDTO(Patient p) {
 		return new PatientDTO(p.getSsn(), p.getName(), p.getAddress(), p.getPhone(), p.getInsuranceId(),
-				p.getPhysician() != null ? p.getPhysician().getEmployeeId() : null);
+				p.getPhysician() != null ? p.getPhysician().getEmployeeId() : null,
+				p.getPhysician() != null ? p.getPhysician().getName() : null);
 	}
 
 	@GetMapping("/appointments")
@@ -165,6 +173,25 @@ public class AppointmentController {
 
 		Appointment updated = service.assignPrepNurse(appointmentId, nurseId);
 		return ResponseEntity.ok(convertToDTO(updated));
+	}
+
+	@PatchMapping("/admin/appointments/{id}/assign")
+	public ResponseEntity<AppointmentDTO> assignRoomAndNurse(@PathVariable Integer id,
+			@org.springframework.web.bind.annotation.RequestParam(required = false) String room,
+			@org.springframework.web.bind.annotation.RequestParam(required = false) Integer nurseId) {
+
+		Appointment appointment = service.getAppointmentById(id);
+		
+		if (room != null && !room.isBlank()) {
+			appointment.setExaminationRoom(room);
+			appointment = service.save(appointment);
+		}
+		
+		if (nurseId != null) {
+			appointment = service.assignPrepNurse(id, nurseId);
+		}
+
+		return ResponseEntity.ok(convertToDTO(appointment));
 	}
 
 }

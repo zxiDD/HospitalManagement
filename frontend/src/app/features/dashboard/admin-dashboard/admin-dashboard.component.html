@@ -1,0 +1,65 @@
+<section class="page">
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">Admin overview</span>
+      <h1>Hospital Dashboard</h1>
+      <p>Real-time overview of hospital operations and activity</p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-grid" *ngIf="stats().length; else statsSkeleton">
+    <article class="stat-card" *ngFor="let stat of stats()">
+      <div class="stat-icon" [class]="stat.color">
+        <span [innerHTML]="stat.icon"></span>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">{{ stat.label }}</span>
+        <strong class="stat-value">{{ stat.value | number }}</strong>
+        <div class="stat-hint">{{ stat.hint }}</div>
+      </div>
+    </article>
+  </div>
+  <ng-template #statsSkeleton>
+    <div class="stat-grid">
+      <div class="skeleton skeleton-card" *ngFor="let i of [1,2,3,4,5,6]"></div>
+    </div>
+  </ng-template>
+
+  <!-- Quick Actions -->
+  <section class="panel">
+    <h2>Quick Actions</h2>
+    <div class="quick-grid">
+      <a class="quick-link" routerLink="/patients">
+        <span class="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6 5.87v-2a4 4 0 00-3-3.87m3 5.87v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg></span>
+        Manage Patients
+      </a>
+      <a class="quick-link" routerLink="/appointments">
+        <span class="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg></span>
+        Book Appointment
+      </a>
+      <a class="quick-link" routerLink="/stays">
+        <span class="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+        Create Stay
+      </a>
+      <a class="quick-link" routerLink="/oncall">
+        <span class="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg></span>
+        Assign On-Call
+      </a>
+    </div>
+  </section>
+
+  <!-- Recent appointments -->
+  <section class="panel" *ngIf="recentAppointments().length">
+    <h2>Recent Appointments</h2>
+    <div class="activity-list">
+      <div class="activity-item" *ngFor="let appt of recentAppointments()">
+        <span class="activity-dot"></span>
+        <span class="activity-text">
+          Appointment #{{ appt.appointmentID }} — Patient ID: {{ appt.patientId }} with Doctor ID: {{ appt.physicianId }} in {{ appt.examinationRoom }}
+        </span>
+        <span class="activity-time">{{ appt.starto | date:'dd MMM, HH:mm' }}</span>
+      </div>
+    </div>
+  </section>
+</section>

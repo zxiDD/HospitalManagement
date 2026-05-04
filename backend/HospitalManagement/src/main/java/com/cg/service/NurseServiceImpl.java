@@ -49,13 +49,6 @@ public class NurseServiceImpl implements NurseService {
 
     @Override
     public Nurse save(Nurse nurse) {
-
-        if (repo.existsById(nurse.getEmployeeId())) {
-            throw new BadRequestException(
-                    "Nurse already exists with id: " + nurse.getEmployeeId()
-            );
-        }
-
         return repo.save(nurse);
     }
     

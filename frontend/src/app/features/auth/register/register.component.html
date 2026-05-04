@@ -1,0 +1,59 @@
+<section class="auth-page">
+  <div class="auth-hero">
+    <div class="auth-hero-content">
+      <div class="hero-icon">📋</div>
+      <h1>Patient Registration</h1>
+      <p>Create your patient account to book appointments, view prescriptions, and access your medical dashboard.</p>
+    </div>
+  </div>
+
+  <div class="auth-form-side">
+    <form class="auth-card wide" [formGroup]="form" (ngSubmit)="submit()">
+      <div>
+        <h2>Create Account</h2>
+        <p class="subtitle">Fill in your details to register as a patient</p>
+      </div>
+
+      <div class="form-grid">
+        <label>
+          Username
+          <input id="reg-username" formControlName="username" autocomplete="username" placeholder="Choose a username" />
+        </label>
+        <label>
+          Password
+          <input id="reg-password" formControlName="password" type="password" autocomplete="new-password" placeholder="Min 4 characters" />
+        </label>
+        <label>
+          Patient Name
+          <input id="reg-name" formControlName="patientName" placeholder="Full name" />
+        </label>
+        <label>
+          Phone Number
+          <input id="reg-phone" formControlName="phoneNo" inputmode="numeric" placeholder="10-digit number" />
+        </label>
+        <label>
+          SSN
+          <input id="reg-ssn" formControlName="ssn" type="number" placeholder="Social Security Number" />
+        </label>
+        <label>
+          Insurance ID
+          <input id="reg-insurance" formControlName="insuranceId" type="number" placeholder="Insurance ID" />
+        </label>
+      </div>
+
+      <label>
+        Address
+        <textarea id="reg-address" formControlName="address" rows="2" placeholder="Full address"></textarea>
+      </label>
+
+      <p class="form-error" *ngIf="error()">{{ error() }}</p>
+      <p class="success" *ngIf="success()">{{ success() }}</p>
+
+      <button class="button primary" id="reg-submit" type="submit" [disabled]="form.invalid || loading()" style="width:100%;min-height:42px;">
+        {{ loading() ? 'Creating account...' : 'Register' }}
+      </button>
+
+      <p class="muted" style="text-align:center;">Already registered? <a routerLink="/login">Back to login</a></p>
+    </form>
+  </div>
+</section>

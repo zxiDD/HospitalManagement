@@ -78,7 +78,6 @@ public class NurseController {
 		}
 
 		Nurse n = new Nurse();
-		n.setEmployeeId(dto.getEmployeeId());
 		n.setName(dto.getName());
 		n.setPosition(dto.getPosition());
 		n.setRegistered(dto.getRegistered());

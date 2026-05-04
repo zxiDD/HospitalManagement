@@ -33,10 +33,8 @@ public class RoomController {
 	}
 
 	@PutMapping("/admin/room/{roomNumber}/unavailable")
-	public ResponseEntity<RoomDTO> markRoomUnavailable(@PathVariable Integer roomNumber) {
-
-		Room room = roomService.markRoomUnavailable(roomNumber);
-
+	public ResponseEntity<RoomDTO> toggleRoomAvailability(@PathVariable Integer roomNumber) {
+		Room room = roomService.toggleRoomAvailability(roomNumber);
 		return ResponseEntity.ok(convertToDTO(room));
 	}
 

@@ -48,10 +48,6 @@ public class OnCallServiceImpl implements OnCallService {
             throw new BadRequestException("OnCall ID cannot be null");
         }
 
-        if (repository.existsById(o.getId())) {
-            throw new DuplicateResourceException("OnCall already exists");
-        }
-
         if (o.getOnCallEnd().isBefore(o.getOnCallStart())) {
             throw new IllegalOperationException("End time cannot be before start time");
         }

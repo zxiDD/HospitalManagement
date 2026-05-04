@@ -1,0 +1,29 @@
+.page-header {
+  background: linear-gradient(to right, #f8fafc, #ffffff);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  border: 1px solid transparent;
+  background: linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
+              linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)) border-box;
+}
+
+.stat-card:hover {
+  border-color: var(--color-primary-light);
+}
+
+.activity-dot {
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.quick-link svg {
+  transition: transform 0.3s ease;
+}
+
+.quick-link:hover svg {
+  transform: scale(1.1) rotate(5deg);
+}

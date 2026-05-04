@@ -1,0 +1,42 @@
+<section class="auth-page">
+  <div class="auth-hero">
+    <div class="auth-hero-content">
+      <div class="hero-icon">🏥</div>
+      <h1>Hospital Management System</h1>
+      <p>Streamline your healthcare operations with a comprehensive management platform for patients, physicians, appointments, and clinical workflows.</p>
+    </div>
+  </div>
+
+  <div class="auth-form-side">
+    <form class="auth-card" [formGroup]="form" (ngSubmit)="submit()">
+      <div>
+        <h2>Welcome back</h2>
+        <p class="subtitle">Sign in to your account to continue</p>
+      </div>
+
+      <label>
+        Username
+        <input id="login-username" formControlName="username" autocomplete="username" placeholder="Enter your username" />
+      </label>
+
+      <label>
+        Password
+        <input id="login-password" formControlName="password" [type]="showPassword() ? 'text' : 'password'" autocomplete="current-password" placeholder="Enter your password" />
+      </label>
+
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <input type="checkbox" id="show-pwd" style="width:auto" (change)="showPassword.set(!showPassword())" />
+        <label for="show-pwd" style="font-size:0.8rem;font-weight:500;color:#64748b;">Show password</label>
+      </div>
+
+      <p class="form-error" *ngIf="error()">{{ error() }}</p>
+
+      <button class="button primary" id="login-submit" type="submit" [disabled]="form.invalid || loading()" style="width:100%;min-height:42px;">
+        <span *ngIf="loading()" style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;"></span>
+        {{ loading() ? 'Signing in...' : 'Sign In' }}
+      </button>
+
+      <p class="muted" style="text-align:center;">New patient? <a routerLink="/register">Create an account</a></p>
+    </form>
+  </div>
+</section>
